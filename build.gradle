@@ -26,18 +26,13 @@ clean {
     delete 'out'
 }
 
-task copyStaticWeb(type: Copy) {
-    from 'web'
-    into 'out'
-}
-
 task assembleWeb(type: Sync) {
     configurations.compile.each { File file ->
         from(zipTree(file.absolutePath), {
             includeEmptyDirs = false
             include { fileTreeElement ->
                 def path = fileTreeElement.path
-                path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+                path.endsWith(".js")
             }
         })
     }
@@ -45,7 +40,21 @@ task assembleWeb(type: Sync) {
     into "${projectDir}/out/js"
 
     dependsOn classes
-    dependsOn copyStaticWeb
 }
 
-assemble.dependsOn assembleWeb
+task delKjsm(type: Delete) {
+    delete fileTree('out') {
+        include '**/*.kjsm'
+    }
+
+    dependsOn assembleWeb
+}
+
+task copyStaticWeb(type: Copy) {
+    from 'web'
+    into 'out'
+
+    dependsOn delKjsm
+}
+
+assemble.dependsOn copyStaticWeb

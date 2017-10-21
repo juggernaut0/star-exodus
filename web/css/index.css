@@ -1,0 +1,26 @@
+﻿body
+{
+    background: #333;
+    color: #eee;
+}
+
+.fa.fa-check
+{
+	color: #3c3;
+}
+
+.player-list
+{
+	background: #444;
+}
+
+.fullwidth
+{
+	width: 100%;
+}
+
+#game-panel
+{
+	height: 720px;
+	background: #000;
+}
