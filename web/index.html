@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Star Exodus</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
 </head>
 <body>
-    <h1>Hello World</h1>
+    <div class="container" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
+        <h1>{{_.text}} {{_.i}}</h1>
+        <input type="button" value="Click Me" ng-click="_.increment()">
+    </div>
 
     <script src="/js/jquery-3.2.1.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
