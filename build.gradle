@@ -22,6 +22,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
 }
 
+clean {
+    delete 'out'
+}
+
 task copyStaticWeb(type: Copy) {
     from 'web'
     into 'out'
