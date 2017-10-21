@@ -22,6 +22,11 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
 }
 
+task copyStaticWeb(type: Copy) {
+    from 'web'
+    into 'out'
+}
+
 task assembleWeb(type: Sync) {
     configurations.compile.each { File file ->
         from(zipTree(file.absolutePath), {
@@ -33,9 +38,10 @@ task assembleWeb(type: Sync) {
         })
     }
     from compileKotlin2Js.destinationDir
-    into "${projectDir}/out"
+    into "${projectDir}/out/js"
 
     dependsOn classes
+    dependsOn copyStaticWeb
 }
 
 assemble.dependsOn assembleWeb
