@@ -1,6 +1,6 @@
 import ui.StarExodusController
 
-fun main(args: Array<String>) {
+fun main() {
     val app = angular.module("star-exodus", emptyArray())
     app.controller("star-exodus-controller", StarExodusController::class.js)
 }

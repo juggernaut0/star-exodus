@@ -20,10 +20,12 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 clean {
     delete 'out'
+    delete 'testOut'
 }
 
 task assembleWeb(type: Sync) {
@@ -37,24 +39,47 @@ task assembleWeb(type: Sync) {
         })
     }
     from compileKotlin2Js.destinationDir
+    include '**/*.js'
+    includeEmptyDirs false
     into "${projectDir}/out/js"
 
     dependsOn classes
-}
-
-task delKjsm(type: Delete) {
-    delete fileTree('out') {
-        include '**/*.kjsm'
-    }
-
-    dependsOn assembleWeb
 }
 
 task copyStaticWeb(type: Copy) {
     from 'web'
     into 'out'
 
-    dependsOn delKjsm
+    dependsOn assembleWeb
 }
 
 assemble.dependsOn copyStaticWeb
+
+task assembleTestWeb(type: Sync, dependsOn: testClasses) {
+    configurations.testCompile.each { File file ->
+        from(zipTree(file.absolutePath), {
+            includeEmptyDirs = false
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js")
+            }
+        })
+    }
+
+    from compileKotlin2Js.destinationDir
+    from compileTestKotlin2Js.destinationDir
+    include '**/*.js'
+    includeEmptyDirs false
+    into "${projectDir}/testOut/js"
+}
+
+task copyTestStaticWeb(type: Copy, dependsOn: assembleTestWeb) {
+    from 'web'
+    into 'testOut'
+}
+
+test.dependsOn copyTestStaticWeb
+
+/*[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+    kotlinOptions.moduleKind = "umd"
+}*/

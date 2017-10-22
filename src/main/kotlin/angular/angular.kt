@@ -1,4 +1,6 @@
-@file:JsQualifier("angular")
+//@file:JsQualifier("angular")
+@file:JsModule("angular")
+@file:JsNonModule
 package angular
 
 external fun module(name: String, deps: Array<String>): Module
