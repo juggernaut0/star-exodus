@@ -48,6 +48,7 @@ task assembleWeb(type: Sync) {
 
 task copyStaticWeb(type: Copy) {
     from 'web'
+    exclude 'test.html'
     into 'out'
 
     dependsOn assembleWeb
@@ -79,6 +80,14 @@ task copyTestStaticWeb(type: Copy, dependsOn: assembleTestWeb) {
 }
 
 test.dependsOn copyTestStaticWeb
+
+test {
+    doLast {
+        exec {
+            commandLine "phantomjs", "testRunner/runner-list.js", "testOut/test.html"
+        }
+    }
+}
 
 /*[compileKotlin2Js, compileTestKotlin2Js]*.configure {
     kotlinOptions.moduleKind = "umd"

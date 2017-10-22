@@ -1,0 +1,67 @@
+{
+  "_from": "qunit-phantomjs-runner",
+  "_id": "qunit-phantomjs-runner@2.3.0",
+  "_inBundle": false,
+  "_integrity": "sha1-JwrLGXwPL8qvBmdqsKSP1aymapk=",
+  "_location": "/qunit-phantomjs-runner",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "qunit-phantomjs-runner",
+    "name": "qunit-phantomjs-runner",
+    "escapedName": "qunit-phantomjs-runner",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/qunit-phantomjs-runner/-/qunit-phantomjs-runner-2.3.0.tgz",
+  "_shasum": "270acb197c0f2fcaaf06676ab0a48fd5aca66a99",
+  "_spec": "qunit-phantomjs-runner",
+  "_where": "/home/tom/kotlin/star-exodus",
+  "author": {
+    "name": "Jonathan Kemp",
+    "email": "kempdogg@gmail.com",
+    "url": "http://jonkemp.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/jonkemp/qunit-phantomjs-runner/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "qunit-reporter-junit": "^1.0.2"
+  },
+  "deprecated": false,
+  "description": "A PhantomJS-powered headless test runner for QUnit",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-jshint": "^2.0.0",
+    "gulp-mocha": "^2.0.0",
+    "mocha": "^2.4.5",
+    "phantomjs-prebuilt": "^2.1.7",
+    "qunitjs": "^1.23.0",
+    "xml2js": "^0.4.16"
+  },
+  "homepage": "https://github.com/jonkemp/qunit-phantomjs-runner",
+  "keywords": [
+    "qunit",
+    "phantomjs",
+    "test",
+    "testing"
+  ],
+  "license": "MIT",
+  "main": "runner.js",
+  "name": "qunit-phantomjs-runner",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonkemp/qunit-phantomjs-runner.git"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "version": "2.3.0"
+}
