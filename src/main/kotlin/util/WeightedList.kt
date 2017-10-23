@@ -1,25 +1,18 @@
 package util
 
-import kotlin.js.Math
-
-class WeightedList<T>(private val entries: Map<T, Int>) {
+class WeightedList<T>(private val entries: Map<T, Int>) : AbstractList<T>() {
     constructor() : this(emptyMap())
     constructor(vararg pairs: Pair<T, Int>) : this(mapOf(*pairs))
 
-    val size get() = entries.entries.sumBy { it.value }
+    override val size get() = entries.entries.sumBy { it.value }
 
-    operator fun get(i: Int): T {
-        if (i < 0)
+    override operator fun get(index: Int): T {
+        if (index < 0)
             throw IndexOutOfBoundsException()
 
         val p = entries.entries
                 .scan(0 to (null as T?)) { sum, entry -> (sum.first + entry.value) to entry.key }
-                .find { (sum, _) -> i < sum } ?: throw IndexOutOfBoundsException()
+                .find { (sum, _) -> index < sum } ?: throw IndexOutOfBoundsException()
         return p.second!!
-    }
-
-    fun randomChoice(): T {
-        val x = (Math.random() * size).toInt()
-        return get(x)
     }
 }
