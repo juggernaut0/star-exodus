@@ -1,16 +1,17 @@
 package util
 
-import kotlin.coroutines.experimental.buildSequence
-
-fun <T, R> Iterable<T>.scan(init: R, folder: (R, T) -> R): Sequence<R> = buildSequence {
+inline fun <T, R> List<T>.scan(init: R, folder: (R, T) -> R): List<R> {
     var state = init
     val it = iterator()
+    val result = ArrayList<R>()
 
-    yield(state)
+    result.add(state)
     while (it.hasNext()) {
         state = folder(state, it.next())
-        yield(state)
+        result.add(state)
     }
+
+    return result
 }
 
 fun <T> MutableList<T>.shuffle() {

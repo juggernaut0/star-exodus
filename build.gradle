@@ -54,7 +54,13 @@ task copyStaticWeb(type: Copy) {
     dependsOn assembleWeb
 }
 
+task copyResources(type: Copy, dependsOn: processResources) {
+    from processResources.destinationDir
+    into "${projectDir}/out"
+}
+
 assemble.dependsOn copyStaticWeb
+assemble.dependsOn copyResources
 
 task assembleTestWeb(type: Sync, dependsOn: testClasses) {
     configurations.testCompile.each { File file ->
