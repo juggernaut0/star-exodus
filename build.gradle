@@ -28,7 +28,7 @@ clean {
     delete 'testOut'
 }
 
-task assembleWeb(type: Sync) {
+task assembleWeb(type: Copy, dependsOn: classes) {
     configurations.compile.each { File file ->
         from(zipTree(file.absolutePath), {
             includeEmptyDirs = false
@@ -42,16 +42,12 @@ task assembleWeb(type: Sync) {
     include '**/*.js'
     includeEmptyDirs false
     into "${projectDir}/out/js"
-
-    dependsOn classes
 }
 
 task copyStaticWeb(type: Copy) {
     from 'web'
     exclude 'test.html'
     into 'out'
-
-    dependsOn assembleWeb
 }
 
 task copyResources(type: Copy, dependsOn: processResources) {
@@ -59,6 +55,7 @@ task copyResources(type: Copy, dependsOn: processResources) {
     into "${projectDir}/out"
 }
 
+assemble.dependsOn assembleWeb
 assemble.dependsOn copyStaticWeb
 assemble.dependsOn copyResources
 

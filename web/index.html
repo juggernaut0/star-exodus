@@ -4,21 +4,34 @@
     <meta charset="UTF-8">
     <title>Star Exodus</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 <body>
-    <div class="container" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
-        <h1>{{_.text}} {{_.i}}</h1>
-        <input type="button" value="Click Me" ng-click="_.increment()">
+    <div id="tabs" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
+            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" href="#fleet">Fleet</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="map" class="tab-pane active" role="tabpanel">
+                <h1>{{_.text}}</h1>
+                <canvas id="mapCanvas"></canvas>
+            </div>
+            <div id="fleet" class="tab-pane" role="tabpanel">
+
+            </div>
+        </div>
     </div>
 
-    <script src="/js/jquery-3.2.1.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/angular.min.js"></script>
-    <script src="/js/kotlin.js"></script>
-    <script src="/js/star-exodus.js"></script>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/kotlin.js"></script>
+    <script src="js/star-exodus.js"></script>
     <script>this["star-exodus"].main()</script>
 </body>
 </html>

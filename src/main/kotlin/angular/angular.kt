@@ -4,6 +4,7 @@
 package angular
 
 external fun module(name: String, deps: Array<String>): Module
+external fun element(element: String): dynamic
 
 external class Module {
     fun <T: Any> controller(name: String, controller: JsClass<T>)
