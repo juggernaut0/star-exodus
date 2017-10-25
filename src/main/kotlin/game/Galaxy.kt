@@ -3,11 +3,15 @@ package game
 import util.Location
 import util.Random
 
-class Galaxy(numStars: Int, mapSize: Int) {
-    val stars: List<StarSystem> = List(numStars) {
-        val loc = Location(Random.range(mapSize), Random.range(mapSize))
-        val name = "" // TODO
-        StarSystem(name, loc)
+class Galaxy(numStars: Int, mapSize: Int, starNames: List<String>) {
+    val stars: List<StarSystem>
+
+    init {
+        val uniqueNames = Random.sample(starNames, numStars)
+        stars = uniqueNames.map {
+            val loc = Location(Random.range(mapSize), Random.range(mapSize))
+            StarSystem(it, loc)
+        }
     }
 
     fun getNearbyStars(location: Location, radius: Double) =
