@@ -1,8 +1,9 @@
 package game
 
 class ExodusGame(resourceLoader: ResourceLoader) {
-    private val galaxy = Galaxy(400, 10000, resourceLoader.loadStarNames())
-    private val fleet = Fleet()
+    val galaxy: Galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
+    val fleet: Fleet = Fleet()
 
-    private var day = 0
+    var day = 0
+        private set
 }

@@ -1,6 +1,6 @@
 package game
 
 interface ResourceLoader {
-    fun loadStarNames(): List<String>
-    fun loadShipNames(): List<String>
+    fun getStarNames(): List<String>
+    fun getShipNames(): List<String>
 }
