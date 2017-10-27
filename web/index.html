@@ -17,10 +17,17 @@
 
         <div class="tab-content">
             <div id="map" class="tab-pane active" role="tabpanel">
-                <canvas id="mapCanvas" width="1000" height="600"></canvas>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <canvas id="mapCanvas" width="800" height="800"></canvas>
+                    </div>
+                    <div class="col-lg-4">
+                        <div>{{_.clickedStarName}}</div>
+                    </div>
+                </div>
             </div>
             <div id="fleet" class="tab-pane" role="tabpanel">
-
+                <h1>Ships!</h1>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@ package game
 import util.Location
 import util.Random
 
-class Galaxy(numStars: Int, mapSize: Int, starNames: List<String>) {
+class Galaxy(numStars: Int, val mapSize: Int, starNames: List<String>) {
     val stars: List<StarSystem>
 
     init {
