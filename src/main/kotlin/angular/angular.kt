@@ -12,3 +12,8 @@ external class Module {
     fun factory(name: String, ctor: () -> Any)
     fun factory(name: String, deps: Array<Any>)
 }
+
+external class Scope {
+    @JsName("\$apply")
+    fun apply()
+}

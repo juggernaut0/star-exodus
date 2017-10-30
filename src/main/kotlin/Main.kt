@@ -2,7 +2,7 @@ import ui.StarExodusController
 
 fun main() {
     val app = angular.module("star-exodus", emptyArray())
-    app.controller("star-exodus-controller", controller(arrayOf("\$http"), StarExodusController::class.js))
+    app.controller("star-exodus-controller", controller(arrayOf("\$scope", "\$http"), StarExodusController::class.js))
 }
 
 @Suppress("NOTHING_TO_INLINE")
