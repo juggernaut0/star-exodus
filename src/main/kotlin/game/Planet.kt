@@ -12,11 +12,10 @@ class Planet(val name: String, val type: PlanetType) {
     init {
         features = ArrayList()
         while (features.size < 5) {
-            var feat: PlanetFeature
-            do {
-                feat = Random.choice(type.features)
-            } while (feat != PlanetFeature.NOTHING && features.contains(feat))
-            features.add(feat)
+            val feat = Random.choice(type.features)
+            if (feat == PlanetFeature.NOTHING || !features.contains(feat)) {
+                features.add(feat)
+            }
         }
         features.shuffle()
     }
