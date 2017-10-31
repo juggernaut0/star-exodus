@@ -4,10 +4,10 @@ import PIXI.SystemRenderer
 import angular.HttpService
 import angular.Scope
 import game.ExodusGame
-import org.w3c.dom.CanvasRenderingContext2D
-import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
+import serialization.Base64
 import kotlin.browser.document
+import kotlin.browser.window
 
 @Suppress("MemberVisibilityCanPrivate")
 class StarExodusController(val scope: Scope, http: HttpService) {
@@ -46,5 +46,10 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             stage.addChild(sprite)
         }
         renderer.render(stage)
+    }
+
+    @JsName("saveGame")
+    fun saveGame() {
+        window.localStorage.setItem("game", Base64.encode(byteArrayOf()))
     }
 }
