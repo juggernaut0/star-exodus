@@ -12,7 +12,7 @@
     <div id="tabs" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
-            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" href="#fleet">Fleet</a></li>
+            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshFleet()" href="#fleet">Fleet</a></li>
         </ul>
 
         <div class="tab-content">
@@ -27,7 +27,27 @@
                 </div>
             </div>
             <div id="fleet" class="tab-pane" role="tabpanel">
-                <h1>Ships!</h1>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Class</th>
+                            <th>Hull</th>
+                            <th>Crew</th>
+                            <th>Cargo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="ship in _.fleet">
+                            <td>{{ship.name}}</td>
+                            <td>{{ship.shipClass}}</td>
+                            <td>{{ship.hull}}</td>
+                            <td>{{ship.crew}}</td>
+                            <td>{{ship.cargo}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

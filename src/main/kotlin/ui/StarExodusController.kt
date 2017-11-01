@@ -15,6 +15,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     private val renderer: SystemRenderer
 
     var clickedStarName: String? = null
+    var fleet: Array<ShipView> = emptyArray()
 
     init {
         val loader = HttpResourceLoader(http)
@@ -46,6 +47,11 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             stage.addChild(sprite)
         }
         renderer.render(stage)
+    }
+
+    @JsName("refreshFleet")
+    fun refreshFleet() {
+        fleet = game.fleet.ships.map { ShipView(it) }.toTypedArray()
     }
 
     @JsName("saveGame")
