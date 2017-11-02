@@ -1,6 +1,6 @@
 package ui
 
-import game.Ship
+import game.old.Ship
 
 class ShipView(private val ship: Ship) {
     val name get() = ship.name

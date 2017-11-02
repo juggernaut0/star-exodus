@@ -1,16 +1,17 @@
 package game
 
+import game.command.Command
+
 class ExodusGame(resourceLoader: ResourceLoader) {
-    val galaxy: Galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
-    val fleet: Fleet = Fleet(20, resourceLoader.getShipClasses().associateBy { it.name }, resourceLoader.getShipNames())
+    private val state: Game
 
-    var day = 0
-        private set
-
-    fun nextDay(){
-        day += 1
-
-        fleet.abandonUncrewed()
-
+    init {
+        val galaxy = Galaxy(10000, mutableSetOf()) // TODO
+        val fleet = Fleet(mutableSetOf()) // TODO
+        state = Game(galaxy, fleet, 0)
     }
+
+    fun command(command: Command) = command.execute(state)
+
+    //fun <T> query(query: Query<T>): T = query.execute(state)
 }
