@@ -4,7 +4,10 @@ import util.Random
 import util.WeightedList
 
 class Fleet(numShips: Int, shipClasses: Map<String, ShipClass>, shipNames: List<String>) {
-    val ships: Collection<Ship>
+    private val _ships: MutableCollection<Ship>
+    val ships: Collection<Ship> get() = _ships
+
+    val speed: Int = ships.map { it.shipClass.speed }.min() ?: 0
 
     init {
         val weightedClasses = WeightedList(
@@ -42,8 +45,15 @@ class Fleet(numShips: Int, shipClasses: Map<String, ShipClass>, shipNames: List<
                 "BattleCarrier" to 1
         )
 
-        ships = Random.sample(shipNames, numShips).map { name ->
+        _ships = Random.sample(shipNames, numShips).map { name ->
             Ship(name, shipClasses.getValue(Random.choice(weightedClasses)))
-        }
+        }.toMutableList()
+    }
+
+    internal fun abandonUncrewed() {
+        val uncrewed = _ships.filter { it.crew > it.shipClass.minCrew }
+        val remaining = uncrewed.sumBy { it.crew }
+        _ships.removeAll(uncrewed)
+        // TODO distribute remaining
     }
 }

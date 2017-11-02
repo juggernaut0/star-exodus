@@ -4,7 +4,9 @@ import kotlin.js.Math
 
 object Random {
     fun range(upper: Int) = (Math.random() * upper).toInt()
-    fun range(lower:Int, upper: Int) = lower + range(upper - lower)
+    fun range(upper: Double) = Math.random() * upper
+    fun range(lower: Int, upper: Int) = lower + range(upper - lower)
+    fun range(lower: Double, upper: Double) = lower + range(upper - lower)
 
     fun <T> choice(list: List<T>): T = list[range(list.size)]
     fun <T> choice(arr: Array<T>): T = arr[range(arr.size)]
