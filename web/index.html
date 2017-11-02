@@ -39,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="ship in _.fleet | orderby:name">
+                        <tr ng-repeat="ship in _.fleet | orderBy:'name'">
                             <td>{{ship.name}}</td>
                             <td>{{ship.shipClass}}</td>
                             <td>{{ship.hull}}</td>

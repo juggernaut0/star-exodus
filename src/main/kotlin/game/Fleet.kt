@@ -7,7 +7,7 @@ class Fleet(numShips: Int, shipClasses: Map<String, ShipClass>, shipNames: List<
     private val _ships: MutableCollection<Ship>
     val ships: Collection<Ship> get() = _ships
 
-    val speed: Int = ships.map { it.shipClass.speed }.min() ?: 0
+    val speed: Int get() = ships.map { it.shipClass.speed }.min() ?: 0
 
     init {
         val weightedClasses = WeightedList(
