@@ -1,7 +1,12 @@
 package game
 
-class Inventory(val capacity: Int) {
-    private val contents: MutableMap<InventoryItem, Int> = mutableMapOf()
+import serialization.Serializer
+import serialization.SInventory
+
+class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
+    constructor(capacity: Int) : this(capacity, emptyMap())
+
+    private val contents: MutableMap<InventoryItem, Int> = contents.toMutableMap()
 
     val usedSpace get() = contents.values.sum()
     val freeSpace get() = capacity - usedSpace
@@ -26,5 +31,11 @@ class Inventory(val capacity: Int) {
             contents[item] = newAmt
         }
         return trueAmt
+    }
+
+    companion object : Serializer<Inventory, SInventory> {
+        override fun serialize(obj: Inventory): SInventory = SInventory(obj.capacity, obj.contents)
+
+        override fun deserialize(serModel: SInventory): Inventory = Inventory(serModel.capacity, serModel.contents)
     }
 }

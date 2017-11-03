@@ -12,4 +12,14 @@ class ShipClass(
         val hanger: Int
 ) {
     val weaponSlots = mapOf(WeaponType.SMALL to smSlots, WeaponType.MEDIUM to mdSlots, WeaponType.LARGE to lgSlots)
+
+    companion object {
+        private var classes: Map<String, ShipClass>? = null
+
+        fun initClasses(classes: List<ShipClass>) {
+            this.classes = classes.associateBy { it.name }
+        }
+
+        operator fun get(name: String): ShipClass? = classes?.get(name)
+    }
 }
