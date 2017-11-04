@@ -6,11 +6,6 @@ import serialization.SShip
 import util.Random
 
 class Ship private constructor(val name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
-    constructor(name: String, shipClass: ShipClass)
-            : this(name, shipClass,
-            (shipClass.maxHull * Random.range(0.5, 1.0)).toInt(),
-            (shipClass.maxCrew * Random.range(0.6, 0.9)).toInt(),
-            Inventory(shipClass.cargoCapacity))
 
     var hullPoints: Int = hullPoints
         private set
@@ -33,6 +28,13 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
             val inv = Inventory.deserialize(serModel.inventory)
             val shipClass: ShipClass = ShipClass[serModel.shipClass] ?: throw DeserializationException("shipClass ${serModel.shipClass} not found")
             return Ship(serModel.name, shipClass, serModel.hullPoints, serModel.crew, inv)
+        }
+
+        operator fun invoke(name: String, shipClass: ShipClass): Ship {
+            val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()
+            val crew = (shipClass.maxCrew * Random.range(0.6, 0.9)).toInt()
+            val inv = Inventory(shipClass.cargoCapacity)
+            return Ship(name, shipClass, hull, crew, inv)
         }
     }
 }

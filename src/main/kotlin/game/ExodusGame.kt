@@ -1,16 +1,11 @@
 package game
 
-class ExodusGame(resourceLoader: ResourceLoader) {
-    val galaxy: Galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
-    val fleet: Fleet
+import serialization.SGame
+import serialization.Serializer
 
-    init {
-        ShipClass.initClasses(resourceLoader.getShipClasses())
+class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: Int) {
 
-        fleet = Fleet(20, resourceLoader.getShipNames())
-    }
-
-    var day = 0
+    var day = day
         private set
 
     fun nextDay(){
@@ -18,5 +13,21 @@ class ExodusGame(resourceLoader: ResourceLoader) {
 
         fleet.abandonUncrewed()
 
+    }
+
+    companion object : Serializer<ExodusGame, SGame> {
+        override fun serialize(obj: ExodusGame): SGame =
+                SGame(Galaxy.serialize(obj.galaxy), Fleet.serialize(obj.fleet), obj.day)
+
+        override fun deserialize(serModel: SGame): ExodusGame =
+                ExodusGame(Galaxy.deserialize(serModel.galaxy), Fleet.deserialize(serModel.fleet), serModel.day)
+
+        operator fun invoke(resourceLoader: ResourceLoader): ExodusGame {
+            ShipClass.initClasses(resourceLoader.getShipClasses())
+
+            val fleet = Fleet(20, resourceLoader.getShipNames())
+            val galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
+            return ExodusGame(galaxy, fleet, 0)
+        }
     }
 }

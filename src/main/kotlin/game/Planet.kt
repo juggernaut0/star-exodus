@@ -1,24 +1,15 @@
 package game
 
+import serialization.SPlanet
+import serialization.Serializer
 import util.Random
 import util.shuffle
 import kotlin.js.Math
 
-class Planet(val name: String, val type: PlanetType) {
-    var exploration: Int = 0 // out of 100
-        private set
-    val features: List<PlanetFeature>
+class Planet private constructor(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) {
 
-    init {
-        features = ArrayList()
-        while (features.size < 5) {
-            val feat = Random.choice(type.features)
-            if (feat == PlanetFeature.NOTHING || !features.contains(feat)) {
-                features.add(feat)
-            }
-        }
-        features.shuffle()
-    }
+    var exploration: Int = exploration // out of 100
+        private set
 
     fun explore(numExplorers: Int, onDiscover: (PlanetFeature) -> Unit) {
         val begin = exploration
@@ -30,6 +21,25 @@ class Planet(val name: String, val type: PlanetType) {
             for (i in n until l) {
                 onDiscover(features[i])
             }
+        }
+    }
+
+    companion object : Serializer<Planet, SPlanet> {
+        override fun serialize(obj: Planet): SPlanet = SPlanet(obj.name, obj.type, obj.features, obj.exploration)
+
+        override fun deserialize(serModel: SPlanet): Planet =
+                Planet(serModel.name, serModel.type, serModel.features, serModel.exploration)
+
+        operator fun invoke(name: String, type: PlanetType): Planet {
+            val features = mutableListOf<PlanetFeature>()
+            while (features.size < 5) {
+                val feat = Random.choice(type.features)
+                if (feat == PlanetFeature.NOTHING || !features.contains(feat)) {
+                    features.add(feat)
+                }
+            }
+            features.shuffle()
+            return Planet(name, type, features, 0)
         }
     }
 }
