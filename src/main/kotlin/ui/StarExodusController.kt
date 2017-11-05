@@ -9,6 +9,8 @@ import serialization.Base64
 import kotlin.browser.document
 import kotlin.browser.window
 
+import serialization.JsonSerializer.toJson
+
 @Suppress("MemberVisibilityCanPrivate")
 class StarExodusController(val scope: Scope, http: HttpService) {
     private lateinit var game: ExodusGame
@@ -21,16 +23,16 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         val loader = HttpResourceLoader(http)
         loader.fetchResources().then({ game = ExodusGame(loader); refreshMap() })
 
-        renderer = initPixi("mapPanel")
+        renderer = initPixi("mapPanel", 800, 800)
     }
 
-    private fun initPixi(canvasId: String): SystemRenderer {
-        val renderer = PIXI.autoDetectRenderer(256,256)
+    private fun initPixi(canvasId: String, width: Int, height: Int): SystemRenderer {
+        val renderer = PIXI.autoDetectRenderer(width, height)
         val gamePanel = (document.getElementById(canvasId) ?: throw Exception("Can't find game panel")) as HTMLElement
         gamePanel.appendChild(renderer.view)
         renderer.view.style.display = "block"
         renderer.autoResize = true
-        renderer.resize(gamePanel.offsetWidth, gamePanel.offsetHeight)
+        renderer.resize(width, height)
         return renderer
     }
 
@@ -58,4 +60,12 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun saveGame() {
         window.localStorage.setItem("game", Base64.encode(byteArrayOf()))
     }
+
+    fun jsonify() {
+        val url = "data:application/json," + encodeURIComponent(ExodusGame.serialize(game).toJson())
+        console.log(url)
+        window.open(url, "_blank")
+    }
 }
+
+external fun encodeURIComponent(string: String): String

@@ -11,8 +11,8 @@ class HttpResourceLoader(private val http: HttpService) : ResourceLoader {
     private lateinit var shipClasses: List<ShipClass>
 
     fun fetchResources(): Promise<Unit> {
-        val stars = http.get<String>("/star_names.txt").then({ starNames = it.data.split('\n') })
-        val ships = http.get<String>("/ship_names.txt").then({ shipNames = it.data.split('\n') })
+        val stars = http.get<String>("/star_names.txt").then({ starNames = it.data.split('\n').map { it.trim() }.filter { it.isNotEmpty() } })
+        val ships = http.get<String>("/ship_names.txt").then({ shipNames = it.data.split('\n').map { it.trim() }.filter { it.isNotEmpty() } })
         val classes = http.get<String>("/ship_classes.txt").then({ shipClasses = parseShipClasses(it.data) })
         return Promise.all(arrayOf(stars, ships, classes)).then({})
     }

@@ -11,12 +11,16 @@
 <body>
     <div id="tabs" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
         <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" href="#main">Log</a></li>
+            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
             <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshFleet()" href="#fleet">Fleet</a></li>
         </ul>
 
         <div class="tab-content">
-            <div id="map" class="tab-pane active" role="tabpanel">
+            <div id="main" class="tab-pane active" role="tabpanel">
+                <input type="button" value="Jsonify" ng-click="_.jsonify()">
+            </div>
+            <div id="map" class="tab-pane" role="tabpanel">
                 <div class="row">
                     <div class="col-lg-8">
                         <div id="mapPanel"></div>

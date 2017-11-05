@@ -10,6 +10,8 @@ class Galaxy private constructor(val stars: List<StarSystem>, val mapSize: Int) 
     fun getNearbyStars(location: Location, radius: Double) =
             stars.filter { Location.distance(it.location, location) <= radius }
 
+    fun getStarAt(location: Location) = getNearbyStars(location, 0.0).firstOrNull()
+
     companion object : Serializer<Galaxy, SGalaxy> {
         override fun serialize(obj: Galaxy): SGalaxy =
                 SGalaxy(obj.stars.map { StarSystem.serialize(it) }, obj.mapSize)

@@ -23,6 +23,9 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
+compileJava.enabled = false
+jar.enabled = false
+
 clean {
     delete 'out'
     delete 'testOut'

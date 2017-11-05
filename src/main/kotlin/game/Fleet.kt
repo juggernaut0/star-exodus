@@ -2,10 +2,14 @@ package game
 
 import serialization.SFleet
 import serialization.Serializer
+import util.Location
 import util.Random
 import util.WeightedList
 
-class Fleet private constructor(private val _ships: MutableCollection<Ship>) {
+class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: Location) {
+
+    var location: Location = location
+        private set
 
     val ships: Collection<Ship> get() = _ships
 
@@ -20,12 +24,12 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>) {
 
     companion object : Serializer<Fleet, SFleet> {
         override fun serialize(obj: Fleet): SFleet =
-                SFleet(obj.ships.map { Ship.serialize(it) })
+                SFleet(obj.ships.map { Ship.serialize(it) }, obj.location)
 
         override fun deserialize(serModel: SFleet): Fleet =
-                Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList())
+                Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList(), serModel.location)
 
-        operator fun invoke(numShips: Int, shipNames: List<String>): Fleet {
+        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: Location): Fleet {
             val weightedClasses = WeightedList(
                     "Small Passenger Carrier" to 52,
                     "Medium Passenger Carrier" to 44,
@@ -66,7 +70,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>) {
                 Ship(name, ShipClass[cls] ?: throw NullPointerException(cls))
             }
 
-            return Fleet(ships)
+            return Fleet(ships, startingLocation)
         }
     }
 }
