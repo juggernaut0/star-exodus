@@ -1,6 +1,6 @@
 package game
 
-import serialization.SGame
+import serialization.SerializationModels.SGame
 import serialization.Serializer
 import util.Random
 
@@ -26,8 +26,8 @@ class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: 
         operator fun invoke(resourceLoader: ResourceLoader): ExodusGame {
             ShipClass.initClasses(resourceLoader.getShipClasses())
 
-            val galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
-            val fleet = Fleet(20, resourceLoader.getShipNames(), Random.choice(galaxy.stars).location)
+            val galaxy = Galaxy(10, 10000, resourceLoader.getStarNames())
+            val fleet = Fleet(2, resourceLoader.getShipNames(), Random.choice(galaxy.stars).location)
             return ExodusGame(galaxy, fleet, 0)
         }
     }

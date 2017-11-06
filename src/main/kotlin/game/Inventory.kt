@@ -1,7 +1,7 @@
 package game
 
 import serialization.Serializer
-import serialization.SInventory
+import serialization.SerializationModels.SInventory
 
 class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
     constructor(capacity: Int) : this(capacity, emptyMap())

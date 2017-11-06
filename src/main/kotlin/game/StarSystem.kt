@@ -1,6 +1,6 @@
 package game
 
-import serialization.SStarSystem
+import serialization.SerializationModels.SStarSystem
 import serialization.Serializer
 import util.Location
 import util.Random

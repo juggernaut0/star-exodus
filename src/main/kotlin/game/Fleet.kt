@@ -1,6 +1,6 @@
 package game
 
-import serialization.SFleet
+import serialization.SerializationModels.SFleet
 import serialization.Serializer
 import util.Location
 import util.Random

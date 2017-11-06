@@ -1,8 +1,8 @@
 package game
 
-import serialization.DeserializationException
+import serialization.SerializationException
 import serialization.Serializer
-import serialization.SShip
+import serialization.SerializationModels.SShip
 import util.Random
 
 class Ship private constructor(val name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
@@ -26,7 +26,7 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
 
         override fun deserialize(serModel: SShip): Ship {
             val inv = Inventory.deserialize(serModel.inventory)
-            val shipClass: ShipClass = ShipClass[serModel.shipClass] ?: throw DeserializationException("shipClass ${serModel.shipClass} not found")
+            val shipClass: ShipClass = ShipClass[serModel.shipClass] ?: throw SerializationException("shipClass ${serModel.shipClass} not found")
             return Ship(serModel.name, shipClass, serModel.hullPoints, serModel.crew, inv)
         }
 

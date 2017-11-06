@@ -66,7 +66,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     }
 
     fun jsonify() {
-        val gameObj = JsonSerializer.load("{\n" +
+        /*val sgame = JsonSerializer.loadGame("{\n" +
                 "  \"galaxy\": {\n" +
                 "    \"stars\": [],\n" +
                 "    \"mapSize\": 10000\n" +
@@ -79,8 +79,10 @@ class StarExodusController(val scope: Scope, http: HttpService) {
                 "    }\n" +
                 "  },\n" +
                 "  \"day\": 0\n" +
-                "}")
-        jsonText = game.toJson()
+                "}")*/
+        val sgame = ExodusGame.serialize(game)
+        jsonText = sgame.toJson()
+        JsonSerializer.loadGame(jsonText)
     }
 }
 

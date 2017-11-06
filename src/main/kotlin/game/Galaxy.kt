@@ -1,6 +1,6 @@
 package game
 
-import serialization.SGalaxy
+import serialization.SerializationModels.SGalaxy
 import serialization.Serializer
 import util.Location
 import util.Random

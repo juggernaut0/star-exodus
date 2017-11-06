@@ -1,6 +1,6 @@
 package game
 
-import serialization.SPlanet
+import serialization.SerializationModels.SPlanet
 import serialization.Serializer
 import util.Random
 import util.shuffle
