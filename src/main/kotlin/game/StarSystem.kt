@@ -15,7 +15,7 @@ class StarSystem private constructor(val name: String, val location: Location, v
 
         operator fun invoke(name: String, location: Location): StarSystem {
             val type = Random.choice(StarType.values())
-            val numPlanets = Random.normal(mu = 4.0, sigma = 2.5).toInt()
+            val numPlanets = Random.normal(mu = 4.0, sigma = 2.5).toInt().takeIf { it >= 0 } ?: 0
             val planets = List(numPlanets) { i ->
                 val pName = "$name ${romanNumeral(i+1)}"
                 val pType = Random.choice(type.planetTypes)

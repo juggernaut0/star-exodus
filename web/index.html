@@ -18,7 +18,9 @@
 
         <div class="tab-content">
             <div id="main" class="tab-pane active" role="tabpanel">
-                <input type="button" value="Jsonify" ng-click="_.jsonify()">
+                <button ng-click="_.jsonify()">Jsonify</button>
+                <pre>{{_.jsonText}}</pre>
+                <input type="text">
             </div>
             <div id="map" class="tab-pane" role="tabpanel">
                 <div class="row">

@@ -6,6 +6,7 @@ import angular.Scope
 import game.ExodusGame
 import org.w3c.dom.HTMLElement
 import serialization.Base64
+import serialization.JsonSerializer
 import kotlin.browser.document
 import kotlin.browser.window
 
@@ -18,6 +19,9 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     var clickedStarName: String? = null
     var fleet: Array<ShipView> = emptyArray()
+
+    var jsonInput: String? = ""
+    var jsonText: String = ""
 
     init {
         val loader = HttpResourceLoader(http)
@@ -62,9 +66,21 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     }
 
     fun jsonify() {
-        val url = "data:application/json," + encodeURIComponent(ExodusGame.serialize(game).toJson())
-        console.log(url)
-        window.open(url, "_blank")
+        val gameObj = JsonSerializer.load("{\n" +
+                "  \"galaxy\": {\n" +
+                "    \"stars\": [],\n" +
+                "    \"mapSize\": 10000\n" +
+                "  },\n" +
+                "  \"fleet\": {\n" +
+                "    \"ships\": [],\n" +
+                "    \"location\": {\n" +
+                "      \"x\": 9845,\n" +
+                "      \"y\": 7398\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"day\": 0\n" +
+                "}")
+        jsonText = game.toJson()
     }
 }
 
