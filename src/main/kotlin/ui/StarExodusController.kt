@@ -5,29 +5,39 @@ import angular.HttpService
 import angular.Scope
 import game.ExodusGame
 import org.w3c.dom.HTMLElement
-import serialization.Base64
 import serialization.JsonSerializer
 import kotlin.browser.document
 import kotlin.browser.window
 
 import serialization.JsonSerializer.toJson
 
-@Suppress("MemberVisibilityCanPrivate")
+@Suppress("MemberVisibilityCanPrivate", "unused")
 class StarExodusController(val scope: Scope, http: HttpService) {
     private lateinit var game: ExodusGame
     private val renderer: SystemRenderer
+    private var saveCleared = false
 
     var clickedStarName: String? = null
     var fleet: Array<ShipView> = emptyArray()
 
-    var jsonInput: String? = ""
-    var jsonText: String = ""
-
     init {
+
+
         val loader = HttpResourceLoader(http)
-        loader.fetchResources().then({ game = ExodusGame(loader); refreshMap() })
+        loader.fetchResources().then({
+            val savedString = window.localStorage.getItem("savedgame")
+            game = if (savedString != null) {
+                ExodusGame.deserialize(JsonSerializer.loadGame(savedString), loader)
+            } else {
+                ExodusGame(loader)
+            }
+            refreshMap()
+        })
+
 
         renderer = initPixi("mapPanel", 800, 800)
+
+        window.onbeforeunload = { if (!saveCleared) saveGame(); null }
     }
 
     private fun initPixi(canvasId: String, width: Int, height: Int): SystemRenderer {
@@ -62,28 +72,12 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("saveGame")
     fun saveGame() {
-        window.localStorage.setItem("game", Base64.encode(byteArrayOf()))
+        window.localStorage.setItem("savedgame", ExodusGame.serialize(game).toJson())
     }
 
-    fun jsonify() {
-        /*val sgame = JsonSerializer.loadGame("{\n" +
-                "  \"galaxy\": {\n" +
-                "    \"stars\": [],\n" +
-                "    \"mapSize\": 10000\n" +
-                "  },\n" +
-                "  \"fleet\": {\n" +
-                "    \"ships\": [],\n" +
-                "    \"location\": {\n" +
-                "      \"x\": 9845,\n" +
-                "      \"y\": 7398\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"day\": 0\n" +
-                "}")*/
-        val sgame = ExodusGame.serialize(game)
-        jsonText = sgame.toJson()
-        JsonSerializer.loadGame(jsonText)
+    @JsName("clearSave")
+    fun clearSave() {
+        window.localStorage.removeItem("savedgame")
+        saveCleared = true
     }
 }
-
-external fun encodeURIComponent(string: String): String

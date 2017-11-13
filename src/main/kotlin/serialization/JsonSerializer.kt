@@ -42,7 +42,8 @@ object JsonSerializer {
             String::class -> obj as String
             List::class -> (obj as Array<dynamic>).map { load(it, type.arguments[0]) }
             Location::class -> Location((obj.x as Number).toInt(), (obj.y as Number).toInt())
-            // TODO enums
+            in SerializationModels.enums.keys -> SerializationModels.enums[type.classifier]!!(obj as String)
+            Map::class -> mapOf<Any, Any>()
             else -> throw SerializationException("Unknown type: ${type.classifier.simpleName} obj: $obj")
         }
     }

@@ -67,7 +67,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
             val ships = Random.sample(shipNames, numShips).mapTo(mutableListOf()) { name ->
                 val cls = Random.choice(weightedClasses)
-                Ship(name, ShipClass[cls] ?: throw NullPointerException(cls))
+                Ship(name, ShipClass[cls] ?: throw NullPointerException("ShipClass not found: " + cls))
             }
 
             return Fleet(ships, startingLocation)

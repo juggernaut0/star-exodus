@@ -67,6 +67,13 @@ object SerializationModels {
             SInventory::class to { arr -> SInventory(arr[0] as Int, arr[1] as Map<InventoryItem, Int>) }
     )
 
+    val enums = mapOf(
+            PlanetType::class to PlanetType::valueOf,
+            PlanetFeature::class to PlanetFeature::valueOf,
+            StarType::class to StarType::valueOf,
+            InventoryItem::class to InventoryItem::valueOf
+    )
+
     class SGame(val galaxy: SGalaxy, val fleet: SFleet, val day: Int) : SerializationModel
     class SGalaxy(val stars: List<SStarSystem>, val mapSize: Int) : SerializationModel
     class SStarSystem(val name: String, val location: Location, val type: StarType, val planets: List<SPlanet>) : SerializationModel
