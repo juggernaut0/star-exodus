@@ -9,8 +9,6 @@ import serialization.JsonSerializer
 import kotlin.browser.document
 import kotlin.browser.window
 
-import serialization.JsonSerializer.toJson
-
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class StarExodusController(val scope: Scope, http: HttpService) {
     private lateinit var game: ExodusGame
@@ -72,7 +70,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("saveGame")
     fun saveGame() {
-        window.localStorage.setItem("savedgame", ExodusGame.serialize(game).toJson())
+        window.localStorage.setItem("savedgame", JsonSerializer.saveGame(ExodusGame.serialize(game)))
     }
 
     @JsName("clearSave")
