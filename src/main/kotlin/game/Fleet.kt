@@ -10,6 +10,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
     var location: Location = location
         private set
+    var destination: Location = location
 
     val ships: Collection<Ship> get() = _ships
 
@@ -17,9 +18,20 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
     internal fun abandonUncrewed() {
         val uncrewed = _ships.filter { it.crew > it.shipClass.minCrew }
-        val remaining = uncrewed.sumBy { it.crew }
+        var remaining = uncrewed.sumBy { it.crew }
         _ships.removeAll(uncrewed)
-        // TODO distribute remaining
+
+        val notFull = _ships.filter { it.crew < it.shipClass.maxCrew }.toMutableList()
+        while (remaining > 0) {
+            if (notFull.size == 0) break
+
+            val ship = Random.choice(notFull)
+            ship.modCrew(1)
+            if (ship.crew == ship.shipClass.maxCrew) {
+                notFull.remove(ship)
+            }
+            remaining--
+        }
     }
 
     companion object : Serializer<Fleet, SFleet> {

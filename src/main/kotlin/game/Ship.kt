@@ -15,9 +15,17 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
     val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
     val destroyed get() = hullPoints == 0
 
+    // returns amount actually changed
     fun modHullPoints(amt: Int): Int {
+        val oldHp = hullPoints
         hullPoints = minOf(maxOf(hullPoints + amt, 0), shipClass.maxHull)
-        return hullPoints
+        return hullPoints - oldHp
+    }
+
+    fun modCrew(amt: Int): Int {
+        val oldCrew = crew
+        crew = minOf(maxOf(crew + amt, 0), shipClass.maxCrew)
+        return crew - oldCrew
     }
 
     companion object : Serializer<Ship, SShip> {
