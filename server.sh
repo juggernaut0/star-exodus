@@ -1,6 +1,6 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 if [ ! -e out ]; then
-	gradle assemble;
+	./gradlew assemble;
 fi
 
 cd out

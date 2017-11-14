@@ -11,7 +11,7 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
     val usedSpace get() = contents.values.sum()
     val freeSpace get() = capacity - usedSpace
 
-    operator fun get(item: InventoryItem): Int = contents.getOrDefault(item, 0)
+    operator fun get(item: InventoryItem): Int = contents[item] ?: 0
 
     /**
      * @return Amount actually added

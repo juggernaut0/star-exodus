@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 <body>
-    <div id="tabs" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
+    <div class="container-fluid" ng-app="star-exodus" ng-controller="star-exodus-controller as _">
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" href="#main">Log</a></li>
             <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
@@ -18,7 +18,7 @@
 
         <div class="tab-content">
             <div id="main" class="tab-pane active" role="tabpanel">
-                <button ng-click="_.clearSave()">Clear Saved Game</button>
+                <button class="btn btn-primary" ng-click="_.clearSave()">Clear Saved Game</button>
             </div>
             <div id="map" class="tab-pane" role="tabpanel">
                 <div class="row">
@@ -31,7 +31,29 @@
                 </div>
             </div>
             <div id="fleet" class="tab-pane" role="tabpanel">
-                <table class="table table-striped">
+                <div class="row">
+                    <div class="col-md-6">Ships: {{_.fleet.length}}</div>
+                    <div class="col-md-6">Population: {{_.totalPopulation}}</div>
+                </div>
+                <div class="collapse" id="shipDetails">
+                    <div class="card">
+                        <div class="card-header">
+                            Ship Details
+                            <button type="button" class="close" ng-click="_.closeShipCollapse()">&times;</button>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title">{{_.shipDetails.name}}</h4>
+                            <h6 class="card-subtitle text-muted">{{_.shipDetails.shipClass}}</h6>
+                            <p></p>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary">Weapons</button>
+                                <button class="btn btn-outline-primary">Inventory</button>
+                                <button class="btn btn-outline-danger">Abandon</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-sm table-hover">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -39,11 +61,10 @@
                             <th>Hull</th>
                             <th>Crew</th>
                             <th>Cargo</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="ship in _.fleet | orderBy:'name'">
+                        <tr ng-repeat="ship in _.fleet | orderBy:'name'" ng-click="_.openShipCollapse(ship)" ng-class="_.activeClass(ship)">
                             <td>{{ship.name}}</td>
                             <td>{{ship.shipClass}}</td>
                             <td>{{ship.hull}}</td>

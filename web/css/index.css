@@ -1,8 +1,12 @@
 ﻿body {
-    padding: 10px;
+    padding-top: 10px;
 }
 
 #mapPanel {
     width: 800px;
     height: 800px;
+}
+
+.tab-pane {
+    padding: 5px;
 }

@@ -17,10 +17,10 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     var clickedStarName: String? = null
     var fleet: Array<ShipView> = emptyArray()
+    var totalPopulation: Int = 0
+    var shipDetails: ShipView? = null
 
     init {
-
-
         val loader = HttpResourceLoader(http)
         loader.fetchResources().then({
             val savedString = window.localStorage.getItem("savedgame")
@@ -51,21 +51,23 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     @JsName("refreshMap")
     fun refreshMap() {
         val stage = PIXI.Container()
-        for (star in game.galaxy.stars) {
-            val x = star.location.x * renderer.width.toInt() / game.galaxy.mapSize
-            val y = star.location.y * renderer.height.toInt() / game.galaxy.mapSize
-            val sprite = Shapes.circle(Point(x, y), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) {
-                clickedStarName = star.name
+
+        game.galaxy.stars.map {
+            Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->
+                clickedStarName = it.name
                 scope.apply()
             }
-            stage.addChild(sprite)
-        }
+        }.forEach { stage.addChild(it) }
+
+        stage.addChild(Shapes.circle(game.fleet.location.toPoint(), 4.0, lineStyle = LineStyle(Color.RED, 2.0)))
+
         renderer.render(stage)
     }
 
     @JsName("refreshFleet")
     fun refreshFleet() {
         fleet = game.fleet.ships.map { ShipView(it) }.toTypedArray()
+        totalPopulation = game.fleet.ships.sumBy { it.crew }
     }
 
     @JsName("saveGame")
@@ -78,4 +80,22 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         window.localStorage.removeItem("savedgame")
         saveCleared = true
     }
+
+    @JsName("openShipCollapse")
+    fun openShipCollapse(shipView: ShipView) {
+        shipDetails = shipView
+        js("$('#shipDetails')").collapse("show")
+    }
+
+    @JsName("closeShipCollapse")
+    fun closeShipCollapse() {
+        shipDetails = null
+        js("$('#shipDetails')").collapse("hide")
+    }
+
+    @JsName("activeClass")
+    fun activeClass(shipView: ShipView) = if (shipView == shipDetails) "table-primary" else ""
+
+    private fun util.Location.toPoint(): Point =
+            Point(x * renderer.width.toInt() / game.galaxy.mapSize, y * renderer.height.toInt() / game.galaxy.mapSize)
 }
