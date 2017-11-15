@@ -28,3 +28,6 @@ fun <T> List<T>.shuffled(): List<T> {
     result.shuffle()
     return result
 }
+
+fun String.toTitleCase(): String =
+        splitToSequence('_', ' ').joinToString(separator = " ") { it.toLowerCase().capitalize() }

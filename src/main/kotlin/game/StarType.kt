@@ -1,6 +1,7 @@
 package game
 
 import util.WeightedList
+import util.toTitleCase
 
 enum class StarType(val planetTypes: WeightedList<PlanetType>) {
     BLUE_SUPERGIANT(WeightedList(
@@ -113,4 +114,6 @@ enum class StarType(val planetTypes: WeightedList<PlanetType>) {
             PlanetType.LAVA to 1,
             PlanetType.JUNGLE to 1
     ));
+
+    val displayName: String = name.toTitleCase()
 }

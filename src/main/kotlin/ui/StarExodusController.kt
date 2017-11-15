@@ -19,6 +19,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     var fleet: Array<ShipView> = emptyArray()
     var totalPopulation: Int = 0
     var shipDetails: ShipView? = null
+    var currentSystem: StarView? = null
 
     init {
         val loader = HttpResourceLoader(http)
@@ -29,9 +30,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             } else {
                 ExodusGame(loader)
             }
-            refreshMap()
         })
-
 
         renderer = initPixi("mapPanel", 800, 800)
 
@@ -52,7 +51,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun refreshMap() {
         val stage = PIXI.Container()
 
-        game.galaxy.stars.map {
+        game.galaxy.stars.asSequence().map {
             Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->
                 clickedStarName = it.name
                 scope.apply()
@@ -68,6 +67,11 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun refreshFleet() {
         fleet = game.fleet.ships.map { ShipView(it) }.toTypedArray()
         totalPopulation = game.fleet.ships.sumBy { it.crew }
+    }
+
+    @JsName("refreshStar")
+    fun refreshStar() {
+        currentSystem = game.galaxy.getStarAt(game.fleet.location)?.let { StarView(it) }
     }
 
     @JsName("saveGame")
