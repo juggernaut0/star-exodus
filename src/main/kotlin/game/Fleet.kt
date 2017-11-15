@@ -43,43 +43,43 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
         operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: Location): Fleet {
             val weightedClasses = WeightedList(
-                    "Small Passenger Carrier" to 52,
-                    "Medium Passenger Carrier" to 44,
-                    "Large Passenger Carrier" to 34,
-                    "Huge Passenger Carrier" to 24,
-                    "Cruise Liner" to 16,
-                    "Dream Liner" to 12,
-                    "Small Colony Ship" to 12,
-                    "Large Colony Ship" to 8,
-                    "Liveship" to 4,
-                    "Cityship" to 3,
-                    "Small Freight Carrier" to 28,
-                    "Medium Freight Carrier" to 22,
-                    "Large Freight Carrier" to 14,
-                    "Huge Freight Carrier" to 8,
-                    "Super Freight Carrier" to 4,
-                    "Refinery Ship" to 6,
-                    "Fuel Tanker" to 3,
-                    "Mobile Dry-Dock" to 1,
-                    "Mining Ship" to 6,
-                    "Corvette" to 20,
-                    "Scout" to 14,
-                    "Destroyer" to 16,
-                    "Troop Carrier" to 12,
-                    "Frigate" to 8,
-                    "Cruiser" to 6,
-                    "Heavy Cruiser" to 6,
-                    "Carrier" to 4,
-                    "Battleship" to 4,
-                    "Dreadnought" to 4,
-                    "Fleet Carrier" to 2,
-                    "Titan" to 2,
-                    "BattleCarrier" to 1
+                    ShipClass.SMALL_PASSENGER_CARRIER to 52,
+                    ShipClass.MEDIUM_PASSENGER_CARRIER to 44,
+                    ShipClass.LARGE_PASSENGER_CARRIER to 34,
+                    ShipClass.HUGE_PASSENGER_CARRIER to 24,
+                    ShipClass.CRUISE_LINER to 16,
+                    ShipClass.DREAM_LINER to 12,
+                    ShipClass.SMALL_COLONY_SHIP to 12,
+                    ShipClass.LARGE_COLONY_SHIP to 8,
+                    ShipClass.LIVESHIP to 4,
+                    ShipClass.CITYSHIP to 3,
+                    ShipClass.SMALL_FREIGHT_CARRIER to 28,
+                    ShipClass.MEDIUM_FREIGHT_CARRIER to 22,
+                    ShipClass.LARGE_FREIGHT_CARRIER to 14,
+                    ShipClass.HUGE_FREIGHT_CARRIER to 8,
+                    ShipClass.SUPER_FREIGHT_CARRIER to 4,
+                    ShipClass.REFINERY_SHIP to 6,
+                    ShipClass.FUEL_TANKER to 3,
+                    ShipClass.MOBILE_DRY_DOCK to 1,
+                    ShipClass.MINING_SHIP to 6,
+                    ShipClass.CORVETTE to 20,
+                    ShipClass.SCOUT to 14,
+                    ShipClass.DESTROYER to 16,
+                    ShipClass.TROOP_CARRIER to 12,
+                    ShipClass.FRIGATE to 8,
+                    ShipClass.CRUISER to 6,
+                    ShipClass.HEAVY_CRUISER to 6,
+                    ShipClass.CARRIER to 4,
+                    ShipClass.BATTLESHIP to 4,
+                    ShipClass.DREADNOUGHT to 4,
+                    ShipClass.FLEET_CARRIER to 2,
+                    ShipClass.TITAN to 2,
+                    ShipClass.BATTLECARRIER to 1
             )
 
             val ships = Random.sample(shipNames, numShips).mapTo(mutableListOf()) { name ->
                 val cls = Random.choice(weightedClasses)
-                Ship(name, ShipClass[cls] ?: throw NullPointerException("ShipClass not found: " + cls))
+                Ship(name, cls)
             }
 
             return Fleet(ships, startingLocation)

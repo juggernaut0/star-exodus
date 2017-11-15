@@ -1,8 +1,4 @@
-﻿body {
-    padding-top: 10px;
-}
-
-#mapPanel {
+﻿#mapPanel {
     width: 800px;
     height: 800px;
 }

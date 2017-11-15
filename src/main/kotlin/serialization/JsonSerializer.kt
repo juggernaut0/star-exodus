@@ -5,9 +5,8 @@ import serialization.SerializationModels.SGame
 import util.Location
 
 object JsonSerializer {
-    private fun obj(vararg vals: Pair<String, String>): String {
-        return vals.joinToString(separator = ",", prefix = "{", postfix = "}") { (key, value) -> "\"$key\":$value" }
-    }
+    private fun obj(vararg vals: Pair<String, String>): String =
+            vals.joinToString(separator = ",", prefix = "{", postfix = "}") { (key, value) -> "\"$key\":$value" }
 
     fun saveGame(game: SGame): String = obj(
             "galaxy" to saveGalaxy(game.galaxy),
@@ -41,7 +40,7 @@ object JsonSerializer {
 
     private fun saveShip(ship: SerializationModels.SShip): String = obj(
             "name" to saveString(ship.name),
-            "shipClass" to saveString(ship.shipClass),
+            "shipClass" to saveEnum(ship.shipClass),
             "hullPoints" to saveNumber(ship.hullPoints),
             "crew" to saveNumber(ship.crew),
             "inventory" to saveInventory(ship.inventory)
@@ -54,9 +53,8 @@ object JsonSerializer {
 
     private fun saveLocation(loc: Location) = obj("x" to loc.x.toString(), "y" to loc.y.toString())
 
-    private fun <T> saveList(list: List<T>, mapper: (T) -> String): String {
-        return list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
-    }
+    private fun <T> saveList(list: List<T>, mapper: (T) -> String): String =
+            list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
 
     private fun saveNumber(number: Number) = number.toString()
     private fun saveString(string: String) = "\"$string\""
@@ -105,7 +103,7 @@ object JsonSerializer {
     private fun loadShip(obj: dynamic, name: String): SerializationModels.SShip {
         checkUndef(obj, name)
         val shipName = loadString(obj.name, "$name.name")
-        val shipClass = loadString(obj.shipClass, "$name.shipClass")
+        val shipClass = ShipClass.valueOf(loadString(obj.shipClass, "$name.shipClass"))
         val hull = loadInt(obj.hullPoints, "$name.hullPoints")
         val crew = loadInt(obj.crew, "$name.crew")
         val inv = loadInventory(obj.inventory, "$name.inventory")

@@ -30,13 +30,10 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
 
     companion object : Serializer<Ship, SShip> {
         override fun serialize(obj: Ship): SShip =
-                SShip(obj.name, obj.shipClass.name, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory))
+                SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory))
 
-        override fun deserialize(serModel: SShip): Ship {
-            val inv = Inventory.deserialize(serModel.inventory)
-            val shipClass: ShipClass = ShipClass[serModel.shipClass] ?: throw SerializationException("shipClass ${serModel.shipClass} not found")
-            return Ship(serModel.name, shipClass, serModel.hullPoints, serModel.crew, inv)
-        }
+        override fun deserialize(serModel: SShip): Ship =
+                Ship(serModel.name, serModel.shipClass, serModel.hullPoints, serModel.crew, Inventory.deserialize(serModel.inventory))
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
             val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()

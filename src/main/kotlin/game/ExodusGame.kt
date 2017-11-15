@@ -23,14 +23,7 @@ class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: 
         override fun deserialize(serModel: SGame): ExodusGame =
                 ExodusGame(Galaxy.deserialize(serModel.galaxy), Fleet.deserialize(serModel.fleet), serModel.day)
 
-        fun deserialize(serModel: SGame, resourceLoader: ResourceLoader): ExodusGame {
-            ShipClass.initClasses(resourceLoader.getShipClasses())
-            return deserialize(serModel)
-        }
-
         operator fun invoke(resourceLoader: ResourceLoader): ExodusGame {
-            ShipClass.initClasses(resourceLoader.getShipClasses())
-
             val galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
             val fleet = Fleet(10, resourceLoader.getShipNames(), Random.choice(galaxy.stars).location)
             return ExodusGame(galaxy, fleet, 0)
