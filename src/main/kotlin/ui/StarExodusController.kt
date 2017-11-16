@@ -4,22 +4,26 @@ import PIXI.SystemRenderer
 import angular.HttpService
 import angular.Scope
 import game.ExodusGame
+import jQuery
 import org.w3c.dom.HTMLElement
 import serialization.JsonSerializer
+import util.MutVector2
 import kotlin.browser.document
 import kotlin.browser.window
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class StarExodusController(val scope: Scope, http: HttpService) {
     private lateinit var game: ExodusGame
-    private val renderer: SystemRenderer
+    private val galaxyRenderer: SystemRenderer
+    private val systemRenderer: SystemRenderer
     private var saveCleared = false
 
-    var clickedStarName: String? = null
+    var clickedStar: StarView? = null
     var fleet: Array<ShipView> = emptyArray()
     var totalPopulation: Int = 0
     var shipDetails: ShipView? = null
     var currentSystem: StarView? = null
+    var selectedDestination = MutVector2()
 
     init {
         val loader = HttpResourceLoader(http)
@@ -32,7 +36,8 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             }
         })
 
-        renderer = initPixi("mapPanel", 800, 800)
+        galaxyRenderer = initPixi("mapPanel", 800, 800)
+        systemRenderer = initPixi("systemMap", 400, 400)
 
         window.onbeforeunload = { if (!saveCleared) saveGame(); null }
     }
@@ -53,14 +58,14 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
         game.galaxy.stars.asSequence().map {
             Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->
-                clickedStarName = it.name
+                clickedStar = StarView(it)
                 scope.apply()
             }
         }.forEach { stage.addChild(it) }
 
         stage.addChild(Shapes.circle(game.fleet.location.toPoint(), 4.0, lineStyle = LineStyle(Color.RED, 2.0)))
 
-        renderer.render(stage)
+        galaxyRenderer.render(stage)
     }
 
     @JsName("refreshFleet")
@@ -88,18 +93,28 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     @JsName("openShipCollapse")
     fun openShipCollapse(shipView: ShipView) {
         shipDetails = shipView
-        js("$('#shipDetails')").collapse("show")
+        jQuery("#shipDetails").collapse("show")
     }
 
     @JsName("closeShipCollapse")
     fun closeShipCollapse() {
         shipDetails = null
-        js("$('#shipDetails')").collapse("hide")
+        jQuery("#shipDetails").collapse("hide")
     }
 
     @JsName("activeClass")
     fun activeClass(shipView: ShipView) = if (shipView == shipDetails) "table-primary" else ""
 
+    @JsName("setDestination")
+    fun setDestination() {
+        game.fleet.destination = selectedDestination.toIntVector()
+    }
+
+    @JsName("nextDay")
+    fun nextDay() {
+        game.nextDay()
+    }
+
     private fun util.IntVector2.toPoint(): Point =
-            Point(x * renderer.width.toInt() / game.galaxy.mapSize, y * renderer.height.toInt() / game.galaxy.mapSize)
+            Point(x * galaxyRenderer.width.toInt() / game.galaxy.mapSize, y * galaxyRenderer.height.toInt() / game.galaxy.mapSize)
 }
