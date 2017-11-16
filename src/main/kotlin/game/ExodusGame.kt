@@ -13,7 +13,7 @@ class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: 
         day += 1
 
         fleet.abandonUncrewed()
-
+        fleet.moveTowardsDestination()
     }
 
     companion object : Serializer<ExodusGame, SGame> {

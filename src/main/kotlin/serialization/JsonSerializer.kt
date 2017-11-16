@@ -2,7 +2,7 @@ package serialization
 
 import game.*
 import serialization.SerializationModels.SGame
-import util.Location
+import util.IntVector2
 
 object JsonSerializer {
     private fun obj(vararg vals: Pair<String, String>): String =
@@ -51,7 +51,7 @@ object JsonSerializer {
             "contents" to obj(*inventory.contents.map { (k, v) -> k.name to saveNumber(v) }.toTypedArray())
     )
 
-    private fun saveLocation(loc: Location) = obj("x" to loc.x.toString(), "y" to loc.y.toString())
+    private fun saveLocation(loc: IntVector2) = obj("x" to loc.x.toString(), "y" to loc.y.toString())
 
     private fun <T> saveList(list: List<T>, mapper: (T) -> String): String =
             list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
@@ -117,11 +117,11 @@ object JsonSerializer {
         return SerializationModels.SInventory(capacity, contents)
     }
 
-    private fun loadLocation(obj: dynamic, name: String): Location {
+    private fun loadLocation(obj: dynamic, name: String): IntVector2 {
         checkUndef(obj, name)
         val x = loadInt(obj.x, name + ".x")
         val y = loadInt(obj.y, name + ".y")
-        return Location(x, y)
+        return IntVector2(x, y)
     }
 
     private inline fun <T> loadList(arr: dynamic, name: String, mapper: (dynamic, String) -> T): List<T> {

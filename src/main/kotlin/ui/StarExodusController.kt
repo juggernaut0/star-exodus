@@ -100,6 +100,6 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     @JsName("activeClass")
     fun activeClass(shipView: ShipView) = if (shipView == shipDetails) "table-primary" else ""
 
-    private fun util.Location.toPoint(): Point =
+    private fun util.IntVector2.toPoint(): Point =
             Point(x * renderer.width.toInt() / game.galaxy.mapSize, y * renderer.height.toInt() / game.galaxy.mapSize)
 }

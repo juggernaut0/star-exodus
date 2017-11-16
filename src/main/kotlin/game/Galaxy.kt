@@ -2,15 +2,15 @@ package game
 
 import serialization.SerializationModels.SGalaxy
 import serialization.Serializer
-import util.Location
+import util.IntVector2
 import util.Random
 
 class Galaxy private constructor(val stars: List<StarSystem>, val mapSize: Int) {
 
-    fun getNearbyStars(location: Location, radius: Double) =
-            stars.filter { Location.distance(it.location, location) <= radius }
+    fun getNearbyStars(location: IntVector2, radius: Double) =
+            stars.filter { IntVector2.distance(it.location, location) <= radius }
 
-    fun getStarAt(location: Location) = getNearbyStars(location, 0.0).firstOrNull()
+    fun getStarAt(location: IntVector2) = getNearbyStars(location, 0.0).firstOrNull()
 
     companion object : Serializer<Galaxy, SGalaxy> {
         override fun serialize(obj: Galaxy): SGalaxy =
@@ -22,7 +22,7 @@ class Galaxy private constructor(val stars: List<StarSystem>, val mapSize: Int) 
         operator fun invoke(numStars: Int, mapSize: Int, starNames: List<String>): Galaxy {
             val uniqueNames = Random.sample(starNames, numStars)
             val stars = uniqueNames.map {
-                val loc = Location(Random.range(mapSize), Random.range(mapSize))
+                val loc = IntVector2(Random.range(mapSize), Random.range(mapSize))
                 StarSystem(it, loc)
             }
             return Galaxy(stars, mapSize)

@@ -2,19 +2,32 @@ package game
 
 import serialization.SerializationModels.SFleet
 import serialization.Serializer
-import util.Location
+import util.IntVector2
 import util.Random
 import util.WeightedList
+import kotlin.js.Math
 
-class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: Location) {
+const val FUEL_COEFFICIENT = 0.006;
 
-    var location: Location = location
+class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: IntVector2) {
+    var location: IntVector2 = location
         private set
-    var destination: Location = location
+    var destination: IntVector2 = location
 
     val ships: Collection<Ship> get() = _ships
 
-    val speed: Int get() = ships.map { it.shipClass.speed }.min() ?: 0
+    val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
+
+    internal fun moveTowardsDestination() {
+        if (destination == location) return
+
+        location += (destination - location) * (speed/IntVector2.distance(destination, location))
+        val fuelNeeded = _ships.associate { it to Math.ceil(Math.sqrt(it.mass * speed * FUEL_COEFFICIENT)) }
+        _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
+        _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
+        
+        // TODO discovered systems
+    }
 
     internal fun abandonUncrewed() {
         val uncrewed = _ships.filter { it.crew > it.shipClass.minCrew }
@@ -41,7 +54,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         override fun deserialize(serModel: SFleet): Fleet =
                 Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList(), serModel.location)
 
-        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: Location): Fleet {
+        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2): Fleet {
             val weightedClasses = WeightedList(
                     ShipClass.SMALL_PASSENGER_CARRIER to 52,
                     ShipClass.MEDIUM_PASSENGER_CARRIER to 44,

@@ -1,6 +1,5 @@
 package game
 
-import serialization.SerializationException
 import serialization.Serializer
 import serialization.SerializationModels.SShip
 import util.Random
