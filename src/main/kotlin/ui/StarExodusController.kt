@@ -91,22 +91,22 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             val stage = PIXI.Container()
             when (star.type) {
                 BINARY -> {
-                    stage.addChild(Shapes.circle(Point(60, 100), 30.0, LineStyle.NONE, Color(255, 85, 0)))
-                    stage.addChild(Shapes.circle(Point(140, 100), 40.0, LineStyle.NONE, Color(255, 255, 150)))
+                    stage.addChild(Shapes.circle(Point(60, 100), 30.0, fillColor = Color(255, 85, 0)))
+                    stage.addChild(Shapes.circle(Point(140, 100), 40.0, fillColor = Color(255, 255, 150)))
                 }
-                BLUE_GIANT -> stage.addChild(Shapes.circle(Point(100, 100), 50.0, LineStyle.NONE, Color(150, 255, 255)))
-                BLUE_SUPERGIANT -> stage.addChild(Shapes.circle(Point(100, 100), 70.0, LineStyle.NONE, Color(150, 255, 255)))
-                RED_DWARF -> stage.addChild(Shapes.circle(Point(100, 100), 30.0, LineStyle.NONE, Color(255, 85, 0)))
-                RED_GIANT -> stage.addChild(Shapes.circle(Point(100, 100), 50.0, LineStyle.NONE, Color(255, 150, 100)))
-                RED_SUPERGIANT -> stage.addChild(Shapes.circle(Point(100, 100), 70.0, LineStyle.NONE, Color(255, 150, 100)))
+                BLUE_GIANT -> stage.addChild(Shapes.circle(Point(100, 100), 50.0, fillColor = Color(150, 255, 255)))
+                BLUE_SUPERGIANT -> stage.addChild(Shapes.circle(Point(100, 100), 70.0, fillColor = Color(150, 255, 255)))
+                RED_DWARF -> stage.addChild(Shapes.circle(Point(100, 100), 30.0, fillColor = Color(255, 85, 0)))
+                RED_GIANT -> stage.addChild(Shapes.circle(Point(100, 100), 50.0, fillColor = Color(255, 150, 100)))
+                RED_SUPERGIANT -> stage.addChild(Shapes.circle(Point(100, 100), 70.0, fillColor = Color(255, 150, 100)))
                 TRINARY -> {
-                    stage.addChild(Shapes.circle(Point(70, 75), 20.0, LineStyle.NONE, Color(255, 85, 0)))
-                    stage.addChild(Shapes.circle(Point(130, 75), 25.0, LineStyle.NONE, Color(255, 255, 150)))
-                    stage.addChild(Shapes.circle(Point(100, 125), 25.0, LineStyle.NONE, Color(150, 255, 255)))
+                    stage.addChild(Shapes.circle(Point(70, 75), 20.0, fillColor = Color(255, 85, 0)))
+                    stage.addChild(Shapes.circle(Point(130, 75), 25.0, fillColor = Color(255, 255, 150)))
+                    stage.addChild(Shapes.circle(Point(100, 125), 25.0, fillColor = Color(150, 255, 255)))
                 }
-                WHITE_DWARF -> stage.addChild(Shapes.circle(Point(100, 100), 30.0, LineStyle.NONE, Color.WHITE))
-                WHITE_STAR -> stage.addChild(Shapes.circle(Point(100, 100), 40.0, LineStyle.NONE, Color.WHITE))
-                YELLOW_STAR -> stage.addChild(Shapes.circle(Point(100, 100), 40.0, LineStyle.NONE, Color(255, 255, 150)))
+                WHITE_DWARF -> stage.addChild(Shapes.circle(Point(100, 100), 30.0, fillColor = Color.WHITE))
+                WHITE_STAR -> stage.addChild(Shapes.circle(Point(100, 100), 40.0, fillColor = Color.WHITE))
+                YELLOW_STAR -> stage.addChild(Shapes.circle(Point(100, 100), 40.0, fillColor = Color(255, 255, 150)))
             }
 
             var x = 250
@@ -115,46 +115,22 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
                 val pos = Point(x, 100)
                 when (planet.type) {
-                    ARCTIC -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(200, 255, 255)))
-                    }
-                    ARID -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(240, 240, 125)))
-                    }
-                    CRYSTALLINE -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(255, 100, 175)))
-                    }
-                    DESERT -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(220, 175, 100)))
-                    }
+                    ARCTIC -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(200, 255, 255)))
+                    ARID -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(240, 240, 125)))
+                    CRYSTALLINE -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(255, 100, 175)))
+                    DESERT -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(220, 175, 100)))
                     HELIUM_GIANT -> {
-                        stage.addChild(Shapes.circle(pos, 35.0, LineStyle(Color(240, 240, 125))))
-                        stage.addChild(Shapes.circle(pos, 25.0, LineStyle.NONE, Color(200, 175, 75)))
+                        stage.addChild(Shapes.circle(pos, 35.0, lineStyle = LineStyle(Color(240, 240, 125))))
+                        stage.addChild(Shapes.circle(pos, 25.0, fillColor = Color(200, 175, 75)))
                     }
-                    HYDROGEN_GIANT -> {
-                        stage.addChild(Shapes.circle(pos, 25.0, LineStyle.NONE, Color(220, 150, 50)))
-                    }
-                    JUNGLE -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(50, 200, 50)))
-                    }
-                    LAVA -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(200, 75, 0)))
-                    }
-                    METHANE_GIANT -> {
-                        stage.addChild(Shapes.circle(pos, 25.0, LineStyle.NONE, Color(50, 175, 225)))
-                    }
-                    OCEAN -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(0, 100, 255)))
-                    }
-                    ROCKY -> {
-                        stage.addChild(Shapes.circle(pos, 10.0, LineStyle.NONE, Color(150, 150, 150)))
-                    }
-                    TERRAN -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(125, 200, 225)))
-                    }
-                    TUNDRA -> {
-                        stage.addChild(Shapes.circle(pos, 15.0, LineStyle.NONE, Color(50, 200, 150)))
-                    }
+                    HYDROGEN_GIANT -> stage.addChild(Shapes.circle(pos, 25.0, fillColor = Color(220, 150, 50)))
+                    JUNGLE -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(50, 200, 50)))
+                    LAVA -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(200, 75, 0)))
+                    METHANE_GIANT -> stage.addChild(Shapes.circle(pos, 25.0, fillColor = Color(50, 175, 225)))
+                    OCEAN -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(0, 100, 255)))
+                    ROCKY -> stage.addChild(Shapes.circle(pos, 10.0, fillColor = Color(150, 150, 150)))
+                    TERRAN -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(125, 200, 225)))
+                    TUNDRA -> stage.addChild(Shapes.circle(pos, 15.0, fillColor = Color(50, 200, 150)))
                 }
 
                 x += 90

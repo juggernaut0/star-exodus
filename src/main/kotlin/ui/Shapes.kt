@@ -3,7 +3,7 @@ package ui
 import PIXI.interaction.InteractionEvent
 
 object Shapes {
-    fun circle(center: Point, radius: Double, lineStyle: LineStyle = LineStyle(Color.BLACK), fillColor: Color = Color.TRANSPARENT, onClick: ((InteractionEvent) -> Unit)? = null): PIXI.Graphics {
+    fun circle(center: Point, radius: Double, lineStyle: LineStyle = LineStyle.NONE, fillColor: Color = Color.TRANSPARENT, onClick: ((InteractionEvent) -> Unit)? = null): PIXI.Graphics {
         val gr = PIXI.Graphics()
                 .lineStyle(lineStyle.width, lineStyle.color.toHex(), lineStyle.color.a)
                 .beginFill(fillColor.toHex(), fillColor.a)
@@ -27,7 +27,7 @@ data class Point(val x: Double, val y: Double) {
 
 data class LineStyle(val color: Color, val width: Double = 1.0) {
     companion object {
-        val NONE = LineStyle(Color.TRANSPARENT)
+        val NONE = LineStyle(Color.TRANSPARENT, 0.0)
     }
 }
 
