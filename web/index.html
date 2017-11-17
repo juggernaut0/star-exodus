@@ -60,12 +60,34 @@
                             <button type="button" class="close" ng-click="_.closeShipCollapse()">&times;</button>
                         </div>
                         <div class="card-body">
-                            <h4 class="card-title">{{_.shipDetails.name}} <small class="text-muted">{{_.shipDetails.shipClass}}</small></h4>
+                            <h4 class="card-title">{{_.selectedShip.name}} <small class="text-muted">{{_.selectedShip.shipClass}}</small></h4>
                             <p></p>
                             <div class="btn-group">
-                                <button class="btn btn-outline-primary">Weapons</button>
-                                <button class="btn btn-outline-primary">Inventory</button>
+                                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#shipRenameModal">Rename</button>
+                                <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipWeapons" data-parent="#shipDetailsPanels">Weapons</button>
+                                <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipInventory" data-parent="#shipDetailsPanels">Inventory</button>
                                 <button class="btn btn-outline-danger">Abandon</button>
+                            </div>
+                            <p></p>
+
+                            <div id="shipDetailsPanels" data-children=".item">
+                                <div class="item">
+                                    <div class="collapse" id="shipWeapons">
+                                        <h4>Weapons</h4>
+                                    </div>
+                                </div>
+
+                                <div class="item">
+                                    <div class="item collapse" id="shipInventory">
+                                        <h4>Inventory</h4>
+                                        <table class="table table-sm">
+                                            <tr ng-repeat="item in _.selectedShip.inventory">
+                                                <td>{{item.itemName}}</td>
+                                                <td>{{item.count}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -125,7 +147,28 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.setDestination()">Set Destination</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shipRenameModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rename Ship</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="newname">New name</label>
+                    <input type="text" id="newname" ng-model="newName">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.renameSelectedShip(newName)">Rename</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

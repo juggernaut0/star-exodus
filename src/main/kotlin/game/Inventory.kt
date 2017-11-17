@@ -7,6 +7,7 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
     constructor(capacity: Int) : this(capacity, emptyMap())
 
     private val contents: MutableMap<InventoryItem, Int> = contents.toMutableMap()
+    val items: List<Pair<InventoryItem, Int>> get() = contents.map { (k, v) -> k to v }
 
     val usedSpace get() = contents.values.sum()
     val freeSpace get() = capacity - usedSpace
@@ -32,6 +33,8 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
         }
         return trueAmt
     }
+
+
 
     companion object : Serializer<Inventory, SInventory> {
         override fun serialize(obj: Inventory): SInventory = SInventory(obj.capacity, obj.contents)

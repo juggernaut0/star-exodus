@@ -4,7 +4,9 @@ import serialization.Serializer
 import serialization.SerializationModels.SShip
 import util.Random
 
-class Ship private constructor(val name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
+class Ship private constructor(name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
+    var name: String = name
+        private set
 
     var hullPoints: Int = hullPoints
         private set
@@ -13,6 +15,12 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
 
     val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
     val destroyed get() = hullPoints == 0
+
+    fun rename(newName: String) {
+        if (newName.isNotBlank()){
+            name = newName
+        }
+    }
 
     // returns amount actually changed
     fun modHullPoints(amt: Int): Int {

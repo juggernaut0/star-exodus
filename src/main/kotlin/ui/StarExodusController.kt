@@ -24,7 +24,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     var fleet: Array<ShipView> = emptyArray()
     var totalPopulation: Int = 0
     var fleetSpeed: Int = 0
-    var shipDetails: ShipView? = null
+    var selectedShip: ShipView? = null
     var currentSystem: StarView? = null
     var selectedDestination = MutVector2()
 
@@ -73,6 +73,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("refreshFleet")
     fun refreshFleet() {
+        closeShipCollapse()
         fleet = game.fleet.ships.map { ShipView(it) }.toTypedArray()
         totalPopulation = game.fleet.ships.sumBy { it.crew }
         fleetSpeed = game.fleet.speed
@@ -176,18 +177,23 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("openShipCollapse")
     fun openShipCollapse(shipView: ShipView) {
-        shipDetails = shipView
+        selectedShip = shipView
         jQuery("#shipDetails").collapse("show")
     }
 
     @JsName("closeShipCollapse")
     fun closeShipCollapse() {
-        shipDetails = null
+        selectedShip = null
         jQuery("#shipDetails").collapse("hide")
     }
 
+    @JsName("renameSelectedShip")
+    fun renameSelectedShip(name: String){
+        selectedShip?.apply { ship.rename(name) }
+    }
+
     @JsName("activeClass")
-    fun activeClass(shipView: ShipView) = if (shipView == shipDetails) "table-primary" else ""
+    fun activeClass(shipView: ShipView) = if (shipView == selectedShip) "table-primary" else ""
 
     @JsName("setDestination")
     fun setDestination() {
