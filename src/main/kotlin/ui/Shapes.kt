@@ -7,7 +7,10 @@ object Shapes {
         val gr = PIXI.Graphics()
                 .lineStyle(lineStyle.width, lineStyle.color.toHex(), lineStyle.color.a)
                 .beginFill(fillColor.toHex(), fillColor.a)
-                .drawCircle(center.x, center.y, radius)
+                .drawCircle(0, 0, radius)
+
+        gr.x = center.x
+        gr.y = center.y
 
         if (onClick != null) {
             gr.interactive = true
@@ -22,7 +25,11 @@ data class Point(val x: Double, val y: Double) {
     constructor(x: Int, y: Int) : this(x.toDouble(), y.toDouble())
 }
 
-data class LineStyle(val color: Color, val width: Double = 1.0)
+data class LineStyle(val color: Color, val width: Double = 1.0) {
+    companion object {
+        val NONE = LineStyle(Color.TRANSPARENT)
+    }
+}
 
 data class Color(val r: Int, val g: Int, val b: Int, val a: Double = 1.0) {
     companion object {

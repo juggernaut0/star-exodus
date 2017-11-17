@@ -7,12 +7,11 @@ import util.Random
 import util.WeightedList
 import kotlin.js.Math
 
-const val FUEL_COEFFICIENT = 0.006;
+const val FUEL_COEFFICIENT = 0.006
 
-class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: IntVector2) {
+class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: IntVector2, var destination: IntVector2) {
     var location: IntVector2 = location
         private set
-    var destination: IntVector2 = location
 
     val ships: Collection<Ship> get() = _ships
 
@@ -21,16 +20,17 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
     internal fun moveTowardsDestination() {
         if (destination == location) return
 
-        location += (destination - location) * (speed/IntVector2.distance(destination, location))
-        val fuelNeeded = _ships.associate { it to Math.ceil(Math.sqrt(it.mass * speed * FUEL_COEFFICIENT)) }
+        val dist = IntVector2.distance(destination, location)
+        location += (destination - location) * (speed/dist)
+        val fuelNeeded = _ships.associate { it to Math.ceil(Math.sqrt(it.mass * Math.min(speed.toDouble(), dist) * FUEL_COEFFICIENT)) }
         _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
-        
+
         // TODO discovered systems
     }
 
     internal fun abandonUncrewed() {
-        val uncrewed = _ships.filter { it.crew > it.shipClass.minCrew }
+        val uncrewed = _ships.filter { it.crew < it.shipClass.minCrew }
         var remaining = uncrewed.sumBy { it.crew }
         _ships.removeAll(uncrewed)
 
@@ -49,10 +49,10 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
     companion object : Serializer<Fleet, SFleet> {
         override fun serialize(obj: Fleet): SFleet =
-                SFleet(obj.ships.map { Ship.serialize(it) }, obj.location)
+                SFleet(obj.ships.map { Ship.serialize(it) }, obj.location, obj.destination)
 
         override fun deserialize(serModel: SFleet): Fleet =
-                Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList(), serModel.location)
+                Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList(), serModel.location, serModel.destination)
 
         operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2): Fleet {
             val weightedClasses = WeightedList(
@@ -95,7 +95,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
                 Ship(name, cls)
             }
 
-            return Fleet(ships, startingLocation)
+            return Fleet(ships, startingLocation, startingLocation)
         }
     }
 }

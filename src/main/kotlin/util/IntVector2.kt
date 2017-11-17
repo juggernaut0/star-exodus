@@ -9,6 +9,8 @@ data class IntVector2(val x: Int, val y: Int) {
     operator fun times(scale: Double) = IntVector2((scale * x).toInt(), (scale * y).toInt())
     operator fun times(other: IntVector2) = IntVector2(x * other.x, y * other.y)
 
+    fun toMutVector() = MutVector2(x.toDouble(), y.toDouble())
+
     companion object {
         fun distance(loc1: IntVector2, loc2: IntVector2): Double {
             val dx = (loc1.x - loc2.x).toDouble()

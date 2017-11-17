@@ -38,6 +38,8 @@ class Ship private constructor(val name: String, val shipClass: ShipClass, hullP
             val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()
             val crew = (shipClass.maxCrew * Random.range(0.6, 0.9)).toInt()
             val inv = Inventory(shipClass.cargoCapacity)
+            inv.addItems(InventoryItem.FUEL, (inv.capacity/5)+5)
+            inv.addItems(InventoryItem.FOOD, inv.capacity/4)
             return Ship(name, shipClass, hull, crew, inv)
         }
     }

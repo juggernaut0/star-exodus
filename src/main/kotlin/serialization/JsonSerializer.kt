@@ -1,6 +1,7 @@
 package serialization
 
 import game.*
+import js.Object
 import serialization.SerializationModels.SGame
 import util.IntVector2
 
@@ -35,6 +36,7 @@ object JsonSerializer {
 
     private fun saveFleet(fleet: SerializationModels.SFleet): String = obj(
             "location" to saveLocation(fleet.location),
+            "destination" to saveLocation(fleet.destination),
             "ships" to saveList(fleet.ships, this::saveShip)
     )
 
@@ -96,8 +98,9 @@ object JsonSerializer {
     private fun loadFleet(obj: dynamic, name: String): SerializationModels.SFleet {
         checkUndef(obj, name)
         val location = loadLocation(obj.location, "$name.location")
+        val destination = loadLocation(obj.destination, "$name.destination")
         val ships = loadList(obj.ships, "$name.ships", this::loadShip)
-        return SerializationModels.SFleet(ships, location)
+        return SerializationModels.SFleet(ships, location, destination)
     }
 
     private fun loadShip(obj: dynamic, name: String): SerializationModels.SShip {
@@ -113,7 +116,7 @@ object JsonSerializer {
     private fun loadInventory(obj: dynamic, name: String): SerializationModels.SInventory {
         checkUndef(obj, name)
         val capacity = loadInt(obj.capacity, "$name.capacity")
-        val contents = mapOf<InventoryItem, Int>() // TODO
+        val contents = Object.keys(obj.contents).associateBy(InventoryItem::valueOf, { (obj.contents[it] as Number).toInt() })
         return SerializationModels.SInventory(capacity, contents)
     }
 

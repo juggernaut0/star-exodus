@@ -17,7 +17,7 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
      * @return Amount actually added
      */
     fun addItems(item: InventoryItem, amount: Int = 1): Int {
-        val trueAmt = maxOf(freeSpace, amount)
+        val trueAmt = minOf(freeSpace, amount)
         contents[item] = trueAmt + this[item]
         return trueAmt
     }
