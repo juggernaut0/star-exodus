@@ -118,7 +118,7 @@
                     <h4>{{_.currentSystem.name}} <small class="text-muted">{{_.currentSystem.type}}</small></h4>
                     <hr>
                     <ol>
-                        <li ng-repeat="planet in _.currentSystem.planets">{{planet.name}}</li>
+                        <li ng-repeat="planet in _.currentSystem.planets">{{planet.name}} - {{planet.type}}</li>
                     </ol>
                     <div id="systemMap"></div>
                 </div>
@@ -139,10 +139,14 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <label for="dest">Nearby Stars</label><select id="dest" class="form-control"></select>
-                    <div class="form-inline my-2">
-                        <input type="number" id="destx" class="form-control mw-100" ng-model="_.selectedDestination.x">
-                        <input type="number" id="desty" class="form-control mw-100 ml-3" ng-model="_.selectedDestination.y">
+                    <label for="dest">Nearby Stars</label>
+                    <select id="dest" class="form-control" ng-options="star.location.toMutVector() as star.name for star in _.nearbyStars" ng-model="_.selectedDestination">
+                        <option value="">Custom</option>
+                    </select>
+                    <label>Coordinates</label>
+                    <div class="row">
+                        <span class="col-md-6"><input type="number" title="x" class="form-control w-100" ng-model="_.customDestination.x" ng-disabled="_.selectedDestination != null"></span>
+                        <span class="col-md-6"><input type="number" title="y" class="form-control w-100" ng-model="_.customDestination.y" ng-disabled="_.selectedDestination != null"></span>
                     </div>
                 </div>
                 <div class="modal-footer">

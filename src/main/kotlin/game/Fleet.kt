@@ -7,8 +7,6 @@ import util.Random
 import util.WeightedList
 import kotlin.js.Math
 
-const val FUEL_COEFFICIENT = 0.006
-
 class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: IntVector2, var destination: IntVector2) {
     var location: IntVector2 = location
         private set
@@ -21,8 +19,12 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         if (destination == location) return
 
         val dist = IntVector2.distance(destination, location)
-        location += (destination - location) * (speed/dist)
-        val fuelNeeded = _ships.associate { it to Math.ceil(Math.sqrt(it.mass * Math.min(speed.toDouble(), dist) * FUEL_COEFFICIENT)) }
+        if (dist <= speed) {
+            location = destination
+        } else {
+            location += (destination - location) * (speed / dist)
+        }
+        val fuelNeeded = _ships.associate { it to Math.ceil(it.fuelConsumption * Math.min(speed.toDouble(), dist)) }
         _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
 

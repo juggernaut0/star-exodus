@@ -31,3 +31,9 @@ fun <T> List<T>.shuffled(): List<T> {
 
 fun String.toTitleCase(): String =
         splitToSequence('_', ' ').joinToString(separator = " ") { it.toLowerCase().capitalize() }
+
+fun <T> Sequence<T>.toTypedArray(): Array<T> {
+    val arr = emptyArray<T>()
+    forEach { arr.asDynamic().push(it); Unit }
+    return arr
+}

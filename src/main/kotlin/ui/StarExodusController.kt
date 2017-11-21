@@ -10,6 +10,7 @@ import jQuery
 import org.w3c.dom.HTMLElement
 import serialization.JsonSerializer
 import util.MutVector2
+import util.toTypedArray
 import kotlin.browser.document
 import kotlin.browser.window
 
@@ -26,7 +27,15 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     var fleetSpeed: Int = 0
     var selectedShip: ShipView? = null
     var currentSystem: StarView? = null
-    var selectedDestination = MutVector2()
+    var nearbyStars: Array<StarView> = emptyArray()
+    var selectedDestination: MutVector2? = null
+        set(value) {
+            if (value != null) {
+                customDestination = value
+            }
+            field = value
+        }
+    var customDestination: MutVector2 = MutVector2()
 
     init {
         val loader = HttpResourceLoader(http)
@@ -173,12 +182,17 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("setDestination")
     fun setDestination() {
-        game.fleet.destination = selectedDestination.toIntVector()
+        game.fleet.destination = (selectedDestination ?: customDestination).toIntVector()
     }
 
     @JsName("resetSelectedDestination")
     fun resetSelectedDestination() {
-        selectedDestination = game.fleet.destination.toMutVector()
+        nearbyStars = game.galaxy.getNearbyStars(game.fleet.location, game.fleet.speed * 10.0)
+                .asSequence()
+                .filter { it.location != game.fleet.location }
+                .map { StarView(it) }
+                .toTypedArray()
+        customDestination = game.fleet.destination.toMutVector()
     }
 
     @JsName("nextDay")

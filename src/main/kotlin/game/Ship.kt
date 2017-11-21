@@ -3,6 +3,7 @@ package game
 import serialization.Serializer
 import serialization.SerializationModels.SShip
 import util.Random
+import kotlin.js.Math
 
 class Ship private constructor(name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
     var name: String = name
@@ -14,6 +15,7 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
         private set
 
     val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
+    val fuelConsumption get() = Math.sqrt(mass.toDouble()) * FUEL_COEFFICIENT
     val destroyed get() = hullPoints == 0
 
     fun rename(newName: String) {
@@ -36,6 +38,8 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
     }
 
     companion object : Serializer<Ship, SShip> {
+        const val FUEL_COEFFICIENT = 0.01
+
         override fun serialize(obj: Ship): SShip =
                 SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory))
 
@@ -46,7 +50,7 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
             val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()
             val crew = (shipClass.maxCrew * Random.range(0.6, 0.9)).toInt()
             val inv = Inventory(shipClass.cargoCapacity)
-            inv.addItems(InventoryItem.FUEL, (inv.capacity/5)+5)
+            inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
             inv.addItems(InventoryItem.FOOD, inv.capacity/4)
             return Ship(name, shipClass, hull, crew, inv)
         }
