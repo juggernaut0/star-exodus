@@ -15,23 +15,14 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
 
-    internal fun moveTowardsDestination() {
-        if (destination == location) return
-
-        val dist = IntVector2.distance(destination, location)
-        if (dist <= speed) {
-            location = destination
-        } else {
-            location += (destination - location) * (speed / dist)
-        }
-        val fuelNeeded = _ships.associate { it to Math.ceil(it.fuelConsumption * Math.min(speed.toDouble(), dist)) }
-        _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
-        _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
-
-        // TODO discovered systems
+    fun doTurn() {
+        abandonUncrewed()
+        growFood()
+        eatFood()
+        moveTowardsDestination()
     }
 
-    internal fun abandonUncrewed() {
+    private fun abandonUncrewed() {
         val uncrewed = _ships.filter { it.crew < it.shipClass.minCrew }
         var remaining = uncrewed.sumBy { it.crew }
         _ships.removeAll(uncrewed)
@@ -47,6 +38,30 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
             }
             remaining--
         }
+    }
+
+    private fun moveTowardsDestination() {
+        if (destination == location) return
+
+        val dist = IntVector2.distance(destination, location)
+        if (dist <= speed) {
+            location = destination
+        } else {
+            location += (destination - location) * (speed / dist)
+        }
+        val fuelNeeded = _ships.associate { it to Math.ceil(it.fuelConsumption * Math.min(speed.toDouble(), dist)) }
+        _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
+        _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
+
+        // TODO discovered systems (600 range?)
+    }
+
+    private fun growFood() {
+        ships.forEach { it.inventory.addItems(InventoryItem.FOOD, it.shipClass.foodGrowth) }
+    }
+
+    private fun eatFood() {
+        ships.forEach { it.eatFood() }
     }
 
     companion object : Serializer<Fleet, SFleet> {

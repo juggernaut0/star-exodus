@@ -15,7 +15,12 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
         private set
 
     val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
+
+    // fuel per distance unit per turn
     val fuelConsumption get() = Math.sqrt(mass.toDouble()) * FUEL_COEFFICIENT
+    // food per turn
+    val foodConsumption get() = Math.ceil(crew * FOOD_COEFFICIENT)
+
     val destroyed get() = hullPoints == 0
 
     fun rename(newName: String) {
@@ -37,8 +42,20 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
         return crew - oldCrew
     }
 
+    fun eatFood() {
+        val curFood = inventory[InventoryItem.FOOD]
+        if (curFood >= foodConsumption) {
+            inventory.removeItems(InventoryItem.FOOD, foodConsumption)
+        } else {
+            val toKill = crew - (curFood / FOOD_COEFFICIENT).toInt()
+            modCrew(-toKill)
+            inventory.removeItems(InventoryItem.FOOD, curFood)
+        }
+    }
+
     companion object : Serializer<Ship, SShip> {
-        const val FUEL_COEFFICIENT = 0.01
+        const val FUEL_COEFFICIENT = 0.006
+        const val FOOD_COEFFICIENT = 0.008 // food per person per turn
 
         override fun serialize(obj: Ship): SShip =
                 SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory))
