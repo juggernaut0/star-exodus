@@ -10,7 +10,7 @@ enum class ShipClass(
         val upgradeSlots: Int,
         smSlots: Int = 0, mdSlots: Int = 0, lgSlots: Int = 0,
         val hanger: Int = 0,
-        val foodGrowth: Int = 0
+        val foodProduction: Int = 0
 ) {
     // civilian
     SMALL_PASSENGER_CARRIER( "Small Passenger Carrier",  50,   2,  200,  90,   80, 1),
@@ -21,8 +21,8 @@ enum class ShipClass(
     DREAM_LINER(             "Dream Liner",             600,  16,  600,  70,  800, 4),
     SMALL_COLONY_SHIP(       "Small Colony Ship",       900,  25, 1000,  80, 1800, 3, hanger =   5),
     LARGE_COLONY_SHIP(       "Large Colony Ship",      1500,  50, 1200,  70, 3200, 4, hanger =  10),
-    LIVESHIP(                "Liveship",               2500, 100, 1800,  55, 4800, 5, hanger =  50, foodGrowth = 25),
-    CITYSHIP(                "Cityship",               5000, 250, 3600,  40, 7200, 6, hanger = 100, foodGrowth = 55),
+    LIVESHIP(                "Liveship",               2500, 100, 1800,  55, 4800, 5, hanger =  50, foodProduction = 25),
+    CITYSHIP(                "Cityship",               5000, 250, 3600,  40, 7200, 6, hanger = 100, foodProduction = 55),
     SMALL_FREIGHT_CARRIER(   "Small Freight Carrier",    25,   3,  240,  90,  160, 1),
     MEDIUM_FREIGHT_CARRIER(  "Medium Freight Carrier",   45,   6,  300,  80,  320, 1),
     LARGE_FREIGHT_CARRIER(   "Large Freight Carrier",    80,  10,  360,  70,  560, 2),

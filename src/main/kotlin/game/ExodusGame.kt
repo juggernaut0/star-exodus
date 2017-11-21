@@ -2,9 +2,11 @@ package game
 
 import serialization.SerializationModels.SGame
 import serialization.Serializer
+import util.Event
 import util.Random
 
 class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: Int) {
+    val onTurn = Event<ExodusGame, Unit>()
 
     var day = day
         private set
@@ -13,6 +15,7 @@ class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: 
         day += 1
 
         fleet.doTurn()
+        onTurn(this, Unit)
     }
 
     companion object : Serializer<ExodusGame, SGame> {

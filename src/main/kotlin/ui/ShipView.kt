@@ -11,5 +11,8 @@ class ShipView(internal val ship: Ship) {
     val cargo = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
     val inventory = ship.inventory.items.map { (ii, c) -> InventoryContents(ii.name.toTitleCase(), c) }.toTypedArray()
 
+    val foodProd = ship.shipClass.foodProduction
+    val foodCons = ship.foodConsumption
+
     class InventoryContents(val itemName: String, val count: Int)
 }

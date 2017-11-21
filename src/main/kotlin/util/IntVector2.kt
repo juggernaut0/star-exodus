@@ -11,6 +11,8 @@ data class IntVector2(val x: Int, val y: Int) {
 
     fun toMutVector() = MutVector2(x.toDouble(), y.toDouble())
 
+    fun toDisplayString() = "($x, $y)"
+
     companion object {
         fun distance(loc1: IntVector2, loc2: IntVector2): Double {
             val dx = (loc1.x - loc2.x).toDouble()

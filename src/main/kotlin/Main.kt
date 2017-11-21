@@ -1,8 +1,26 @@
+import angular.DirectiveDefinition
 import ui.StarExodusController
 
 fun main() {
-    val app = angular.module("star-exodus", emptyArray())
-    app.controller("star-exodus-controller", controller(arrayOf("\$scope", "\$http"), StarExodusController::class.js))
+    angular.module("star-exodus", emptyArray())
+            .controller("star-exodus-controller",
+                    controller(arrayOf("\$scope", "\$http"), StarExodusController::class.js))
+            .directive("seConfirmClick") {
+                DirectiveDefinition {
+                    link = { scope, element, attr ->
+                        val ctrl = scope.asDynamic().`_` as StarExodusController
+                        val msg = (attr.seConfirmMessage as String?) ?: "Are you sure?"
+                        val action = (attr.seConfirmClick as String?) ?: ""
+                        element.on("click", {
+                            ctrl.confirmMessage = msg
+                            ctrl.confirmAction = { scope.eval(action) }
+                            jQuery("#confirmModal").modal("show")
+                            scope.apply()
+                        })
+                        Unit
+                    }
+                }
+            }
 }
 
 @Suppress("NOTHING_TO_INLINE")

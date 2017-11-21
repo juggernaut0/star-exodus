@@ -16,11 +16,16 @@ import kotlin.browser.window
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class StarExodusController(val scope: Scope, http: HttpService) {
+    private var ready: Boolean = false
     private lateinit var game: ExodusGame
     private val galaxyRenderer: SystemRenderer
     private val systemRenderer: SystemRenderer
     private var saveCleared = false
 
+    var confirmMessage: String = ""
+    var confirmAction: () -> Unit = {}
+
+    var log: Array<String> = arrayOf("Log 1", "Log 2")
     var clickedStar: StarView? = null
     var fleet: Array<ShipView> = emptyArray()
     var totalPopulation: Int = 0
@@ -36,6 +41,12 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             field = value
         }
     var customDestination: MutVector2 = MutVector2()
+    val destinationDisplay: String
+        get() {
+            if (!ready) return ""
+            val dest = game.fleet.destination
+            return game.galaxy.getStarAt(dest)?.name ?: dest.toDisplayString()
+        }
 
     init {
         val loader = HttpResourceLoader(http)
@@ -46,12 +57,18 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             } else {
                 ExodusGame(loader)
             }
+            registerGameListeners()
+            ready = true
         })
 
         galaxyRenderer = initPixi("mapPanel", 800, 800)
         systemRenderer = initPixi("systemMap", 400, 200)
 
         window.onbeforeunload = { if (!saveCleared) saveGame(); null }
+    }
+
+    private fun registerGameListeners(){
+        // TODO
     }
 
     private fun initPixi(canvasId: String, width: Int, height: Int): SystemRenderer {
@@ -68,12 +85,15 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun refreshMap() {
         val stage = PIXI.Container()
 
-        game.galaxy.stars.asSequence().map {
-            Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->
-                clickedStar = StarView(it)
-                scope.apply()
-            }
-        }.forEach { stage.addChild(it) }
+        game.galaxy.stars
+                .asSequence()
+                .map {
+                    Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->
+                        clickedStar = StarView(it)
+                        scope.apply()
+                    }
+                }
+                .forEach { stage.addChild(it) }
 
         stage.addChild(Shapes.circle(game.fleet.location.toPoint(), 4.0, lineStyle = LineStyle(Color.RED, 2.0)))
 
@@ -158,6 +178,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun clearSave() {
         window.localStorage.removeItem("savedgame")
         saveCleared = true
+        window.location.reload()
     }
 
     @JsName("openShipCollapse")
@@ -173,8 +194,14 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     }
 
     @JsName("renameSelectedShip")
-    fun renameSelectedShip(name: String){
+    fun renameSelectedShip(name: String) {
         selectedShip?.apply { ship.rename(name) }
+    }
+
+    @JsName("abandonSelectedShip")
+    fun abandonSelectedShip() {
+        selectedShip?.apply { game.fleet.abandonShip(ship) }
+        refreshFleet()
     }
 
     @JsName("activeClass")
@@ -199,6 +226,9 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     fun nextDay() {
         game.nextDay()
     }
+
+    @JsName("fuelCons")
+    fun fuelCons(shipView: ShipView?): Int = if (shipView == null) 0 else game.fleet.fuelConsumptionAtSpeed(shipView.ship)
 
     private fun util.IntVector2.toPoint(): Point =
             Point(x * galaxyRenderer.width.toInt() / game.galaxy.mapSize, y * galaxyRenderer.height.toInt() / game.galaxy.mapSize)

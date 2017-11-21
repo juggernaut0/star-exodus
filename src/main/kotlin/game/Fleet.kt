@@ -22,6 +22,10 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         moveTowardsDestination()
     }
 
+    fun abandonShip(ship: Ship) {
+        _ships.remove(ship)
+    }
+
     private fun abandonUncrewed() {
         val uncrewed = _ships.filter { it.crew < it.shipClass.minCrew }
         var remaining = uncrewed.sumBy { it.crew }
@@ -40,6 +44,8 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         }
     }
 
+    fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = Math.ceil(ship.fuelConsumption * dist)
+
     private fun moveTowardsDestination() {
         if (destination == location) return
 
@@ -49,7 +55,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         } else {
             location += (destination - location) * (speed / dist)
         }
-        val fuelNeeded = _ships.associate { it to Math.ceil(it.fuelConsumption * Math.min(speed.toDouble(), dist)) }
+        val fuelNeeded = _ships.associate { it to fuelConsumptionAtSpeed(it, Math.min(speed.toDouble(), dist)) }
         _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
 
@@ -57,7 +63,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
     }
 
     private fun growFood() {
-        ships.forEach { it.inventory.addItems(InventoryItem.FOOD, it.shipClass.foodGrowth) }
+        ships.forEach { it.inventory.addItems(InventoryItem.FOOD, it.shipClass.foodProduction) }
     }
 
     private fun eatFood() {
