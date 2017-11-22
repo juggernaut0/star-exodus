@@ -105,7 +105,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="ship in _.fleet | orderBy:'name'" ng-click="_.openShipCollapse(ship)" ng-class="_.activeClass(ship)">
+                        <tr ng-repeat="ship in _.fleet | orderBy:'name'" ng-click="_.openShipCollapse(ship)" ng-class="_.shipRowClass(ship)">
                             <td>{{ship.name}}</td>
                             <td>{{ship.shipClass}}</td>
                             <td>{{ship.hull}}</td>
@@ -118,10 +118,45 @@
             <div id="star" class="tab-pane">
                 <div ng-show="_.currentSystem != null">
                     <h4>{{_.currentSystem.name}} <small class="text-muted">{{_.currentSystem.type}}</small></h4>
-                    <hr>
-                    <ol>
-                        <li ng-repeat="planet in _.currentSystem.planets">{{planet.name}} - {{planet.type}}</li>
-                    </ol>
+                    <div class="collapse" id="planetDetails">
+                        <div class="card">
+                            <div class="card-header">
+                                Planet Details
+                                <button type="button" class="close" ng-click="_.closePlanetCollapse()">&times;</button>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">{{_.selectedPlanet.name}} <small class="text-muted">{{_.selectedPlanet.type}}</small></h4>
+
+                                <div class="progress mb-3 position-relative">
+                                    <div class="progress-bar" ng-style="{'width': _.selectedPlanet.exploration}">{{_.selectedPlanet.exploration}}</div>
+                                    <div class="segments"><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment border-0"></div></div>
+                                </div>
+
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-primary">Rename</button>
+                                    <button class="btn btn-outline-primary">Explore</button>
+                                    <button class="btn btn-outline-primary">Mine</button>
+                                    <button class="btn btn-outline-primary">Trade</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Explored</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="planet in _.currentSystem.planets" ng-click="_.openPlanetCollapse(planet)" ng-class="_.planetRowClass(planet)">
+                                <td>{{planet.name}}</td>
+                                <td>{{planet.type}}</td>
+                                <td>{{planet.exploration}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <div id="systemMap"></div>
                 </div>
                 <div ng-show="_.currentSystem == null">

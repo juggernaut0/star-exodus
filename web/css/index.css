@@ -12,3 +12,22 @@
 .tab-pane {
     padding: 5px;
 }
+
+.position-relative {
+    position: relative;
+}
+
+.segments {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.segment {
+    width: 20%;
+    height: 100%;
+    display: inline-block;
+    border-right: 1px solid darkgray;
+}

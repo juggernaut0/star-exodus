@@ -6,4 +6,5 @@ import util.toTitleCase
 class PlanetView(planet: Planet) {
     val name: String = planet.name
     val type: String = planet.type.name.toTitleCase()
+    val exploration: String = "${planet.exploration}%"
 }

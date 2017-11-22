@@ -32,6 +32,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     var fleetSpeed: Int = 0
     var selectedShip: ShipView? = null
     var currentSystem: StarView? = null
+    var selectedPlanet: PlanetView? = null
     var nearbyStars: Array<StarView> = emptyArray()
     var selectedDestination: MutVector2? = null
         set(value) {
@@ -169,6 +170,21 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         }
     }
 
+    @JsName("nextDay")
+    fun nextDay() {
+        game.nextDay()
+    }
+
+    @JsName("resetSelectedDestination")
+    fun resetSelectedDestination() {
+        nearbyStars = game.galaxy.getNearbyStars(game.fleet.location, game.fleet.speed * 10.0)
+                .asSequence()
+                .filter { it.location != game.fleet.location }
+                .map { StarView(it) }
+                .toTypedArray()
+        customDestination = game.fleet.destination.toMutVector()
+    }
+
     @JsName("saveGame")
     fun saveGame() {
         window.localStorage.setItem("savedgame", JsonSerializer.saveGame(ExodusGame.serialize(game)))
@@ -193,6 +209,9 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         jQuery("#shipDetails").collapse("hide")
     }
 
+    @JsName("fuelCons")
+    fun fuelCons(shipView: ShipView?): Int = if (shipView == null) 0 else game.fleet.fuelConsumptionAtSpeed(shipView.ship)
+
     @JsName("renameSelectedShip")
     fun renameSelectedShip(name: String) {
         selectedShip?.apply { ship.rename(name) }
@@ -204,31 +223,28 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         refreshFleet()
     }
 
-    @JsName("activeClass")
-    fun activeClass(shipView: ShipView) = if (shipView == selectedShip) "table-primary" else ""
+    @JsName("shipRowClass")
+    fun shipRowClass(shipView: ShipView) = if (shipView == selectedShip) "table-primary" else ""
 
     @JsName("setDestination")
     fun setDestination() {
         game.fleet.destination = (selectedDestination ?: customDestination).toIntVector()
     }
 
-    @JsName("resetSelectedDestination")
-    fun resetSelectedDestination() {
-        nearbyStars = game.galaxy.getNearbyStars(game.fleet.location, game.fleet.speed * 10.0)
-                .asSequence()
-                .filter { it.location != game.fleet.location }
-                .map { StarView(it) }
-                .toTypedArray()
-        customDestination = game.fleet.destination.toMutVector()
+    @JsName("openPlanetCollapse")
+    fun openPlanetCollapse(planetView: PlanetView) {
+        selectedPlanet = planetView
+        jQuery("#planetDetails").collapse("show")
     }
 
-    @JsName("nextDay")
-    fun nextDay() {
-        game.nextDay()
+    @JsName("closePlanetCollapse")
+    fun closePlanetCollapse() {
+        selectedPlanet = null
+        jQuery("#planetDetails").collapse("hide")
     }
 
-    @JsName("fuelCons")
-    fun fuelCons(shipView: ShipView?): Int = if (shipView == null) 0 else game.fleet.fuelConsumptionAtSpeed(shipView.ship)
+    @JsName("planetRowClass")
+    fun planetRowClass(planetView: PlanetView) = if (planetView == selectedPlanet) "table-primary" else ""
 
     private fun util.IntVector2.toPoint(): Point =
             Point(x * galaxyRenderer.width.toInt() / game.galaxy.mapSize, y * galaxyRenderer.height.toInt() / game.galaxy.mapSize)
