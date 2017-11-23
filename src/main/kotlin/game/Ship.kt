@@ -5,7 +5,7 @@ import serialization.SerializationModels.SShip
 import util.Random
 import kotlin.js.Math
 
-class Ship private constructor(name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory) {
+class Ship private constructor(name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory, val exploring: Int?) {
     var name: String = name
         private set
 
@@ -58,10 +58,10 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
 
         override fun serialize(obj: Ship): SShip =
-                SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory))
+                SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory), obj.exploring)
 
         override fun deserialize(serModel: SShip): Ship =
-                Ship(serModel.name, serModel.shipClass, serModel.hullPoints, serModel.crew, Inventory.deserialize(serModel.inventory))
+                Ship(serModel.name, serModel.shipClass, serModel.hullPoints, serModel.crew, Inventory.deserialize(serModel.inventory), serModel.exploring)
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
             val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()
@@ -69,7 +69,7 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
             val inv = Inventory(shipClass.cargoCapacity)
             inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
             inv.addItems(InventoryItem.FOOD, inv.capacity/4)
-            return Ship(name, shipClass, hull, crew, inv)
+            return Ship(name, shipClass, hull, crew, inv, null)
         }
     }
 }

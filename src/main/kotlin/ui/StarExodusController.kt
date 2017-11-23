@@ -70,6 +70,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     private fun registerGameListeners(){
         // TODO
+        game.onTurn += { _, _ -> console.log("hello") }
     }
 
     private fun initPixi(canvasId: String, width: Int, height: Int): SystemRenderer {

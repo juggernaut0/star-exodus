@@ -45,7 +45,8 @@ object JsonSerializer {
             "shipClass" to saveEnum(ship.shipClass),
             "hullPoints" to saveNumber(ship.hullPoints),
             "crew" to saveNumber(ship.crew),
-            "inventory" to saveInventory(ship.inventory)
+            "inventory" to saveInventory(ship.inventory),
+            "exploring" to saveNumber(ship.exploring)
     )
 
     private fun saveInventory(inventory: SerializationModels.SInventory): String = obj(
@@ -58,7 +59,7 @@ object JsonSerializer {
     private fun <T> saveList(list: List<T>, mapper: (T) -> String): String =
             list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
 
-    private fun saveNumber(number: Number) = number.toString()
+    private fun saveNumber(number: Number?) = number?.toString() ?: "null"
     private fun saveString(string: String) = "\"$string\""
     private fun saveEnum(value: Enum<*>) = "\"${value.name}\""
 
@@ -110,7 +111,8 @@ object JsonSerializer {
         val hull = loadInt(obj.hullPoints, "$name.hullPoints")
         val crew = loadInt(obj.crew, "$name.crew")
         val inv = loadInventory(obj.inventory, "$name.inventory")
-        return SerializationModels.SShip(shipName, shipClass, hull, crew, inv)
+        val exploring = loadNullable(obj.exploring, "$name.exploring", this::loadInt)
+        return SerializationModels.SShip(shipName, shipClass, hull, crew, inv, exploring)
     }
 
     private fun loadInventory(obj: dynamic, name: String): SerializationModels.SInventory {
@@ -142,8 +144,14 @@ object JsonSerializer {
         return (obj as Number).toInt()
     }
 
+    private fun <T> loadNullable(obj: dynamic, name: String, loader: (dynamic, String) -> T): T? {
+        checkUndef(obj, name)
+        if (obj === null) return null
+        return loader(obj, name)
+    }
+
     private fun checkUndef(obj: dynamic, name: String) {
-        if (obj == undefined) {
+        if (obj === undefined) {
             throw SerializationException("Undefined property: $name")
         }
     }
