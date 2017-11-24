@@ -5,23 +5,31 @@ import serialization.Serializer
 import util.*
 import kotlin.js.Math
 
-class Planet private constructor(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : EventEmitter() {
+class Planet private constructor(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : EventEmitter<Planet>() {
     val onDiscoverFeature = Event<Planet, PlanetFeature>(this)
 
     var exploration: Int = exploration // out of 100
         private set
 
+    val discoveredFeatures get() = features.subList(0, (exploration/20))
+
     fun explore(ships: List<Ship>) {
-        val numExplorers = ships.sumBy { Math.floor(0.1 * it.crew) }
+        if (ships.isEmpty()) return
+
+        val numExplorers = ships.sumBy { it.explorers }
         val begin = exploration
-        exploration = Math.max(exploration + numExplorers / 5, 100)
+        exploration = Math.min(exploration + numExplorers / 5, 100)
         val end = exploration
         if(begin % 20 > end % 20 || end - begin >= 20){
             val n = begin / 20
             val l = end / 20
             for (i in n until l) {
-                invoke(onDiscoverFeature, features[i])
+                onDiscoverFeature(features[i])
             }
+        }
+
+        if (exploration == 100) {
+            ships.forEach { it.exploring = null }
         }
     }
 

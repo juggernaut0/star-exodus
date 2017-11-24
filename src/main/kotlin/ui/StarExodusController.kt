@@ -21,11 +21,12 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     private val galaxyRenderer: SystemRenderer
     private val systemRenderer: SystemRenderer
     private var saveCleared = false
+    private val _log: MutableList<String> = mutableListOf("Welcome to Star Exodus!")
 
     var confirmMessage: String = ""
     var confirmAction: () -> Unit = {}
 
-    var log: Array<String> = arrayOf("Log 1", "Log 2")
+    val log: Array<String> get() = _log.toTypedArray()
     var clickedStar: StarView? = null
     var fleet: Array<ShipView> = emptyArray()
     var totalPopulation: Int = 0
@@ -59,6 +60,9 @@ class StarExodusController(val scope: Scope, http: HttpService) {
                 ExodusGame(loader)
             }
             registerGameListeners()
+            refreshFleet()
+            refreshMap()
+            refreshStar()
             ready = true
         })
 
@@ -70,7 +74,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     private fun registerGameListeners(){
         // TODO
-        game.onTurn += { _, _ -> console.log("hello") }
+        game.onTurn += { game, _ -> _log.add("Day ${game.day}") }
     }
 
     private fun initPixi(canvasId: String, width: Int, height: Int): SystemRenderer {
@@ -112,6 +116,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("refreshStar")
     fun refreshStar() {
+        closePlanetCollapse()
         val star = game.galaxy.getStarAt(game.fleet.location)
         currentSystem = star?.let { StarView(it) }
 
@@ -246,6 +251,19 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("planetRowClass")
     fun planetRowClass(planetView: PlanetView) = if (planetView == selectedPlanet) "table-primary" else ""
+
+    @JsName("selectedShipExplore")
+    fun selectedShipExplore(planet: PlanetView?) {
+        val index = if (planet == null) null else currentSystem?.planets?.indexOf(planet)?.takeIf { it >= 0 }
+        selectedShip?.apply { ship.exploring = index }
+    }
+
+    @JsName("exploringPlanetName")
+    fun exploringPlanetName(): String =
+            selectedShip?.run {
+                val i = ship.exploring
+                if (i == null) "None" else currentSystem?.planets?.get(i)?.name
+            } ?: ""
 
     private fun util.IntVector2.toPoint(): Point =
             Point(x * galaxyRenderer.width.toInt() / game.galaxy.mapSize, y * galaxyRenderer.height.toInt() / game.galaxy.mapSize)

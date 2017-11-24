@@ -6,7 +6,7 @@ import util.Event
 import util.EventEmitter
 import util.Random
 
-class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: Int) : EventEmitter() {
+class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: Int) : EventEmitter<ExodusGame>() {
     val onTurn = Event<ExodusGame, Unit>(this)
 
     var day = day
@@ -15,8 +15,8 @@ class ExodusGame private constructor(val galaxy: Galaxy, val fleet: Fleet, day: 
     fun nextDay(){
         day += 1
 
-        fleet.doTurn()
-        invoke(onTurn, Unit)
+        fleet.doTurn(this)
+        onTurn(Unit)
     }
 
     companion object : Serializer<ExodusGame, SGame> {

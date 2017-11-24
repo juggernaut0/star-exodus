@@ -15,11 +15,12 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
 
-    fun doTurn() {
+    fun doTurn(game: ExodusGame) {
         abandonUncrewed()
         growFood()
         eatFood()
         moveTowardsDestination()
+        game.galaxy.getStarAt(location)?.let { exploreSystem(it) }
     }
 
     fun abandonShip(ship: Ship) {
@@ -44,6 +45,14 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         }
     }
 
+    private fun growFood() {
+        ships.forEach { it.inventory.addItems(InventoryItem.FOOD, it.shipClass.foodProduction) }
+    }
+
+    private fun eatFood() {
+        ships.forEach { it.eatFood() }
+    }
+
     fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = Math.ceil(ship.fuelConsumption * dist)
 
     private fun moveTowardsDestination() {
@@ -62,12 +71,9 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         // TODO discovered systems (600 range?)
     }
 
-    private fun growFood() {
-        ships.forEach { it.inventory.addItems(InventoryItem.FOOD, it.shipClass.foodProduction) }
-    }
-
-    private fun eatFood() {
-        ships.forEach { it.eatFood() }
+    private fun exploreSystem(star: StarSystem) {
+        val explorers = ships.groupBy { it.exploring }
+        star.planets.forEachIndexed { i, planet -> planet.explore(explorers[i] ?: emptyList()) }
     }
 
     companion object : Serializer<Fleet, SFleet> {

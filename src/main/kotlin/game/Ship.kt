@@ -5,7 +5,14 @@ import serialization.SerializationModels.SShip
 import util.Random
 import kotlin.js.Math
 
-class Ship private constructor(name: String, val shipClass: ShipClass, hullPoints: Int, crew: Int, val inventory: Inventory, val exploring: Int?) {
+class Ship private constructor(
+        name: String,
+        val shipClass: ShipClass,
+        hullPoints: Int,
+        crew: Int,
+        val inventory: Inventory,
+        var exploring: Int?
+) {
     var name: String = name
         private set
 
@@ -20,6 +27,8 @@ class Ship private constructor(name: String, val shipClass: ShipClass, hullPoint
     val fuelConsumption get() = Math.sqrt(mass.toDouble()) * FUEL_COEFFICIENT
     // food per turn
     val foodConsumption get() = Math.ceil(crew * FOOD_COEFFICIENT)
+
+    val explorers get() = Math.min(Math.floor(0.1 * crew), 50)
 
     val destroyed get() = hullPoints == 0
 

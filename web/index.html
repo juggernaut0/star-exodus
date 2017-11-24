@@ -64,11 +64,13 @@
                             <p>Food consumption: {{_.selectedShip.foodCons}}</p>
                             <p ng-show="_.selectedShip.foodProd > 0">Food production: {{_.selectedShip.foodProd}}</p>
                             <p><span title="At current speed">Fuel consumption</span>: {{_.fuelCons(_.selectedShip)}}</p>
+                            <p>Exploring: {{_.exploringPlanetName()}}</p>
 
                             <div class="btn-group">
                                 <button class="btn btn-outline-primary" data-toggle="modal" data-target="#shipRenameModal">Rename</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipWeapons" data-parent="#shipDetailsPanels">Weapons</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipInventory" data-parent="#shipDetailsPanels">Inventory</button>
+                                <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipExploreModal">Explore Planet</button>
                                 <button class="btn btn-outline-danger" se-confirm-click="_.abandonSelectedShip()" se-confirm-message="Ship will be lost forever. Are you sure?">Abandon</button>
                             </div>
 
@@ -127,10 +129,14 @@
                             <div class="card-body">
                                 <h4 class="card-title">{{_.selectedPlanet.name}} <small class="text-muted">{{_.selectedPlanet.type}}</small></h4>
 
-                                <div class="progress mb-3 position-relative">
+                                <div class="progress position-relative">
                                     <div class="progress-bar" ng-style="{'width': _.selectedPlanet.exploration}">{{_.selectedPlanet.exploration}}</div>
                                     <div class="segments"><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment border-0"></div></div>
                                 </div>
+
+                                <ul class="list-group my-3">
+                                    <li class="list-group-item" ng-repeat="feat in _.selectedPlanet.features track by $index">{{feat}}</li>
+                                </ul>
 
                                 <div class="btn-group">
                                     <button class="btn btn-outline-primary">Rename</button>
@@ -210,6 +216,30 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.renameSelectedShip(newName)">Rename</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shipExploreModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Explore Planet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>This ship can send {{_.selectedShip.explorers}} explorers.</p>
+                    <label for="planet">Planet</label>
+                    <select id="planet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="_.shipExplorePlanet">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.selectedShipExplore(_.shipExplorePlanet)">Send Explorers</button>
                 </div>
             </div>
         </div>
