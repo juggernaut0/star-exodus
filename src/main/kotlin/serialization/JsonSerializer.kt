@@ -5,154 +5,193 @@ import js.Object
 import serialization.SerializationModels.SGame
 import util.IntVector2
 
-object JsonSerializer {
+private class JsonSaver {
+    private val objectRefs = mutableMapOf<SerializationModel, Int>()
+    private val objectList = mutableListOf<String>()
+
     private fun obj(vararg vals: Pair<String, String>): String =
             vals.joinToString(separator = ",", prefix = "{", postfix = "}") { (key, value) -> "\"$key\":$value" }
 
-    fun saveGame(game: SGame): String = obj(
-            "galaxy" to saveGalaxy(game.galaxy),
-            "fleet" to saveFleet(game.fleet),
-            "day" to saveNumber(game.day)
-    )
-
-    private fun saveGalaxy(galaxy: SerializationModels.SGalaxy): String = obj(
-            "mapSize" to saveNumber(galaxy.mapSize),
-            "stars" to saveList(galaxy.stars, this::saveStar)
-    )
-
-    private fun saveStar(star: SerializationModels.SStarSystem): String = obj(
-            "name" to saveString(star.name),
-            "type" to saveEnum(star.type),
-            "location" to saveLocation(star.location),
-            "planets" to saveList(star.planets, this::savePlanet)
-    )
-
-    private fun savePlanet(planet: SerializationModels.SPlanet): String = obj(
-            "name" to saveString(planet.name),
-            "type" to saveEnum(planet.type),
-            "features" to saveList(planet.features, this::saveEnum),
-            "exploration" to saveNumber(planet.exploration)
-    )
-
-    private fun saveFleet(fleet: SerializationModels.SFleet): String = obj(
-            "location" to saveLocation(fleet.location),
-            "destination" to saveLocation(fleet.destination),
-            "ships" to saveList(fleet.ships, this::saveShip)
-    )
-
-    private fun saveShip(ship: SerializationModels.SShip): String = obj(
-            "name" to saveString(ship.name),
-            "shipClass" to saveEnum(ship.shipClass),
-            "hullPoints" to saveNumber(ship.hullPoints),
-            "crew" to saveNumber(ship.crew),
-            "inventory" to saveInventory(ship.inventory),
-            "exploring" to saveNumber(ship.exploring)
-    )
-
-    private fun saveInventory(inventory: SerializationModels.SInventory): String = obj(
-            "capacity" to saveNumber(inventory.capacity),
-            "contents" to obj(*inventory.contents.map { (k, v) -> k.name to saveNumber(v) }.toTypedArray())
-    )
-
     private fun saveLocation(loc: IntVector2) = obj("x" to loc.x.toString(), "y" to loc.y.toString())
 
-    private fun <T> saveList(list: List<T>, mapper: (T) -> String): String =
+    private fun <T> saveList(list: List<T>, mapper: ((T) -> String)? = null): String =
             list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
 
     private fun saveNumber(number: Number?) = number?.toString() ?: "null"
     private fun saveString(string: String) = "\"$string\""
     private fun saveEnum(value: Enum<*>) = "\"${value.name}\""
 
-    fun loadGame(string: String): SGame {
+    private fun <T : SerializationModel> reference(obj: T, generator: (T) -> String): String {
+        if (obj !in objectRefs) {
+            val ser = generator(obj)
+            objectRefs[obj] = objectList.size
+            objectList.add(ser)
+        }
+        return objectRefs[obj]!!.toString()
+    }
+
+    private fun <T : SerializationModel> referenceList(list: List<T>, generator: (T) -> String): String =
+            saveList(list) { reference(it, generator) }
+
+    fun save(game: SerializationModels.SGame): String {
+        val root = obj(
+                "galaxy" to reference(game.galaxy, this::save),
+                "fleet" to reference(game.fleet, this::save),
+                "day" to saveNumber(game.day)
+        )
+        val objs = saveList(objectList)
+        return obj(
+                "root" to root,
+                "objs" to objs
+        )
+    }
+
+    private fun save(galaxy: SerializationModels.SGalaxy): String = obj(
+            "mapSize" to saveNumber(galaxy.mapSize),
+            "stars" to referenceList(galaxy.stars, this::save)
+    )
+
+    private fun save(star: SerializationModels.SStarSystem): String = obj(
+            "name" to saveString(star.name),
+            "type" to saveEnum(star.type),
+            "location" to saveLocation(star.location),
+            "planets" to referenceList(star.planets, this::save)
+    )
+
+    private fun save(planet: SerializationModels.SPlanet): String = obj(
+            "name" to saveString(planet.name),
+            "type" to saveEnum(planet.type),
+            "features" to saveList(planet.features, this::saveEnum),
+            "exploration" to saveNumber(planet.exploration)
+    )
+
+    private fun save(fleet: SerializationModels.SFleet): String = obj(
+            "location" to saveLocation(fleet.location),
+            "destination" to saveLocation(fleet.destination),
+            "ships" to referenceList(fleet.ships, this::save)
+    )
+
+    private fun save(ship: SerializationModels.SShip): String = obj(
+            "name" to saveString(ship.name),
+            "shipClass" to saveEnum(ship.shipClass),
+            "hullPoints" to saveNumber(ship.hullPoints),
+            "crew" to saveNumber(ship.crew),
+            "inventory" to reference(ship.inventory, this::save),
+            "exploring" to saveNumber(ship.exploring)
+    )
+
+    private fun save(inventory: SerializationModels.SInventory): String = obj(
+            "capacity" to saveNumber(inventory.capacity),
+            "contents" to obj(*inventory.contents.map { (k, v) -> k.name to saveNumber(v) }.toTypedArray())
+    )
+}
+
+private class JsonLoader(string: String) {
+    val root: dynamic
+    val objs: Array<dynamic>
+
+    val objectCache = mutableMapOf<Int, SerializationModel>()
+
+    init {
         val obj: dynamic = JSON.parse(string)
-        val galaxy = loadGalaxy(obj.galaxy, "game.galaxy")
-        val fleet = loadFleet(obj.fleet, "game.fleet")
-        val day = loadInt(obj.day, "game.day")
+        root = obj.root
+        objs = obj.objs.unsafeCast<Array<dynamic>>()
+    }
+
+    private inline fun <reified T> checkUndef(obj: dynamic, loader: (dynamic) -> T): T {
+        if (obj === undefined) {
+            throw SerializationException("Undefined property; expecting a ${T::class.simpleName}")
+        }
+        return loader(obj)
+    }
+
+    private inline fun <reified T> loadNullable(obj: dynamic, loader: (dynamic) -> T): T? = checkUndef(obj) {
+        if (obj === null) null else loader(obj)
+    }
+
+    private fun loadInt(obj: dynamic) = checkUndef(obj) { (obj as Number).toInt() }
+    private fun loadString(obj: dynamic) = checkUndef(obj) { obj as String }
+
+    private inline fun <T> loadList(arr: dynamic, loader: (dynamic) -> T): List<T> {
+        return checkUndef(arr) { (arr as Array<dynamic>).map(loader) }
+    }
+
+    private fun loadLocation(obj: dynamic) = checkUndef(obj) {
+        val x = loadInt(obj.x)
+        val y = loadInt(obj.y)
+        IntVector2(x, y)
+    }
+
+    private fun <T : SerializationModel> loadReference(ref: dynamic, loader: (dynamic) -> T): T {
+        val index = ref as Int
+        return if (index !in objectCache) {
+            val obj = loader(objs[index])
+            objectCache[index] = obj
+            obj
+        } else {
+            objectCache[index].unsafeCast<T>()
+        }
+    }
+
+    private fun <T : SerializationModel> loadReferenceList(arr: dynamic, loader: (dynamic) -> T) = checkUndef(arr) {
+        (arr as Array<dynamic>).map { loadReference(it, loader) }
+    }
+
+    fun load(): SGame {
+        val galaxy = loadReference(root.galaxy, this::loadGalaxy)
+        val fleet = loadReference(root.fleet, this::loadFleet)
+        val day = loadInt(root.day)
         return SGame(galaxy, fleet, day)
     }
 
-    private fun loadGalaxy(obj: dynamic, name: String): SerializationModels.SGalaxy {
-        checkUndef(obj, name)
-        val stars = loadList(obj.stars, "$name.stars", this::loadStar)
-        val mapSize = loadInt(obj.mapSize, "$name.mapSize")
-        return SerializationModels.SGalaxy(stars, mapSize)
+    private fun loadGalaxy(obj: dynamic) = checkUndef(obj) {
+        val stars = loadReferenceList(obj.stars, this::loadStar)
+        val mapSize = loadInt(obj.mapSize)
+        SerializationModels.SGalaxy(stars, mapSize)
     }
 
-    private fun loadStar(obj: dynamic, name: String): SerializationModels.SStarSystem {
-        checkUndef(obj, name)
-        val starName = loadString(obj.name, "$name.name")
-        val location = loadLocation(obj.location, "$name.location")
-        val type = StarType.valueOf(loadString(obj.type, "$name.type"))
-        val planets = loadList(obj.planets, "$name.planets", this::loadPlanet)
-        return SerializationModels.SStarSystem(starName, location, type, planets)
+    private fun loadStar(obj: dynamic) = checkUndef(obj) {
+        val starName = loadString(obj.name)
+        val location = loadLocation(obj.location)
+        val type = StarType.valueOf(loadString(obj.type))
+        val planets = loadReferenceList(obj.planets, this::loadPlanet)
+        SerializationModels.SStarSystem(starName, location, type, planets)
     }
 
-    private fun loadPlanet(obj: dynamic, name: String): SerializationModels.SPlanet {
-        checkUndef(obj, name)
-        val planetName = loadString(obj.name, "$name.name")
-        val type = PlanetType.valueOf(loadString(obj.type, "$name.type"))
-        val features = loadList(obj.features, "$name.features") { o, n -> PlanetFeature.valueOf(loadString(o, n)) }
-        val exploration = loadInt(obj.exploration, "$name.exploration")
-        return SerializationModels.SPlanet(planetName, type, features, exploration)
+    private fun loadPlanet(obj: dynamic) = checkUndef(obj) {
+        val planetName = loadString(obj.name)
+        val type = PlanetType.valueOf(loadString(obj.type))
+        val features = loadList(obj.features) { PlanetFeature.valueOf(loadString(it)) }
+        val exploration = loadInt(obj.exploration)
+        SerializationModels.SPlanet(planetName, type, features, exploration)
     }
 
-    private fun loadFleet(obj: dynamic, name: String): SerializationModels.SFleet {
-        checkUndef(obj, name)
-        val location = loadLocation(obj.location, "$name.location")
-        val destination = loadLocation(obj.destination, "$name.destination")
-        val ships = loadList(obj.ships, "$name.ships", this::loadShip)
-        return SerializationModels.SFleet(ships, location, destination)
+    private fun loadFleet(obj: dynamic) = checkUndef(obj) {
+        val location = loadLocation(obj.location)
+        val destination = loadLocation(obj.destination)
+        val ships = loadReferenceList(obj.ships, this::loadShip)
+        SerializationModels.SFleet(ships, location, destination)
     }
 
-    private fun loadShip(obj: dynamic, name: String): SerializationModels.SShip {
-        checkUndef(obj, name)
-        val shipName = loadString(obj.name, "$name.name")
-        val shipClass = ShipClass.valueOf(loadString(obj.shipClass, "$name.shipClass"))
-        val hull = loadInt(obj.hullPoints, "$name.hullPoints")
-        val crew = loadInt(obj.crew, "$name.crew")
-        val inv = loadInventory(obj.inventory, "$name.inventory")
-        val exploring = loadNullable(obj.exploring, "$name.exploring", this::loadInt)
-        return SerializationModels.SShip(shipName, shipClass, hull, crew, inv, exploring)
+    private fun loadShip(obj: dynamic) = checkUndef(obj) {
+        val shipName = loadString(obj.name)
+        val shipClass = ShipClass.valueOf(loadString(obj.shipClass))
+        val hull = loadInt(obj.hullPoints)
+        val crew = loadInt(obj.crew)
+        val inv = loadReference(obj.inventory, this::loadInventory)
+        val exploring = loadNullable(obj.exploring, this::loadInt)
+        SerializationModels.SShip(shipName, shipClass, hull, crew, inv, exploring)
     }
 
-    private fun loadInventory(obj: dynamic, name: String): SerializationModels.SInventory {
-        checkUndef(obj, name)
-        val capacity = loadInt(obj.capacity, "$name.capacity")
+    private fun loadInventory(obj: dynamic) = checkUndef(obj) {
+        val capacity = loadInt(obj.capacity)
         val contents = Object.keys(obj.contents).associateBy(InventoryItem::valueOf, { (obj.contents[it] as Number).toInt() })
-        return SerializationModels.SInventory(capacity, contents)
+        SerializationModels.SInventory(capacity, contents)
     }
+}
 
-    private fun loadLocation(obj: dynamic, name: String): IntVector2 {
-        checkUndef(obj, name)
-        val x = loadInt(obj.x, name + ".x")
-        val y = loadInt(obj.y, name + ".y")
-        return IntVector2(x, y)
-    }
+object JsonSerializer {
+    fun saveGame(game: SGame) = JsonSaver().save(game)
 
-    private inline fun <T> loadList(arr: dynamic, name: String, mapper: (dynamic, String) -> T): List<T> {
-        checkUndef(arr, name)
-        return (arr as Array<dynamic>).mapIndexed { i, e -> mapper(e, "$name[$i]") }
-    }
-
-    private fun loadString(obj: dynamic, name: String): String {
-        checkUndef(obj, name)
-        return obj as String
-    }
-
-    private fun loadInt(obj: dynamic, name: String): Int {
-        checkUndef(obj, name)
-        return (obj as Number).toInt()
-    }
-
-    private fun <T> loadNullable(obj: dynamic, name: String, loader: (dynamic, String) -> T): T? {
-        checkUndef(obj, name)
-        if (obj === null) return null
-        return loader(obj, name)
-    }
-
-    private fun checkUndef(obj: dynamic, name: String) {
-        if (obj === undefined) {
-            throw SerializationException("Undefined property: $name")
-        }
-    }
+    fun loadGame(string: String) = JsonLoader(string).load()
 }
