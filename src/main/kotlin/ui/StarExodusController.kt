@@ -254,16 +254,8 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("selectedShipExplore")
     fun selectedShipExplore(planet: PlanetView?) {
-        val index = if (planet == null) null else currentSystem?.planets?.indexOf(planet)?.takeIf { it >= 0 }
-        selectedShip?.apply { ship.exploring = index }
+        selectedShip?.apply { ship.exploring = planet?.planet }
     }
-
-    @JsName("exploringPlanetName")
-    fun exploringPlanetName(): String =
-            selectedShip?.run {
-                val i = ship.exploring
-                if (i == null) "None" else currentSystem?.planets?.get(i)?.name
-            } ?: ""
 
     private fun util.IntVector2.toPoint(): Point =
             Point(x * galaxyRenderer.width.toInt() / game.galaxy.mapSize, y * galaxyRenderer.height.toInt() / game.galaxy.mapSize)

@@ -11,12 +11,14 @@ private class JsonSaver {
     private fun obj(vararg vals: Pair<String, String>): String =
             vals.joinToString(separator = ",", prefix = "{", postfix = "}") { (key, value) -> "\"$key\":$value" }
 
+    private inline fun <T> saveNullable(t: T?, generator: (T) -> String) = if (t == null) "null" else generator(t)
+
     private fun saveLocation(loc: IntVector2) = obj("x" to loc.x.toString(), "y" to loc.y.toString())
 
     private fun <T> saveList(list: List<T>, mapper: ((T) -> String)? = null): String =
             list.joinToString(separator = ",", prefix = "[", postfix = "]", transform = mapper)
 
-    private fun saveNumber(number: Number?) = number?.toString() ?: "null"
+    private fun saveNumber(number: Number) = number.toString()
     private fun saveString(string: String) = "\"$string\""
     private fun saveEnum(value: Enum<*>) = "\"${value.name}\""
 
@@ -76,7 +78,7 @@ private class JsonSaver {
             "hullPoints" to saveNumber(ship.hullPoints),
             "crew" to saveNumber(ship.crew),
             "inventory" to saveReference(ship.inventory, this::save),
-            "exploring" to saveNumber(ship.exploring)
+            "exploring" to saveNullable(ship.exploring) { saveReference(it, this::save) }
     )
 
     private fun save(inventory: Inventory): String = obj(
@@ -178,7 +180,7 @@ private class JsonLoader(string: String) {
         val hull = loadInt(obj.hullPoints)
         val crew = loadInt(obj.crew)
         val inv = loadReference(obj.inventory, this::loadInventory)
-        val exploring = loadNullable(obj.exploring, this::loadInt)
+        val exploring = loadNullable(obj.exploring) { loadReference(it, this::loadPlanet) }
         Ship(shipName, shipClass, hull, crew, inv, exploring)
     }
 

@@ -10,7 +10,7 @@ class Ship(
         hullPoints: Int,
         crew: Int,
         val inventory: Inventory,
-        var exploring: Int?
+        var exploring: Planet?
 ) : Serializable {
     var name: String = name
         private set

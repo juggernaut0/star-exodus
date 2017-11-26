@@ -15,6 +15,7 @@ class ShipView(internal val ship: Ship) {
     val foodCons = ship.foodConsumption
 
     val explorers = ship.explorers
+    val exploring get() = ship.exploring?.name ?: "None"
 
     class InventoryContents(val itemName: String, val count: Int)
 }

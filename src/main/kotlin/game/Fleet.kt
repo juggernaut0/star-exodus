@@ -20,7 +20,12 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         growFood()
         eatFood()
         moveTowardsDestination()
-        game.galaxy.getStarAt(location)?.let { exploreSystem(it) }
+        val currentStar = game.galaxy.getStarAt(location)
+        if (currentStar != null) {
+            exploreSystem(currentStar)
+        } else {
+            ships.forEach { it.exploring = null }
+        }
     }
 
     fun abandonShip(ship: Ship) {
@@ -73,7 +78,7 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
 
     private fun exploreSystem(star: StarSystem) {
         val explorers = ships.groupBy { it.exploring }
-        star.planets.forEachIndexed { i, planet -> planet.explore(explorers[i] ?: emptyList()) }
+        star.planets.forEach { planet -> planet.explore(explorers[planet] ?: emptyList()) }
     }
 
     companion object {
