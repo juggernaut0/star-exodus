@@ -12,6 +12,16 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
 
     val discoveredFeatures get() = features.subList(0, (exploration/20))
 
+    val oreAmount: Int
+        get() {
+            val feats = discoveredFeatures
+            return when {
+                PlanetFeature.POOR_RESOURCE_DEPOSITS in feats -> 8
+                PlanetFeature.RICH_RESOURCE_DEPOSITS in feats -> 16
+                else -> 0
+            }
+        }
+
     fun explore(ships: List<Ship>) {
         if (ships.isEmpty()) return
 

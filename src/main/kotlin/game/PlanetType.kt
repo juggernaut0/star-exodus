@@ -2,7 +2,11 @@ package game
 
 import util.WeightedList
 
-enum class PlanetType(val features: WeightedList<PlanetFeature>) {
+enum class PlanetType(
+        val features: WeightedList<PlanetFeature>,
+        val fuelGatherAmount: Int = 0,
+        val foodGatherAmount: Int = 0
+) {
     ROCKY(WeightedList(
             PlanetFeature.RICH_RESOURCE_DEPOSITS to 2,
             PlanetFeature.POOR_RESOURCE_DEPOSITS to 4,
@@ -22,7 +26,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.UNDERGROUND_CAVERNS to 3,
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.NOTHING to 10
-    )),
+    ), foodGatherAmount = 2),
     DESERT(WeightedList(
             PlanetFeature.CRASHED_SPACESHIP to 5,
             PlanetFeature.POOR_RESOURCE_DEPOSITS to 4,
@@ -38,7 +42,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.SMALL_COLONY to 2,
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.NOTHING to 8
-    )),
+    ), foodGatherAmount = 2),
     ARCTIC(WeightedList(
             PlanetFeature.CRASHED_SPACESHIP to 5,
             PlanetFeature.MASSIVE_CANYON to 4,
@@ -56,7 +60,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.SMALL_COLONY to 2,
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.NOTHING to 10
-    )),
+    ), foodGatherAmount = 4),
     CRYSTALLINE(WeightedList(
             PlanetFeature.RICH_RESOURCE_DEPOSITS to 4,
             PlanetFeature.CRASHED_SPACESHIP to 3,
@@ -88,7 +92,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.UNDERGROUND_CAVERNS to 3,
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.NOTHING to 10
-    )),
+    ), foodGatherAmount = 8),
     OCEAN(WeightedList(
             PlanetFeature.COLONIZED_MOON to 2,
             PlanetFeature.FEROCIOUS_FAUNA to 3,
@@ -96,7 +100,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.SMALL_COLONY to 2,
             PlanetFeature.POOR_RESOURCE_DEPOSITS to 2,
             PlanetFeature.NOTHING to 10
-    )),
+    ), foodGatherAmount = 4),
     HYDROGEN_GIANT(WeightedList(
             PlanetFeature.COLONIZED_MOON to 5,
             PlanetFeature.JUPITER_BRAIN to 1,
@@ -105,7 +109,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.ELECTROMAGNETIC_DISTORTIONS to 2,
             PlanetFeature.NOTHING to 26
-    )),
+    ), fuelGatherAmount = 5),
     HELIUM_GIANT(WeightedList(
             PlanetFeature.COLONIZED_MOON to 4,
             PlanetFeature.JUPITER_BRAIN to 1,
@@ -114,7 +118,7 @@ enum class PlanetType(val features: WeightedList<PlanetFeature>) {
             PlanetFeature.DERELICT_SHIP to 1,
             PlanetFeature.ELECTROMAGNETIC_DISTORTIONS to 2,
             PlanetFeature.NOTHING to 25
-    )),
+    ), fuelGatherAmount = 3),
     METHANE_GIANT(WeightedList(
             PlanetFeature.COLONIZED_MOON to 3,
             PlanetFeature.JUPITER_BRAIN to 1,

@@ -19,12 +19,18 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         abandonUncrewed()
         growFood()
         eatFood()
-        moveTowardsDestination()
+        val moved = moveTowardsDestination()
+        if (moved) {
+            for (ship in ships) {
+                ship.exploring = null
+                ship.mining = null
+            }
+        }
+
         val currentStar = game.galaxy.getStarAt(location)
         if (currentStar != null) {
             exploreSystem(currentStar)
-        } else {
-            ships.forEach { it.exploring = null }
+            ships.forEach { it.mine() }
         }
     }
 
@@ -60,8 +66,8 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
 
     fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = Math.ceil(ship.fuelConsumption * dist)
 
-    private fun moveTowardsDestination() {
-        if (destination == location) return
+    private fun moveTowardsDestination(): Boolean {
+        if (destination == location) return false
 
         val dist = IntVector2.distance(destination, location)
         if (dist <= speed) {
@@ -74,6 +80,8 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
 
         // TODO discovered systems (600 range?)
+
+        return true
     }
 
     private fun exploreSystem(star: StarSystem) {

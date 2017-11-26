@@ -10,7 +10,8 @@ class Ship(
         hullPoints: Int,
         crew: Int,
         val inventory: Inventory,
-        var exploring: Planet?
+        var exploring: Planet?,
+        var mining: MiningTarget?
 ) : Serializable {
     var name: String = name
         private set
@@ -50,7 +51,7 @@ class Ship(
         return crew - oldCrew
     }
 
-    fun eatFood() {
+    internal fun eatFood() {
         val curFood = inventory[InventoryItem.FOOD]
         if (curFood >= foodConsumption) {
             inventory.removeItems(InventoryItem.FOOD, foodConsumption)
@@ -58,6 +59,28 @@ class Ship(
             val toKill = crew - (curFood / FOOD_COEFFICIENT).toInt()
             modCrew(-toKill)
             inventory.removeItems(InventoryItem.FOOD, curFood)
+        }
+    }
+
+    internal fun mine() {
+        mining?.let { (planet, item) ->
+            val amt = when (item) {
+                InventoryItem.FUEL -> planet.type.fuelGatherAmount * shipClass.fuelGatherMultiplier
+                InventoryItem.FUEL_ORE, InventoryItem.METAL_ORE -> planet.oreAmount * shipClass.oreMultiplier
+                InventoryItem.FOOD -> planet.type.foodGatherAmount * shipClass.foodGatherMutliplier
+                else -> 0.0
+            }.toInt()
+
+            if (item == InventoryItem.FUEL_ORE || item == InventoryItem.METAL_ORE) {
+                val fuelAmt = Random.range(amt / 2)
+                val rareAmt = if (planet.discoveredFeatures.contains(PlanetFeature.RARE_ELEMENTS)) Random.range((amt - fuelAmt) / 2) else 0
+                val metalAmt = amt - fuelAmt - rareAmt
+                inventory.addItems(InventoryItem.FUEL_ORE, fuelAmt)
+                inventory.addItems(InventoryItem.METAL_ORE, metalAmt)
+                inventory.addItems(InventoryItem.RARE_METALS, rareAmt)
+            } else {
+                inventory.addItems(item, amt)
+            }
         }
     }
 
@@ -71,7 +94,9 @@ class Ship(
             val inv = Inventory(shipClass.cargoCapacity)
             inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
             inv.addItems(InventoryItem.FOOD, inv.capacity/4)
-            return Ship(name, shipClass, hull, crew, inv, null)
+            return Ship(name, shipClass, hull, crew, inv, null, null)
         }
     }
 }
+
+data class MiningTarget(val planet: Planet, val resource: InventoryItem)
