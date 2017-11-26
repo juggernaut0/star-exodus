@@ -1,18 +1,17 @@
 package game
 
-import serialization.Serializer
-import serialization.SerializationModels.SShip
+import serialization.Serializable
 import util.Random
 import kotlin.js.Math
 
-class Ship private constructor(
+class Ship(
         name: String,
         val shipClass: ShipClass,
         hullPoints: Int,
         crew: Int,
         val inventory: Inventory,
         var exploring: Int?
-) {
+) : Serializable {
     var name: String = name
         private set
 
@@ -62,15 +61,9 @@ class Ship private constructor(
         }
     }
 
-    companion object : Serializer<Ship, SShip> {
+    companion object {
         const val FUEL_COEFFICIENT = 0.006
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
-
-        override fun serialize(obj: Ship): SShip =
-                SShip(obj.name, obj.shipClass, obj.hullPoints, obj.crew, Inventory.serialize(obj.inventory), obj.exploring)
-
-        override fun deserialize(serModel: SShip): Ship =
-                Ship(serModel.name, serModel.shipClass, serModel.hullPoints, serModel.crew, Inventory.deserialize(serModel.inventory), serModel.exploring)
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
             val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()

@@ -55,7 +55,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
         loader.fetchResources().then({
             val savedString = window.localStorage.getItem("savedgame")
             game = if (savedString != null) {
-                ExodusGame.deserialize(JsonSerializer.loadGame(savedString))
+                JsonSerializer.load(savedString)
             } else {
                 ExodusGame(loader)
             }
@@ -193,7 +193,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
 
     @JsName("saveGame")
     fun saveGame() {
-        window.localStorage.setItem("savedgame", JsonSerializer.saveGame(ExodusGame.serialize(game)))
+        window.localStorage.setItem("savedgame", JsonSerializer.save(game))
     }
 
     @JsName("clearSave")

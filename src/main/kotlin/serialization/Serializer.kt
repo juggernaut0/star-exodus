@@ -1,6 +1,6 @@
 package serialization
 
-interface Serializer<TModel, TData> {
-    fun serialize(obj: TModel): TData
-    fun deserialize(serModel: TData): TModel
+interface Serializer<TModel : Serializable, TData> {
+    fun save(model: TModel): TData
+    fun load(data: TData): TModel
 }

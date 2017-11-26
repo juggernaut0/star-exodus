@@ -1,16 +1,16 @@
 package game
 
-import serialization.SerializationModels.SFleet
-import serialization.Serializer
+import serialization.Serializable
 import util.IntVector2
 import util.Random
 import util.WeightedList
 import kotlin.js.Math
 
-class Fleet private constructor(private val _ships: MutableCollection<Ship>, location: IntVector2, var destination: IntVector2) {
+class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntVector2) : Serializable {
     var location: IntVector2 = location
         private set
 
+    private val _ships = ships.toMutableList()
     val ships: Collection<Ship> get() = _ships
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
@@ -76,13 +76,7 @@ class Fleet private constructor(private val _ships: MutableCollection<Ship>, loc
         star.planets.forEachIndexed { i, planet -> planet.explore(explorers[i] ?: emptyList()) }
     }
 
-    companion object : Serializer<Fleet, SFleet> {
-        override fun serialize(obj: Fleet): SFleet =
-                SFleet(obj.ships.map { Ship.serialize(it) }, obj.location, obj.destination)
-
-        override fun deserialize(serModel: SFleet): Fleet =
-                Fleet(serModel.ships.map { Ship.deserialize(it) }.toMutableList(), serModel.location, serModel.destination)
-
+    companion object {
         operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2): Fleet {
             val weightedClasses = WeightedList(
                     ShipClass.SMALL_PASSENGER_CARRIER to 52,

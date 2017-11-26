@@ -1,11 +1,10 @@
 package game
 
-import serialization.SerializationModels.SPlanet
-import serialization.Serializer
+import serialization.Serializable
 import util.*
 import kotlin.js.Math
 
-class Planet private constructor(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : EventEmitter<Planet>() {
+class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : Serializable, EventEmitter<Planet>() {
     val onDiscoverFeature = Event<Planet, PlanetFeature>(this)
 
     var exploration: Int = exploration // out of 100
@@ -33,17 +32,12 @@ class Planet private constructor(val name: String, val type: PlanetType, val fea
         }
     }
 
-    companion object : Serializer<Planet, SPlanet> {
-        override fun serialize(obj: Planet): SPlanet = SPlanet(obj.name, obj.type, obj.features, obj.exploration)
-
-        override fun deserialize(serModel: SPlanet): Planet =
-                Planet(serModel.name, serModel.type, serModel.features, serModel.exploration)
-
+    companion object {
         operator fun invoke(name: String, type: PlanetType): Planet {
             val features = mutableListOf<PlanetFeature>()
             while (features.size < 5) {
                 val feat = Random.choice(type.features)
-                if (feat == PlanetFeature.NOTHING || !features.contains(feat)) {
+                if (feat == PlanetFeature.NOTHING || feat !in features) {
                     features.add(feat)
                 }
             }

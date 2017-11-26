@@ -1,9 +1,8 @@
 package game
 
-import serialization.Serializer
-import serialization.SerializationModels.SInventory
+import serialization.Serializable
 
-class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
+class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Serializable {
     constructor(capacity: Int) : this(capacity, emptyMap())
 
     private val contents: MutableMap<InventoryItem, Int> = contents.toMutableMap()
@@ -34,11 +33,5 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
         return trueAmt
     }
 
-
-
-    companion object : Serializer<Inventory, SInventory> {
-        override fun serialize(obj: Inventory): SInventory = SInventory(obj.capacity, obj.contents)
-
-        override fun deserialize(serModel: SInventory): Inventory = Inventory(serModel.capacity, serModel.contents)
-    }
+    fun asMap(): Map<InventoryItem, Int> = contents
 }

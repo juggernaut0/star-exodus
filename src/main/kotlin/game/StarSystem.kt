@@ -1,18 +1,11 @@
 package game
 
-import serialization.SerializationModels.SStarSystem
-import serialization.Serializer
+import serialization.Serializable
 import util.IntVector2
 import util.Random
 
-class StarSystem private constructor(val name: String, val location: IntVector2, val type: StarType, val planets: List<Planet>) {
-    companion object : Serializer<StarSystem, SStarSystem> {
-        override fun serialize(obj: StarSystem): SStarSystem =
-                SStarSystem(obj.name, obj.location, obj.type, obj.planets.map { Planet.serialize(it) })
-
-        override fun deserialize(serModel: SStarSystem): StarSystem =
-                StarSystem(serModel.name, serModel.location, serModel.type, serModel.planets.map { Planet.deserialize(it) })
-
+class StarSystem(val name: String, val location: IntVector2, val type: StarType, val planets: List<Planet>) : Serializable {
+    companion object {
         operator fun invoke(name: String, location: IntVector2): StarSystem {
             val type = Random.choice(StarType.values())
             val numPlanets = Random.normal(mu = 4.0, sigma = 2.5).toInt().takeIf { it >= 0 } ?: 0
