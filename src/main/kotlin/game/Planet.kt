@@ -2,7 +2,7 @@ package game
 
 import serialization.Serializable
 import util.*
-import kotlin.js.Math
+import kotlin.math.min
 
 class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : Serializable, EventEmitter<Planet>() {
     val onDiscoverFeature = Event<Planet, PlanetFeature>(this)
@@ -27,7 +27,7 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
 
         val numExplorers = ships.sumBy { it.explorers }
         val begin = exploration
-        exploration = Math.min(exploration + numExplorers / 5, 100)
+        exploration = min(exploration + numExplorers / 5, 100)
         val end = exploration
         if(begin % 20 > end % 20 || end - begin >= 20){
             val n = begin / 20

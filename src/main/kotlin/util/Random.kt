@@ -1,10 +1,14 @@
 package util
 
-import kotlin.js.Math
+import kotlin.math.ln
 
 object Random {
-    fun range(upper: Int) = (Math.random() * upper).toInt()
-    fun range(upper: Double) = Math.random() * upper
+    // kotlin.js.Math may be removed in the future... this is to reduce changes to only this function
+    @Suppress("DEPRECATION")
+    fun random() = kotlin.js.Math.random()
+
+    fun range(upper: Int) = (random() * upper).toInt()
+    fun range(upper: Double) = random() * upper
     fun range(lower: Int, upper: Int) = lower + range(upper - lower)
     fun range(lower: Double, upper: Double) = lower + range(upper - lower)
 
@@ -36,10 +40,10 @@ object Random {
     fun normal(mu: Double = 1.0, sigma: Double = 1.0): Number {
         var z: Double
         while (true) {
-            val u1 = Math.random()
-            val u2 = 1 - Math.random()
+            val u1 = random()
+            val u2 = 1 - random()
             z = NORMAL_MAGIC*(u1-0.5)/u2
-            if (z*z/4.0 <= -Math.log(u2)) {
+            if (z*z/4.0 <= -ln(u2)) {
                 break
             }
         }

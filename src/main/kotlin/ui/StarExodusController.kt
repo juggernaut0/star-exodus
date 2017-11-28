@@ -9,22 +9,19 @@ import game.PlanetType.*
 import game.StarType.*
 import jQuery
 import org.w3c.dom.HTMLElement
-import serialization.JsonSerializer
 import util.IntVector2
 import util.MutVector2
 import util.toTypedArray
 import kotlin.browser.document
-import kotlin.browser.window
-import kotlin.js.Math
+import kotlin.math.ceil
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
-class StarExodusController(val scope: Scope, gameService: GameService) {
-    private var ready: Boolean = false
+class StarExodusController(val scope: Scope, val gameService: GameService) {
     private lateinit var game: ExodusGame
 
     private val galaxyRenderer: SystemRenderer
     private val systemRenderer: SystemRenderer
-    private var saveCleared = false
+
     private val _log: MutableList<String> = mutableListOf("Welcome to Star Exodus!")
 
     var confirmMessage: String = ""
@@ -49,14 +46,14 @@ class StarExodusController(val scope: Scope, gameService: GameService) {
     var customDestination: MutVector2 = MutVector2()
     val destinationDisplay: String
         get() {
-            if (!ready) return ""
+            if (!gameService.ready) return ""
             val dest = game.fleet.destination
             return game.galaxy.getStarAt(dest)?.name ?: dest.toDisplayString()
         }
     val destinationEta: Int
         get() {
-            if (!ready) return 0
-            return game.fleet.run { Math.ceil(IntVector2.distance(location, destination) / speed) }
+            if (!gameService.ready) return 0
+            return game.fleet.run { ceil(IntVector2.distance(location, destination) / speed).toInt() }
         }
 
     init {
@@ -66,13 +63,10 @@ class StarExodusController(val scope: Scope, gameService: GameService) {
             refreshFleet()
             refreshMap()
             refreshStar()
-            ready = true
         }
 
         galaxyRenderer = initPixi("mapPanel", 800, 800)
         systemRenderer = initPixi("systemMap", 400, 200)
-
-        window.onbeforeunload = { if (!saveCleared) saveGame(); null }
     }
 
     private fun registerGameListeners(){
@@ -197,14 +191,12 @@ class StarExodusController(val scope: Scope, gameService: GameService) {
 
     @JsName("saveGame")
     fun saveGame() {
-        window.localStorage.setItem("savedgame", JsonSerializer.save(game))
+        gameService.saveGame()
     }
 
     @JsName("clearSave")
     fun clearSave() {
-        window.localStorage.removeItem("savedgame")
-        saveCleared = true
-        window.location.reload()
+        gameService.clearSavedGame()
     }
 
     @JsName("openShipCollapse")

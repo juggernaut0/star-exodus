@@ -1,6 +1,6 @@
 package util
 
-import kotlin.js.Math
+import kotlin.math.sqrt
 
 data class IntVector2(val x: Int, val y: Int) {
     operator fun plus(other: IntVector2) = IntVector2(x + other.x, y + other.y)
@@ -17,7 +17,7 @@ data class IntVector2(val x: Int, val y: Int) {
         fun distance(loc1: IntVector2, loc2: IntVector2): Double {
             val dx = (loc1.x - loc2.x).toDouble()
             val dy = (loc1.y - loc2.y).toDouble()
-            return Math.sqrt(dx*dx + dy*dy)
+            return sqrt(dx*dx + dy*dy)
         }
     }
 }

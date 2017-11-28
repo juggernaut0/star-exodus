@@ -2,7 +2,10 @@ package game
 
 import serialization.Serializable
 import util.Random
-import kotlin.js.Math
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.min
+import kotlin.math.sqrt
 
 class Ship(
         name: String,
@@ -24,11 +27,11 @@ class Ship(
     val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
 
     // fuel per distance unit per turn
-    val fuelConsumption get() = Math.sqrt(mass.toDouble()) * FUEL_COEFFICIENT
+    val fuelConsumption get() = sqrt(mass.toDouble()) * FUEL_COEFFICIENT
     // food per turn
-    val foodConsumption get() = Math.ceil(crew * FOOD_COEFFICIENT)
+    val foodConsumption get() = ceil(crew * FOOD_COEFFICIENT).toInt()
 
-    val explorers get() = Math.min(Math.floor(0.1 * crew), 50)
+    val explorers get() = min(floor(0.1 * crew).toInt(), 50)
 
     val destroyed get() = hullPoints == 0
 

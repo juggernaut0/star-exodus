@@ -4,7 +4,8 @@ import serialization.Serializable
 import util.IntVector2
 import util.Random
 import util.WeightedList
-import kotlin.js.Math
+import kotlin.math.ceil
+import kotlin.math.min
 
 class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntVector2) : Serializable {
     var location: IntVector2 = location
@@ -64,7 +65,7 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         ships.forEach { it.eatFood() }
     }
 
-    fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = Math.ceil(ship.fuelConsumption * dist)
+    fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = ceil(ship.fuelConsumption * dist).toInt()
 
     private fun moveTowardsDestination(): Boolean {
         if (destination == location) return false
@@ -75,7 +76,7 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         } else {
             location += (destination - location) * (speed / dist)
         }
-        val fuelNeeded = _ships.associate { it to fuelConsumptionAtSpeed(it, Math.min(speed.toDouble(), dist)) }
+        val fuelNeeded = _ships.associate { it to fuelConsumptionAtSpeed(it, min(speed.toDouble(), dist)) }
         _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
 
