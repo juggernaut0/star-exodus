@@ -14,10 +14,19 @@ class GameService : EventEmitter<GameService>() {
 
     private var saveCleared = false
 
-    val onReady: Event<GameService, Unit> = Event(this)
+    private val onReady: Event<GameService, Unit> = Event(this)
 
     init {
         window.onbeforeunload = { if (!saveCleared) saveGame(); null }
+    }
+
+    // Solves problem if game is ready before controllers have a chance to initialize & register handlers
+    fun initWhenReady(handler: (GameService, Unit) -> Unit) {
+        if (ready) {
+            handler(this, Unit)
+        } else {
+            onReady += handler
+        }
     }
 
     fun loadOrCreate(http: HttpService): GameService {

@@ -1,12 +1,18 @@
 import angular.DirectiveDefinition
 import angular.HttpService
+import ui.FleetController
 import ui.GameService
 import ui.StarExodusController
+import ui.SystemController
 
 fun main() {
     angular.module("star-exodus", emptyArray())
             .controller("star-exodus-controller",
                     inject("\$scope", "game", cls = StarExodusController::class.js))
+            .controller("fleet-controller",
+                    inject("game", cls = FleetController::class.js))
+            .controller("system-controller",
+                    inject("game", cls = SystemController::class.js))
             .factory("game",
                     inject<GameService>("\$http") { http: HttpService ->
                         GameService().loadOrCreate(http)

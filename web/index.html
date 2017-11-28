@@ -12,9 +12,9 @@
     <div class="container-fluid">
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" href="#main">Log</a></li>
-            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshFleet()" href="#fleet">Fleet</a></li>
+            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="" href="#fleet">Fleet</a></li>
             <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshMap()" href="#map">Galaxy Map</a></li>
-            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="_.refreshStar()" href="#star">Star System</a></li>
+            <li class="nav-item"><a class="nav-link"        data-toggle="tab" role="tab" ng-click="" href="#star">Star System</a></li>
         </ul>
 
         <div class="tab-content">
@@ -46,26 +46,27 @@
                     </div>
                 </div>
             </div>
-            <div id="fleet" class="tab-pane" role="tabpanel">
+
+            <div id="fleet" class="tab-pane" role="tabpanel" ng-controller="fleet-controller as fleet">
                 <div class="row">
-                    <div class="col-md-4">Ships: {{_.fleet.length}}</div>
-                    <div class="col-md-4">Population: {{_.totalPopulation}}</div>
-                    <div class="col-md-4">Speed: {{_.fleetSpeed}}</div>
+                    <div class="col-md-4">Ships: {{fleet.fleet.length}}</div>
+                    <div class="col-md-4">Population: {{fleet.totalPopulation}}</div>
+                    <div class="col-md-4">Speed: {{fleet.fleetSpeed}}</div>
                 </div>
                 <div class="collapse" id="shipDetails">
                     <div class="card">
                         <div class="card-header">
                             Ship Details
-                            <button type="button" class="close" ng-click="_.closeShipCollapse()">&times;</button>
+                            <button type="button" class="close" ng-click="fleet.closeShipCollapse()">&times;</button>
                         </div>
                         <div class="card-body">
-                            <h4 class="card-title">{{_.selectedShip.name}} <small class="text-muted">{{_.selectedShip.shipClass}}</small></h4>
+                            <h4 class="card-title">{{fleet.selectedShip.name}} <small class="text-muted">{{fleet.selectedShip.shipClass}}</small></h4>
 
-                            <p>Food consumption: {{_.selectedShip.foodCons}}</p>
-                            <p ng-show="_.selectedShip.foodProd > 0">Food production: {{_.selectedShip.foodProd}}</p>
-                            <p><span title="At current speed">Fuel consumption</span>: {{_.fuelCons(_.selectedShip)}}</p>
-                            <p>Exploring: {{_.selectedShip.exploring}}</p>
-                            <p>Gathering: {{_.selectedShip.mining}}</p>
+                            <p>Food consumption: {{fleet.selectedShip.foodCons}}</p>
+                            <p ng-show="fleet.selectedShip.foodProd > 0">Food production: {{fleet.selectedShip.foodProd}}</p>
+                            <p><span title="At current speed">Fuel consumption</span>: {{fleet.fuelCons(fleet.selectedShip)}}</p>
+                            <p>Exploring: {{fleet.selectedShip.exploring}}</p>
+                            <p>Gathering: {{fleet.selectedShip.mining}}</p>
 
                             <div class="btn-group">
                                 <button class="btn btn-outline-primary" data-toggle="modal" data-target="#shipRenameModal">Rename</button>
@@ -73,7 +74,7 @@
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipInventory" data-parent="#shipDetailsPanels">Inventory</button>
                                 <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipExploreModal">Explore Planet</button>
                                 <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipMineModal">Gather Resources</button>
-                                <button class="btn btn-outline-danger" se-confirm-click="_.abandonSelectedShip()" se-confirm-message="Ship will be lost forever. Are you sure?">Abandon</button>
+                                <button class="btn btn-outline-danger" se-confirm-click="fleet.abandonSelectedShip()" se-confirm-message="Ship will be lost forever. Are you sure?">Abandon</button>
                             </div>
 
                             <div id="shipDetailsPanels" data-children=".item">
@@ -87,7 +88,7 @@
                                     <div class="item collapse" id="shipInventory">
                                         <h4>Inventory</h4>
                                         <table class="table table-sm">
-                                            <tr ng-repeat="item in _.selectedShip.inventory">
+                                            <tr ng-repeat="item in fleet.selectedShip.inventory">
                                                 <td>{{item.itemName}}</td>
                                                 <td>{{item.count}}</td>
                                             </tr>
@@ -109,7 +110,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="ship in _.fleet | orderBy:'name'" ng-click="_.openShipCollapse(ship)" ng-class="_.shipRowClass(ship)">
+                        <tr ng-repeat="ship in fleet.fleet | orderBy:'name'" ng-click="fleet.openShipCollapse(ship)" ng-class="fleet.shipRowClass(ship)">
                             <td>{{ship.name}}</td>
                             <td>{{ship.shipClass}}</td>
                             <td>{{ship.hull}}</td>
@@ -118,26 +119,102 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <div id="shipRenameModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Rename Ship</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <label for="newname">New name</label>
+                                <input type="text" id="newname" class="form-control" ng-model="newName">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="fleet.renameSelectedShip(newName)">Rename</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="shipExploreModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Explore Planet</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>This ship can send {{fleet.selectedShip.explorers}} explorers.</p>
+                                <label for="planet">Planet</label>
+                                <select id="planet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="shipExplorePlanet">
+                                    <option value="">None</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="fleet.selectedShipExplore(shipExplorePlanet)">Send Explorers</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="shipMineModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Mine/Gather Resources</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <label for="miningPlanet">Planet</label>
+                                <select id="miningPlanet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="shipMinePlanet">
+                                    <option value="">None</option>
+                                </select>
+                                <label for="miningResource">Resource</label>
+                                <select id="miningResource" class="form-control" ng-disabled="shipMinePlanet == null" ng-model="shipMineResource" ng-init="shipMineResource = 'METAL_ORE'">
+                                    <option value="METAL_ORE">Ore</option>
+                                    <option value="FUEL">Fuel</option>
+                                    <option value="FOOD">Food</option>
+                                </select>
+                                <p>Expected yield: {{fleet.selectedShip.miningYield(shipMinePlanet, shipMineResource)}}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="fleet.selectedShipMine(shipMinePlanet, shipMineResource)">Mine/Gather</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="star" class="tab-pane">
+
+            <div id="star" class="tab-pane" ng-controller="system-controller as star">
                 <div ng-hide="_.currentSystem == null">
                     <h4>{{_.currentSystem.name}} <small class="text-muted">{{_.currentSystem.type}}</small></h4>
                     <div class="collapse" id="planetDetails">
                         <div class="card">
                             <div class="card-header">
                                 Planet Details
-                                <button type="button" class="close" ng-click="_.closePlanetCollapse()">&times;</button>
+                                <button type="button" class="close" ng-click="star.closePlanetCollapse()">&times;</button>
                             </div>
                             <div class="card-body">
-                                <h4 class="card-title">{{_.selectedPlanet.name}} <small class="text-muted">{{_.selectedPlanet.type}}</small></h4>
+                                <h4 class="card-title">{{star.selectedPlanet.name}} <small class="text-muted">{{star.selectedPlanet.type}}</small></h4>
 
                                 <div class="progress position-relative">
-                                    <div class="progress-bar" ng-style="{'width': _.selectedPlanet.exploration}">{{_.selectedPlanet.exploration}}</div>
+                                    <div class="progress-bar" ng-style="{'width': star.selectedPlanet.exploration}">{{star.selectedPlanet.exploration}}</div>
                                     <div class="segments"><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment border-0"></div></div>
                                 </div>
 
                                 <ul class="list-group my-3">
-                                    <li class="list-group-item" ng-repeat="feat in _.selectedPlanet.features track by $index">{{feat}}</li>
+                                    <li class="list-group-item" ng-repeat="feat in star.selectedPlanet.features track by $index">{{feat}}</li>
                                 </ul>
 
                                 <div class="btn-group">
@@ -156,7 +233,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="planet in _.currentSystem.planets" ng-click="_.openPlanetCollapse(planet)" ng-class="_.planetRowClass(planet)">
+                            <tr ng-repeat="planet in _.currentSystem.planets" ng-click="star.openPlanetCollapse(planet)" ng-class="star.planetRowClass(planet)">
                                 <td>{{planet.name}}</td>
                                 <td>{{planet.type}}</td>
                                 <td>{{planet.exploration}}</td>
@@ -166,7 +243,7 @@
                     <div id="systemMap"></div>
                 </div>
                 <div ng-show="_.currentSystem == null">
-                    <h4>En Route to {{_.destinationDisplay}} (ETA: {{_.destinationEta}} days)</h4>
+                    <h4>En Route to {{star.destinationDisplay}} (ETA: {{star.destinationEta}} days)</h4>
                 </div>
             </div>
         </div>
@@ -195,81 +272,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.setDestination()">Set Destination</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="shipRenameModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Rename Ship</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <label for="newname">New name</label>
-                    <input type="text" id="newname" class="form-control" ng-model="newName">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.renameSelectedShip(newName)">Rename</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="shipExploreModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Explore Planet</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>This ship can send {{_.selectedShip.explorers}} explorers.</p>
-                    <label for="planet">Planet</label>
-                    <select id="planet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="_.shipExplorePlanet">
-                        <option value="">None</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.selectedShipExplore(_.shipExplorePlanet)">Send Explorers</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="shipMineModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Mine/Gather Resources</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <label for="miningPlanet">Planet</label>
-                    <select id="miningPlanet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="_.shipMinePlanet">
-                        <option value="">None</option>
-                    </select>
-                    <label for="miningResource">Resource</label>
-                    <select id="miningResource" class="form-control" ng-disabled="_.shipMinePlanet == null" ng-model="_.shipMineResource" ng-init="_.shipMineResource = 'METAL_ORE'">
-                        <option value="METAL_ORE">Ore</option>
-                        <option value="FUEL">Fuel</option>
-                        <option value="FOOD">Food</option>
-                    </select>
-                    <p>Expected yield: {{_.selectedShip.miningYield(_.shipMinePlanet, _.shipMineResource)}}</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.selectedShipMine(_.shipMinePlanet, _.shipMineResource)">Mine/Gather</button>
                 </div>
             </div>
         </div>
