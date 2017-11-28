@@ -117,8 +117,8 @@ private class JsonLoader(string: String) {
     private fun loadInt(obj: dynamic) = checkUndef(obj) { (obj as Number).toInt() }
     private fun loadString(obj: dynamic) = checkUndef(obj) { obj as String }
 
-    private inline fun <T> loadList(arr: dynamic, loader: (dynamic) -> T): List<T> {
-        return checkUndef(arr) { (arr as Array<dynamic>).map(loader) }
+    private inline fun <T> loadList(arr: dynamic, loader: (dynamic) -> T): List<T> = checkUndef(arr) {
+        (arr as Array<dynamic>).map(loader)
     }
 
     private fun loadLocation(obj: dynamic) = checkUndef(obj) {

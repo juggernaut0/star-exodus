@@ -1,23 +1,27 @@
 package ui
 
 import PIXI.SystemRenderer
-import angular.HttpService
 import angular.Scope
 import game.ExodusGame
+import game.InventoryItem
+import game.MiningTarget
 import game.PlanetType.*
 import game.StarType.*
 import jQuery
 import org.w3c.dom.HTMLElement
 import serialization.JsonSerializer
+import util.IntVector2
 import util.MutVector2
 import util.toTypedArray
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.js.Math
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
-class StarExodusController(val scope: Scope, http: HttpService) {
+class StarExodusController(val scope: Scope, gameService: GameService) {
     private var ready: Boolean = false
     private lateinit var game: ExodusGame
+
     private val galaxyRenderer: SystemRenderer
     private val systemRenderer: SystemRenderer
     private var saveCleared = false
@@ -49,22 +53,21 @@ class StarExodusController(val scope: Scope, http: HttpService) {
             val dest = game.fleet.destination
             return game.galaxy.getStarAt(dest)?.name ?: dest.toDisplayString()
         }
+    val destinationEta: Int
+        get() {
+            if (!ready) return 0
+            return game.fleet.run { Math.ceil(IntVector2.distance(location, destination) / speed) }
+        }
 
     init {
-        val loader = HttpResourceLoader(http)
-        loader.fetchResources().then({
-            val savedString = window.localStorage.getItem("savedgame")
-            game = if (savedString != null) {
-                JsonSerializer.load(savedString)
-            } else {
-                ExodusGame(loader)
-            }
+        gameService.onReady += { sender, _ ->
+            game = sender.game
             registerGameListeners()
             refreshFleet()
             refreshMap()
             refreshStar()
             ready = true
-        })
+        }
 
         galaxyRenderer = initPixi("mapPanel", 800, 800)
         systemRenderer = initPixi("systemMap", 400, 200)
@@ -179,6 +182,7 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     @JsName("nextDay")
     fun nextDay() {
         game.nextDay()
+        refreshStar()
     }
 
     @JsName("resetSelectedDestination")
@@ -255,6 +259,16 @@ class StarExodusController(val scope: Scope, http: HttpService) {
     @JsName("selectedShipExplore")
     fun selectedShipExplore(planet: PlanetView?) {
         selectedShip?.apply { ship.exploring = planet?.planet }
+    }
+
+    @JsName("selectedShipMine")
+    fun selectedShipMine(planet: PlanetView?, resourceName: String?) {
+        val mining = if (planet != null && resourceName != null) {
+            MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))
+        } else {
+            null
+        }
+        selectedShip?.apply { ship.mining = mining }
     }
 
     private fun util.IntVector2.toPoint(): Point =

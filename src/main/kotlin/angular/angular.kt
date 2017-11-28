@@ -10,8 +10,8 @@ external class Module {
     fun controller(name: String, controller: Array<Any>): Module
     fun directive(name: String, factory: () -> DirectiveDefinition): Module
     fun directive(name: String, factory: Array<Any>): Module
-    fun factory(name: String, ctor: () -> Any)
-    fun factory(name: String, deps: Array<Any>)
+    fun <T> factory(name: String, ctor: () -> T): Module
+    fun factory(name: String, deps: Array<Any>): Module
 }
 
 external class Scope {

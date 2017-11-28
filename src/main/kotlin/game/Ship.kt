@@ -62,16 +62,18 @@ class Ship(
         }
     }
 
-    internal fun mine() {
-        mining?.let { (planet, item) ->
-            val amt = when (item) {
-                InventoryItem.FUEL -> planet.type.fuelGatherAmount * shipClass.fuelGatherMultiplier
-                InventoryItem.FUEL_ORE, InventoryItem.METAL_ORE -> planet.oreAmount * shipClass.oreMultiplier
-                InventoryItem.FOOD -> planet.type.foodGatherAmount * shipClass.foodGatherMutliplier
-                else -> 0.0
-            }.toInt()
+    fun miningYield(target: MiningTarget) = when (target.resource) {
+        InventoryItem.FUEL -> target.planet.type.fuelGatherAmount * shipClass.fuelGatherMultiplier
+        InventoryItem.FUEL_ORE, InventoryItem.METAL_ORE -> target.planet.oreAmount * shipClass.oreMultiplier
+        InventoryItem.FOOD -> target.planet.type.foodGatherAmount * shipClass.foodGatherMutliplier
+        else -> 0.0
+    }.toInt()
 
-            if (item == InventoryItem.FUEL_ORE || item == InventoryItem.METAL_ORE) {
+    internal fun mine() {
+        mining?.run {
+            val amt = miningYield(this)
+
+            if (resource == InventoryItem.FUEL_ORE || resource == InventoryItem.METAL_ORE) {
                 val fuelAmt = Random.range(amt / 2)
                 val rareAmt = if (planet.discoveredFeatures.contains(PlanetFeature.RARE_ELEMENTS)) Random.range((amt - fuelAmt) / 2) else 0
                 val metalAmt = amt - fuelAmt - rareAmt
@@ -79,7 +81,7 @@ class Ship(
                 inventory.addItems(InventoryItem.METAL_ORE, metalAmt)
                 inventory.addItems(InventoryItem.RARE_METALS, rareAmt)
             } else {
-                inventory.addItems(item, amt)
+                inventory.addItems(resource, amt)
             }
         }
     }

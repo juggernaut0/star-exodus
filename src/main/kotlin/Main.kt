@@ -1,10 +1,16 @@
 import angular.DirectiveDefinition
+import angular.HttpService
+import ui.GameService
 import ui.StarExodusController
 
 fun main() {
     angular.module("star-exodus", emptyArray())
             .controller("star-exodus-controller",
-                    controller(arrayOf("\$scope", "\$http"), StarExodusController::class.js))
+                    inject("\$scope", "game", cls = StarExodusController::class.js))
+            .factory("game",
+                    inject<GameService>("\$http") { http: HttpService ->
+                        GameService().loadOrCreate(http)
+                    })
             .directive("seConfirmClick") {
                 DirectiveDefinition {
                     link = { scope, element, attr ->
@@ -23,5 +29,5 @@ fun main() {
             }
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun <T: Any> controller(deps: Array<String>, ctrl: JsClass<T>): Array<Any> = arrayOf(*deps, ctrl)
+private fun <T: Any> inject(vararg deps: String, cls: JsClass<T>): Array<Any> = arrayOf(*deps, cls)
+private fun <T: Any> inject(vararg deps: String, factory: Function<T>): Array<Any> = arrayOf(*deps, factory)

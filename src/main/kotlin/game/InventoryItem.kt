@@ -11,6 +11,4 @@ enum class InventoryItem(val value: Int) {
     FUEL_ORE(10),
     RARE_METALS(50),
     TECHNOLOGY(75);
-
-    val displayName get() = name.toTitleCase()
 }

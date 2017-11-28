@@ -65,12 +65,14 @@
                             <p ng-show="_.selectedShip.foodProd > 0">Food production: {{_.selectedShip.foodProd}}</p>
                             <p><span title="At current speed">Fuel consumption</span>: {{_.fuelCons(_.selectedShip)}}</p>
                             <p>Exploring: {{_.selectedShip.exploring}}</p>
+                            <p>Gathering: {{_.selectedShip.mining}}</p>
 
                             <div class="btn-group">
                                 <button class="btn btn-outline-primary" data-toggle="modal" data-target="#shipRenameModal">Rename</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipWeapons" data-parent="#shipDetailsPanels">Weapons</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipInventory" data-parent="#shipDetailsPanels">Inventory</button>
                                 <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipExploreModal">Explore Planet</button>
+                                <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipMineModal">Gather Resources</button>
                                 <button class="btn btn-outline-danger" se-confirm-click="_.abandonSelectedShip()" se-confirm-message="Ship will be lost forever. Are you sure?">Abandon</button>
                             </div>
 
@@ -118,7 +120,7 @@
                 </table>
             </div>
             <div id="star" class="tab-pane">
-                <div ng-show="_.currentSystem != null">
+                <div ng-hide="_.currentSystem == null">
                     <h4>{{_.currentSystem.name}} <small class="text-muted">{{_.currentSystem.type}}</small></h4>
                     <div class="collapse" id="planetDetails">
                         <div class="card">
@@ -140,9 +142,7 @@
 
                                 <div class="btn-group">
                                     <button class="btn btn-outline-primary">Rename</button>
-                                    <button class="btn btn-outline-primary">Explore</button>
-                                    <button class="btn btn-outline-primary">Mine</button>
-                                    <button class="btn btn-outline-primary">Trade</button>
+                                    <button class="btn btn-outline-primary" disabled>Trade</button>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                     <div id="systemMap"></div>
                 </div>
                 <div ng-show="_.currentSystem == null">
-                    <h4>En Route to {{_.destinationDisplay}}</h4>
+                    <h4>En Route to {{_.destinationDisplay}} (ETA: {{_.destinationEta}} days)</h4>
                 </div>
             </div>
         </div>
@@ -240,6 +240,36 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.selectedShipExplore(_.shipExplorePlanet)">Send Explorers</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shipMineModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mine/Gather Resources</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="miningPlanet">Planet</label>
+                    <select id="miningPlanet" class="form-control" ng-options="planet as planet.nametype for planet in _.currentSystem.planets" ng-model="_.shipMinePlanet">
+                        <option value="">None</option>
+                    </select>
+                    <label for="miningResource">Resource</label>
+                    <select id="miningResource" class="form-control" ng-disabled="_.shipMinePlanet == null" ng-model="_.shipMineResource" ng-init="_.shipMineResource = 'METAL_ORE'">
+                        <option value="METAL_ORE">Ore</option>
+                        <option value="FUEL">Fuel</option>
+                        <option value="FOOD">Food</option>
+                    </select>
+                    <p>Expected yield: {{_.selectedShip.miningYield(_.shipMinePlanet, _.shipMineResource)}}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary"   data-dismiss="modal" ng-click="_.selectedShipMine(_.shipMinePlanet, _.shipMineResource)">Mine/Gather</button>
                 </div>
             </div>
         </div>
