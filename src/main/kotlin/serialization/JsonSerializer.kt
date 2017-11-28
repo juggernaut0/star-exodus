@@ -78,7 +78,11 @@ private class JsonSaver {
             "hullPoints" to saveNumber(ship.hullPoints),
             "crew" to saveNumber(ship.crew),
             "inventory" to saveReference(ship.inventory, this::save),
-            "exploring" to saveNullable(ship.exploring) { saveReference(it, this::save) }
+            "exploring" to saveNullable(ship.exploring) { saveReference(it, this::save) },
+            "mining" to saveNullable(ship.mining) { obj(
+                    "planet" to saveReference(it.planet, this::save),
+                    "resource" to saveEnum(it.resource)
+            ) }
     )
 
     private fun save(inventory: Inventory): String = obj(
@@ -123,24 +127,18 @@ private class JsonLoader(string: String) {
         IntVector2(x, y)
     }
 
-    private fun <T : Serializable> loadReference(ref: dynamic, loader: (dynamic) -> T): T {
-        val index = ref as Int
-        return if (index !in objectCache) {
-            val obj = loader(objs[index])
-            objectCache[index] = obj
-            obj
-        } else {
-            objectCache[index].unsafeCast<T>()
-        }
+    private inline fun <T : Serializable> loadReference(ref: dynamic, loader: (dynamic) -> T): T {
+        if (ref !is Int) throw SerializationException("Expected a reference")
+        return objectCache.getOrPut(ref) { loader(objs[ref]) }.unsafeCast<T>()
     }
 
-    private fun <T : Serializable> loadReferenceList(arr: dynamic, loader: (dynamic) -> T) = checkUndef(arr) {
+    private inline fun <T : Serializable> loadReferenceList(arr: dynamic, loader: (dynamic) -> T) = checkUndef(arr) {
         (arr as Array<dynamic>).map { loadReference(it, loader) }
     }
 
     fun load(): ExodusGame {
-        val galaxy = loadReference(root.galaxy, this::loadGalaxy)
-        val fleet = loadReference(root.fleet, this::loadFleet)
+        val galaxy = loadReference(root.galaxy) { loadGalaxy(it) }
+        val fleet = loadReference(root.fleet) { loadFleet(it) }
         val day = loadInt(root.day)
         return ExodusGame(galaxy, fleet, day)
     }
@@ -181,7 +179,11 @@ private class JsonLoader(string: String) {
         val crew = loadInt(obj.crew)
         val inv = loadReference(obj.inventory, this::loadInventory)
         val exploring = loadNullable(obj.exploring) { loadReference(it, this::loadPlanet) }
-        Ship(shipName, shipClass, hull, crew, inv, exploring)
+        val mining = loadNullable(obj.mining) { MiningTarget(
+                loadReference(it.planet, this::loadPlanet),
+                InventoryItem.valueOf(loadString(it.resource))
+        ) }
+        Ship(shipName, shipClass, hull, crew, inv, exploring, mining)
     }
 
     private fun loadInventory(obj: dynamic) = checkUndef(obj) {
