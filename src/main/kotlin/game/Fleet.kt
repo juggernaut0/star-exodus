@@ -90,6 +90,31 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         star.planets.forEach { planet -> planet.explore(explorers[planet] ?: emptyList()) }
     }
 
+    fun autoSupply() {
+        autoSupply(InventoryItem.FOOD) { it.foodConsumption }
+        autoSupply(InventoryItem.FUEL) { fuelConsumptionAtSpeed(it) }
+    }
+
+    private fun autoSupply(item: InventoryItem, consFn: (Ship) -> Int) {
+        val total = ships.sumBy { it.inventory[item] }
+        val totalCons = ships.sumBy(consFn)
+
+        val days = ceil(total.toDouble() / totalCons).toInt()
+
+        fun shipsToSurplus() = ships.asSequence().map{ it to it.inventory[item] - consFn(it) * days }
+        fun has() = shipsToSurplus().find { it.second > 0 }
+        fun needs() = shipsToSurplus().find { it.second < 0 && it.first.inventory.freeSpace > 0 }
+
+        var surplus = has()
+        var deficit = needs()
+        while (surplus != null && deficit != null) {
+            val amt = min(surplus.second, -deficit.second)
+            surplus.first.inventory.transferItemsTo(deficit.first.inventory, item, amt)
+            surplus = has()
+            deficit = needs()
+        }
+    }
+
     companion object {
         operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2): Fleet {
             val weightedClasses = WeightedList(

@@ -3,6 +3,8 @@ package ui
 import game.InventoryItem
 import game.MiningTarget
 import jQuery
+import util.MutVector2
+import util.toTypedArray
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class FleetController(val gameService: GameService) {
@@ -10,6 +12,15 @@ class FleetController(val gameService: GameService) {
     var totalPopulation: Int = 0
     var fleetSpeed: Int = 0
     var selectedShip: ShipView? = null
+    var nearbyStars: Array<StarView> = emptyArray()
+    var selectedDestination: MutVector2? = null
+        set(value) {
+            if (value != null) {
+                customDestination = value
+            }
+            field = value
+        }
+    var customDestination: MutVector2 = MutVector2()
 
     init {
         gameService.initWhenReady { _, _ ->
@@ -70,5 +81,26 @@ class FleetController(val gameService: GameService) {
             null
         }
         selectedShip?.apply { ship.mining = mining }
+    }
+
+    @JsName("setDestination")
+    fun setDestination() {
+        gameService.game.fleet.destination = (selectedDestination ?: customDestination).toIntVector()
+    }
+
+    @JsName("resetSelectedDestination")
+    fun resetSelectedDestination() {
+        nearbyStars = gameService.game.galaxy.getNearbyStars(gameService.game.fleet.location, gameService.game.fleet.speed * 10.0)
+                .asSequence()
+                .filter { it.location != gameService.game.fleet.location }
+                .map { StarView(it) }
+                .toTypedArray()
+        customDestination = gameService.game.fleet.destination.toMutVector()
+    }
+
+    @JsName("autoSupply")
+    fun autoSupply() {
+        gameService.game.fleet.autoSupply()
+        refreshFleet()
     }
 }

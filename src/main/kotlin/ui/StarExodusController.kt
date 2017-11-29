@@ -17,15 +17,6 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
     val log: Array<String> get() = _log.toTypedArray()
     var clickedStar: StarView? = null
     var currentSystem: StarView? = null
-    var nearbyStars: Array<StarView> = emptyArray()
-    var selectedDestination: MutVector2? = null
-        set(value) {
-            if (value != null) {
-                customDestination = value
-            }
-            field = value
-        }
-    var customDestination: MutVector2 = MutVector2()
 
     init {
         gameService.initWhenReady { _, _ ->
@@ -71,16 +62,6 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
         refreshCurrentSystem()
     }
 
-    @JsName("resetSelectedDestination")
-    fun resetSelectedDestination() {
-        nearbyStars = gameService.game.galaxy.getNearbyStars(gameService.game.fleet.location, gameService.game.fleet.speed * 10.0)
-                .asSequence()
-                .filter { it.location != gameService.game.fleet.location }
-                .map { StarView(it) }
-                .toTypedArray()
-        customDestination = gameService.game.fleet.destination.toMutVector()
-    }
-
     @JsName("saveGame")
     fun saveGame() {
         gameService.saveGame()
@@ -89,11 +70,6 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
     @JsName("clearSave")
     fun clearSave() {
         gameService.clearSavedGame()
-    }
-
-    @JsName("setDestination")
-    fun setDestination() {
-        gameService.game.fleet.destination = (selectedDestination ?: customDestination).toIntVector()
     }
 
     private fun util.IntVector2.toPoint(): Point =

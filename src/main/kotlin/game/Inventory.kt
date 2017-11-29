@@ -1,6 +1,7 @@
 package game
 
 import serialization.Serializable
+import kotlin.math.min
 
 class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Serializable {
     constructor(capacity: Int) : this(capacity, emptyMap())
@@ -31,6 +32,15 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Seriali
             contents[item] = newAmt
         }
         return trueAmt
+    }
+
+    fun transferItemsTo(other: Inventory, item: InventoryItem, amount: Int): Int {
+        val actual = arrayOf(this[item], other.freeSpace, amount).min() ?: 0
+        if (actual > 0) {
+            removeItems(item, actual)
+            other.addItems(item, actual)
+        }
+        return actual
     }
 
     fun asMap(): Map<InventoryItem, Int> = contents
