@@ -6,7 +6,7 @@ import util.EventEmitter
 import util.Random
 
 class ExodusGame(val galaxy: Galaxy, val fleet: Fleet, day: Int) : Serializable, EventEmitter<ExodusGame>() {
-    val onTurn = Event<ExodusGame, Unit>(this)
+    val onTurn = Event<ExodusGame, Unit>().bind(this)
 
     var day = day
         private set

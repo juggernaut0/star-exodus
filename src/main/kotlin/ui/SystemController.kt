@@ -25,7 +25,7 @@ class SystemController(val gameService: GameService) {
         }
 
     init {
-        gameService.initWhenReady { _, _ ->
+        gameService.onReady += { _, _ ->
             refreshStar()
 
             gameService.game.onTurn += { _, _ -> refreshStar() }

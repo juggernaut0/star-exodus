@@ -19,7 +19,7 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
     var currentSystem: StarView? = null
 
     init {
-        gameService.initWhenReady { _, _ ->
+        gameService.onReady += { _, _ ->
             registerGameListeners()
             refreshMap()
             refreshCurrentSystem()

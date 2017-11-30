@@ -23,7 +23,7 @@ class FleetController(val gameService: GameService) {
     var customDestination: MutVector2 = MutVector2()
 
     init {
-        gameService.initWhenReady { _, _ ->
+        gameService.onReady += { _, _ ->
             refreshFleet()
 
             gameService.game.onTurn += { _, _ -> refreshFleet() }

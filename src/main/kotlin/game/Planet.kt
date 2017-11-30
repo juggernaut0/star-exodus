@@ -5,7 +5,7 @@ import util.*
 import kotlin.math.min
 
 class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int) : Serializable, EventEmitter<Planet>() {
-    val onDiscoverFeature = Event<Planet, PlanetFeature>(this)
+    val onDiscoverFeature = Event<Planet, PlanetFeature>().bind(this)
 
     var exploration: Int = exploration // out of 100
         private set

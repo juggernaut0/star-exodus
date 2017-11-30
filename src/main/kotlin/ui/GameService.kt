@@ -5,6 +5,7 @@ import game.ExodusGame
 import serialization.JsonSerializer
 import util.Event
 import util.EventEmitter
+import util.OneTimeEvent
 import kotlin.browser.window
 
 class GameService : EventEmitter<GameService>() {
@@ -14,19 +15,10 @@ class GameService : EventEmitter<GameService>() {
 
     private var saveCleared = false
 
-    private val onReady: Event<GameService, Unit> = Event(this)
+    val onReady = OneTimeEvent<GameService, Unit>().bind(this)
 
     init {
         window.onbeforeunload = { if (!saveCleared) saveGame(); null }
-    }
-
-    // Solves problem if game is ready before controllers have a chance to initialize & register handlers
-    fun initWhenReady(handler: (GameService, Unit) -> Unit) {
-        if (ready) {
-            handler(this, Unit)
-        } else {
-            onReady += handler
-        }
     }
 
     fun loadOrCreate(http: HttpService): GameService {
