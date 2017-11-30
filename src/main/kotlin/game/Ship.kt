@@ -1,6 +1,8 @@
 package game
 
 import serialization.Serializable
+import util.Event
+import util.EventEmitter
 import util.Random
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -15,7 +17,7 @@ class Ship(
         val inventory: Inventory,
         var exploring: Planet?,
         var mining: MiningTarget?
-) : Serializable {
+) : EventEmitter<Ship>(), Serializable {
     var name: String = name
         private set
 
@@ -34,6 +36,8 @@ class Ship(
     val explorers get() = min(floor(0.1 * crew).toInt(), 50)
 
     val destroyed get() = hullPoints == 0
+
+    val onMine = Event<Ship, MiningEventArgs>().bind(this)
 
     fun rename(newName: String) {
         if (newName.isNotBlank()){
@@ -74,17 +78,24 @@ class Ship(
 
     internal fun mine() {
         mining?.run {
+            fun mineAndInvoke(item: InventoryItem, amount: Int) {
+                val actual = inventory.addItems(item, amount)
+                if (actual > 0) {
+                    onMine(MiningEventArgs(planet, item, actual))
+                }
+            }
+
             val amt = miningYield(this)
 
             if (resource == InventoryItem.FUEL_ORE || resource == InventoryItem.METAL_ORE) {
                 val fuelAmt = Random.range(amt / 2)
                 val rareAmt = if (planet.discoveredFeatures.contains(PlanetFeature.RARE_ELEMENTS)) Random.range((amt - fuelAmt) / 2) else 0
                 val metalAmt = amt - fuelAmt - rareAmt
-                inventory.addItems(InventoryItem.FUEL_ORE, fuelAmt)
-                inventory.addItems(InventoryItem.METAL_ORE, metalAmt)
-                inventory.addItems(InventoryItem.RARE_METALS, rareAmt)
+                mineAndInvoke(InventoryItem.FUEL_ORE, fuelAmt)
+                mineAndInvoke(InventoryItem.METAL_ORE, metalAmt)
+                mineAndInvoke(InventoryItem.RARE_METALS, rareAmt)
             } else {
-                inventory.addItems(resource, amt)
+                mineAndInvoke(resource, amt)
             }
         }
     }
@@ -102,6 +113,7 @@ class Ship(
             return Ship(name, shipClass, hull, crew, inv, null, null)
         }
     }
-}
 
-data class MiningTarget(val planet: Planet, val resource: InventoryItem)
+    data class MiningTarget(val planet: Planet, val resource: InventoryItem)
+    data class MiningEventArgs(val planet: Planet, val resource: InventoryItem, val amount: Int)
+}

@@ -1,7 +1,7 @@
 package ui
 
+import game.Fleet
 import game.InventoryItem
-import game.MiningTarget
 import game.Ship
 import util.toTitleCase
 
@@ -16,15 +16,18 @@ class ShipView(internal val ship: Ship) {
     val foodProd = ship.shipClass.foodProduction
     val foodCons = ship.foodConsumption
 
+    fun lowFood() = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * 3
+    fun lowFuel(fleet: Fleet) = ship.inventory[InventoryItem.FUEL] < fleet.fuelConsumptionAtSpeed(ship) * 3
+
     val explorers = ship.explorers
-    val exploring get() = ship.exploring?.name ?: "None"
+    val exploring get() = ship.exploring?.name?.let { "$it ($explorers explorers)" } ?: "None"
 
     val mining get() = ship.mining?.run { "${resource.name.toTitleCase()} on ${planet.name}" } ?: "None"
 
     @JsName("miningYield")
     fun miningYield(planet: PlanetView?, resourceName: String?): String {
         if(planet == null || resourceName == null) return "..."
-        return ship.miningYield(MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))).toString()
+        return ship.miningYield(Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))).toString()
     }
 
     class InventoryContents(val itemName: String, val count: Int)

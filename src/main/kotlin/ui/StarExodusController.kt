@@ -2,8 +2,8 @@ package ui
 
 import PIXI.SystemRenderer
 import angular.Scope
-import util.MutVector2
-import util.toTypedArray
+import game.ExodusGame
+import util.toTitleCase
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class StarExodusController(val scope: Scope, val gameService: GameService) {
@@ -14,13 +14,13 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
     var confirmMessage: String = ""
     var confirmAction: () -> Unit = {}
 
-    val log: Array<String> get() = _log.toTypedArray()
+    val log: Array<String> get() = _log.asReversed().toTypedArray()
     var clickedStar: StarView? = null
     var currentSystem: StarView? = null
 
     init {
-        gameService.onReady += { _, _ ->
-            registerGameListeners()
+        gameService.onReady += { sender, _ ->
+            registerGameListeners(sender.game)
             refreshMap()
             refreshCurrentSystem()
         }
@@ -28,9 +28,13 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
         galaxyRenderer = initPixi("mapPanel", 800, 800)
     }
 
-    private fun registerGameListeners() {
-        // TODO
-        gameService.game.onTurn += { game, _ -> _log.add("Day ${game.day}") }
+    private fun registerGameListeners(game: ExodusGame) {
+        game.onTurn += { sender, _ -> _log.add("Day ${sender.day}") }
+        game.fleet.onArrive += { _, star -> _log.add("The fleet has arrived in the ${star.name} system.") }
+        game.galaxy.stars
+                .flatMap { it.planets }
+                .forEach { it.onDiscoverFeature += { sender, feature -> _log.add("${feature.name.toTitleCase()} has been discovered on ${sender.name}.") } }
+        game.fleet.ships.forEach { it.onMine += { sender, args -> _log.add("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") } }
     }
 
     @JsName("refreshMap")

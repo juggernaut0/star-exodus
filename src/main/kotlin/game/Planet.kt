@@ -32,9 +32,10 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
         if(begin % 20 > end % 20 || end - begin >= 20){
             val n = begin / 20
             val l = end / 20
-            for (i in n until l) {
-                onDiscoverFeature(features[i])
-            }
+            (n until l)
+                    .asSequence()
+                    .filter { features[it] != PlanetFeature.NOTHING }
+                    .forEach { onDiscoverFeature(features[it]) }
         }
 
         if (exploration == 100) {

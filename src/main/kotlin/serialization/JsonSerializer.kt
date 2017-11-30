@@ -179,7 +179,7 @@ private class JsonLoader(string: String) {
         val crew = loadInt(obj.crew)
         val inv = loadReference(obj.inventory, this::loadInventory)
         val exploring = loadNullable(obj.exploring) { loadReference(it, this::loadPlanet) }
-        val mining = loadNullable(obj.mining) { MiningTarget(
+        val mining = loadNullable(obj.mining) { Ship.MiningTarget(
                 loadReference(it.planet, this::loadPlanet),
                 InventoryItem.valueOf(loadString(it.resource))
         ) }

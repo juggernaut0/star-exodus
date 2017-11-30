@@ -1,13 +1,11 @@
 package game
 
 import serialization.Serializable
-import util.IntVector2
-import util.Random
-import util.WeightedList
+import util.*
 import kotlin.math.ceil
 import kotlin.math.min
 
-class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntVector2) : Serializable {
+class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntVector2) : Serializable, EventEmitter<Fleet>() {
     var location: IntVector2 = location
         private set
 
@@ -15,6 +13,8 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
     val ships: Collection<Ship> get() = _ships
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
+
+    val onArrive = Event<Fleet, StarSystem>().bind(this)
 
     fun doTurn(game: ExodusGame) {
         abandonUncrewed()
@@ -32,6 +32,10 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         if (currentStar != null) {
             exploreSystem(currentStar)
             ships.forEach { it.mine() }
+        }
+
+        if (moved && currentStar != null) {
+            onArrive(currentStar)
         }
     }
 

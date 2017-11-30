@@ -22,7 +22,7 @@
                 <div class="row">
                     <div class="col-md-9">
                         <ul class="list-group">
-                            <li class="list-group-item" ng-repeat="msg in _.log">{{msg}}</li>
+                            <li class="list-group-item" ng-repeat="msg in _.log track by $index">{{msg}}</li>
                         </ul>
                     </div>
                     <div class="col-md-3">
@@ -52,9 +52,9 @@
                     <button class="btn btn-primary" ng-click="fleet.autoSupply()">Auto-Supply Fleet</button>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">Ships: {{fleet.fleet.length}}</div>
-                    <div class="col-md-4">Population: {{fleet.totalPopulation}}</div>
-                    <div class="col-md-4">Speed: {{fleet.fleetSpeed}}</div>
+                    <div class="col-md-4">Ships: {{fleet.fleet.ships.length}}</div>
+                    <div class="col-md-4">Population: {{fleet.fleet.totalPopulation}}</div>
+                    <div class="col-md-4">Speed: {{fleet.fleet.speed}}</div>
                 </div>
                 <div class="collapse" id="shipDetails">
                     <div class="card">
@@ -65,9 +65,9 @@
                         <div class="card-body">
                             <h4 class="card-title">{{fleet.selectedShip.name}} <small class="text-muted">{{fleet.selectedShip.shipClass}}</small></h4>
 
-                            <p>Food consumption: {{fleet.selectedShip.foodCons}}</p>
-                            <p ng-show="fleet.selectedShip.foodProd > 0">Food production: {{fleet.selectedShip.foodProd}}</p>
-                            <p><span title="At current speed">Fuel consumption</span>: {{fleet.fuelCons(fleet.selectedShip)}}</p>
+                            <p>Food consumption: {{fleet.selectedShip.foodCons}} / day</p>
+                            <p ng-show="fleet.selectedShip.foodProd > 0">Food production: {{fleet.selectedShip.foodProd}} / day</p>
+                            <p><span title="At current speed">Fuel consumption</span>: {{fleet.fuelCons(fleet.selectedShip)}} / day</p>
                             <p>Exploring: {{fleet.selectedShip.exploring}}</p>
                             <p>Gathering: {{fleet.selectedShip.mining}}</p>
 
@@ -113,7 +113,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="ship in fleet.fleet | orderBy:'name'" ng-click="fleet.openShipCollapse(ship)" ng-class="fleet.shipRowClass(ship)">
+                        <tr ng-repeat="ship in fleet.fleet.ships | orderBy:'name'" ng-click="fleet.openShipCollapse(ship)" ng-class="fleet.shipRowClass(ship)">
                             <td>{{ship.name}}</td>
                             <td>{{ship.shipClass}}</td>
                             <td>{{ship.hull}}</td>

@@ -1,16 +1,14 @@
 package ui
 
 import game.InventoryItem
-import game.MiningTarget
+import game.Ship
 import jQuery
 import util.MutVector2
 import util.toTypedArray
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class FleetController(val gameService: GameService) {
-    var fleet: Array<ShipView> = emptyArray()
-    var totalPopulation: Int = 0
-    var fleetSpeed: Int = 0
+    var fleet: FleetView? = null
     var selectedShip: ShipView? = null
     var nearbyStars: Array<StarView> = emptyArray()
     var selectedDestination: MutVector2? = null
@@ -33,13 +31,15 @@ class FleetController(val gameService: GameService) {
     @JsName("refreshFleet")
     fun refreshFleet() {
         closeShipCollapse()
-        fleet = gameService.game.fleet.ships.map { ShipView(it) }.toTypedArray()
-        totalPopulation = gameService.game.fleet.ships.sumBy { it.crew }
-        fleetSpeed = gameService.game.fleet.speed
+        fleet = FleetView(gameService.game.fleet)
     }
 
     @JsName("shipRowClass")
-    fun shipRowClass(shipView: ShipView) = if (shipView == selectedShip) "table-primary" else ""
+    fun shipRowClass(shipView: ShipView) = when {
+        shipView == selectedShip -> "table-primary"
+        shipView.lowFood() || shipView.lowFuel(gameService.game.fleet) -> "table-warning"
+        else -> ""
+    }
 
     @JsName("fuelCons")
     fun fuelCons(shipView: ShipView?): Int
@@ -76,7 +76,7 @@ class FleetController(val gameService: GameService) {
     @JsName("selectedShipMine")
     fun selectedShipMine(planet: PlanetView?, resourceName: String?) {
         val mining = if (planet != null && resourceName != null) {
-            MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))
+            Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))
         } else {
             null
         }
