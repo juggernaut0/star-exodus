@@ -8,13 +8,14 @@ import util.toTitleCase
 class ShipView(internal val ship: Ship) {
     val name get() = ship.name
     val shipClass = ship.shipClass.displayName
-    val hull = "${ship.hullPoints}/${ship.shipClass.maxHull}"
-    val crew = "${ship.crew}/${ship.shipClass.maxCrew}"
+    val nameclass get() = "${ship.name} - ${ship.shipClass.displayName}"
+    val hull get() = "${ship.hullPoints}/${ship.maxHull}"
+    val crew get() = "${ship.crew}/${ship.maxCrew}"
     val cargo = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
     val inventory = ship.inventory.items.map { (ii, c) -> InventoryContents(ii.name.toTitleCase(), c) }.toTypedArray()
 
     val foodProd = ship.shipClass.foodProduction
-    val foodCons = ship.foodConsumption
+    val foodCons get() = ship.foodConsumption
 
     fun lowFood() = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * 3
     fun lowFuel(fleet: Fleet) = ship.inventory[InventoryItem.FUEL] < fleet.fuelConsumptionAtSpeed(ship) * 3

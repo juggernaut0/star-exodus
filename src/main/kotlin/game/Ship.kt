@@ -4,10 +4,7 @@ import serialization.Serializable
 import util.Event
 import util.EventEmitter
 import util.Random
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.min
-import kotlin.math.sqrt
+import kotlin.math.*
 
 class Ship(
         name: String,
@@ -23,10 +20,14 @@ class Ship(
 
     var hullPoints: Int = hullPoints
         private set
+    inline val maxHull get() = shipClass.maxHull
+
     var crew: Int = crew
         private set
+    inline val minCrew get() = shipClass.minCrew
+    inline val maxCrew get() = shipClass.maxCrew
 
-    val mass get() = shipClass.maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
+    val mass get() = maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
 
     // fuel per distance unit per turn
     val fuelConsumption get() = sqrt(mass.toDouble()) * FUEL_COEFFICIENT
@@ -48,14 +49,21 @@ class Ship(
     // returns amount actually changed
     fun modHullPoints(amt: Int): Int {
         val oldHp = hullPoints
-        hullPoints = minOf(maxOf(hullPoints + amt, 0), shipClass.maxHull)
+        hullPoints = minOf(maxOf(hullPoints + amt, 0), maxHull)
         return hullPoints - oldHp
     }
 
     fun modCrew(amt: Int): Int {
         val oldCrew = crew
-        crew = minOf(maxOf(crew + amt, 0), shipClass.maxCrew)
+        crew = minOf(maxOf(crew + amt, 0), maxCrew)
         return crew - oldCrew
+    }
+
+    fun transferCrew(dest: Ship, amt: Int): Int {
+        val actual = arrayOf(crew, dest.maxCrew - dest.crew, max(amt, 0)).min() ?: 0
+        modCrew(-actual)
+        dest.modCrew(actual)
+        return actual
     }
 
     internal fun eatFood() {

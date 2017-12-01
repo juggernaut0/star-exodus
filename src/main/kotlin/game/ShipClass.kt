@@ -21,7 +21,7 @@ enum class ShipClass(
     CRUISE_LINER(            "Cruise Liner",            400,  12,  500,  70,  480, 3, foodGatherMutliplier = 2.0),
     DREAM_LINER(             "Dream Liner",             600,  16,  600,  70,  800, 4, foodGatherMutliplier = 2.0),
     SMALL_COLONY_SHIP(       "Small Colony Ship",       900,  25, 1000,  80, 1800, 3, foodGatherMutliplier = 2.0, hanger =   5),
-    LARGE_COLONY_SHIP(       "Large Colony Ship",      1500,  50, 1200,  70, 3200, 4, foodGatherMutliplier = 2.0, hanger =  10),
+    LARGE_COLONY_SHIP(       "Large Colony Ship",      1500,  50, 1200,  70, 3200, 4, foodGatherMutliplier = 2.0, hanger =  10, foodProduction = 10),
     LIVESHIP(                "Liveship",               2500, 100, 1800,  55, 4800, 5, foodGatherMutliplier = 3.0, hanger =  50, foodProduction = 25),
     CITYSHIP(                "Cityship",               5000, 250, 3600,  40, 7200, 6, foodGatherMutliplier = 3.0, hanger = 100, foodProduction = 55),
     // frieght
@@ -54,4 +54,5 @@ enum class ShipClass(
     RAPTOR(                  "Raptor",                    3,   1,  120,  30,   20, 1, smSlots = 1, hanger = -1);
 
     val weaponSlots = mapOf(WeaponType.SMALL to smSlots, WeaponType.MEDIUM to mdSlots, WeaponType.LARGE to lgSlots)
+    val military get() = weaponSlots.values.sum() > 0
 }

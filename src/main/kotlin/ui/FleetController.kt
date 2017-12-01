@@ -4,10 +4,13 @@ import game.InventoryItem
 import game.Ship
 import jQuery
 import util.MutVector2
+import util.toTitleCase
 import util.toTypedArray
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
 class FleetController(val gameService: GameService) {
+    val allItems = InventoryItem.values()
+
     var fleet: FleetView? = null
     var selectedShip: ShipView? = null
     var nearbyStars: Array<StarView> = emptyArray()
@@ -20,6 +23,13 @@ class FleetController(val gameService: GameService) {
         }
     var customDestination: MutVector2 = MutVector2()
 
+    var crewTransferTarget: ShipView? = null
+    var crewTransferAmount: Int? = 0
+
+    var cargoTransferTarget: ShipView? = null
+    var cargoTransferItem: InventoryItem = InventoryItem.FOOD
+    var cargoTransferAmount: Int? = 0
+
     init {
         gameService.onReady += { _, _ ->
             refreshFleet()
@@ -30,14 +40,20 @@ class FleetController(val gameService: GameService) {
 
     @JsName("refreshFleet")
     fun refreshFleet() {
-        closeShipCollapse()
+        val ship = selectedShip?.ship
         fleet = FleetView(gameService.game.fleet)
+                .also {
+                    crewTransferTarget = it.ships[0]
+                    cargoTransferTarget = it.ships[0]
+                    selectedShip = it.ships.find { it.ship == ship }
+                }
     }
 
     @JsName("shipRowClass")
     fun shipRowClass(shipView: ShipView) = when {
         shipView == selectedShip -> "table-primary"
         shipView.lowFood() || shipView.lowFuel(gameService.game.fleet) -> "table-warning"
+        shipView.ship.crew < shipView.ship.minCrew -> "table-danger"
         else -> ""
     }
 
@@ -62,10 +78,35 @@ class FleetController(val gameService: GameService) {
         selectedShip?.apply { ship.rename(name) }
     }
 
+    @JsName("transferCrew")
+    fun transferCrew() {
+        val src = selectedShip?.ship
+        val dest = crewTransferTarget?.ship
+        val amt = crewTransferAmount
+
+        if (src != null && dest != null && amt != null) {
+            src.transferCrew(dest, amt)
+            jQuery("#shipTransferCrew").collapse("hide")
+        }
+    }
+
+    @JsName("transferCargo")
+    fun transferCargo() {
+        val src = selectedShip?.ship
+        val dest = cargoTransferTarget?.ship
+        val amt = cargoTransferAmount
+
+        if (src != null && dest != null && amt != null) {
+            src.inventory.transferItemsTo(dest.inventory, cargoTransferItem, amt)
+            refreshFleet()
+        }
+    }
+
     @JsName("abandonSelectedShip")
     fun abandonSelectedShip() {
         selectedShip?.apply { gameService.game.fleet.abandonShip(ship) }
         refreshFleet()
+        closeShipCollapse()
     }
 
     @JsName("selectedShipExplore")
@@ -103,4 +144,7 @@ class FleetController(val gameService: GameService) {
         gameService.game.fleet.autoSupply()
         refreshFleet()
     }
+
+    @JsName("displayName")
+    fun displayName(item: InventoryItem): String = item.name.toTitleCase()
 }

@@ -73,6 +73,7 @@
 
                             <div class="btn-group">
                                 <button class="btn btn-outline-primary" data-toggle="modal" data-target="#shipRenameModal">Rename</button>
+                                <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipTransferCrew" data-parent="#shipDetailsPanels">Transfer Crew</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipWeapons" data-parent="#shipDetailsPanels">Weapons</button>
                                 <button class="btn btn-outline-primary" data-toggle="collapse" data-target="#shipInventory" data-parent="#shipDetailsPanels">Inventory</button>
                                 <button class="btn btn-outline-primary" ng-disabled="_.currentSystem == null" data-toggle="modal" data-target="#shipExploreModal">Explore Planet</button>
@@ -88,7 +89,7 @@
                                 </div>
 
                                 <div class="item">
-                                    <div class="item collapse" id="shipInventory">
+                                    <div class="collapse" id="shipInventory">
                                         <h4>Inventory</h4>
                                         <table class="table table-sm">
                                             <tr ng-repeat="item in fleet.selectedShip.inventory">
@@ -96,6 +97,31 @@
                                                 <td>{{item.count}}</td>
                                             </tr>
                                         </table>
+                                        <h6>Transfer</h6>
+                                        <label for="shipCargoTransferTarget">Transfer To</label>
+                                        <select id="shipCargoTransferTarget" class="form-control" ng-options="ship as ship.nameclass for ship in fleet.fleet.ships" ng-model="fleet.cargoTransferTarget"></select>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="shipCargoTransferItem">Item</label>
+                                                <select id="shipCargoTransferItem" class="form-control" ng-options="item as fleet.displayName(item) for item in fleet.allItems" ng-model="fleet.cargoTransferItem"></select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="shipCargoTransferAmount">Amount</label>
+                                                <input type="number" id="shipCargoTransferAmount" class="form-control" step="1" ng-model="fleet.cargoTransferAmount">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary mt-2" ng-click="fleet.transferCargo()">Transfer</button>
+                                    </div>
+                                </div>
+
+                                <div class="item">
+                                    <div class="collapse" id="shipTransferCrew">
+                                        <h4>Transfer Crew</h4>
+                                        <label for="shipCrewTransferTarget">Transfer To</label>
+                                        <select id="shipCrewTransferTarget" class="form-control" ng-options="ship as ship.nameclass for ship in fleet.fleet.ships" ng-model="fleet.crewTransferTarget"></select>
+                                        <label for="shipCrewTransferAmount">Amount</label>
+                                        <input type="number" id="shipCrewTransferAmount" class="form-control" step="1" ng-model="fleet.crewTransferAmount">
+                                        <button class="btn btn-primary mt-2" ng-click="fleet.transferCrew()">Transfer</button>
                                     </div>
                                 </div>
                             </div>
