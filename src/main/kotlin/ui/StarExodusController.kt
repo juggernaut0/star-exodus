@@ -34,14 +34,17 @@ class StarExodusController(val scope: Scope, val gameService: GameService) {
         game.galaxy.stars
                 .flatMap { it.planets }
                 .forEach { it.onDiscoverFeature += { sender, feature -> _log.add("${feature.name.toTitleCase()} has been discovered on ${sender.name}.") } }
-        game.fleet.ships.forEach { it.onMine += { sender, args -> _log.add("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") } }
+        for (ship in game.fleet.ships) {
+            ship.onMine += { sender, args -> _log.add("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
+            ship.onRepair += { sender, amt -> _log.add("${sender.name} has repaired for $amt hull points.") }
+        }
     }
 
     @JsName("refreshMap")
     fun refreshMap() {
         val stage = PIXI.Container()
 
-        gameService.game.galaxy.stars
+        gameService.game.fleet.discoveredStars
                 .asSequence()
                 .map {
                     Shapes.circle(it.location.toPoint(), 2.0, lineStyle = LineStyle(Color.TRANSPARENT), fillColor = Color.WHITE) { _ ->

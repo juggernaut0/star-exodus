@@ -39,6 +39,7 @@ class Ship(
     val destroyed get() = hullPoints == 0
 
     val onMine = Event<Ship, MiningEventArgs>().bind(this)
+    val onRepair = Event<Ship, Int>().bind(this)
 
     fun rename(newName: String) {
         if (newName.isNotBlank()){
@@ -108,16 +109,27 @@ class Ship(
         }
     }
 
+    internal fun repair() {
+        val amt = min(25, maxHull - hullPoints)
+        val cost = ceil(amt * REPAIR_COST).toInt()
+        if (amt > 0 && inventory[InventoryItem.METAL] >= cost) {
+            modHullPoints(amt)
+            inventory.removeItems(InventoryItem.METAL, cost)
+            onRepair(amt)
+        }
+    }
+
     companion object {
         const val FUEL_COEFFICIENT = 0.006
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
+        const val REPAIR_COST = 0.5 // per hull point
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
-            val hull = (shipClass.maxHull * Random.range(0.5, 1.0)).toInt()
+            val hull = (shipClass.maxHull * Random.range(0.7, 1.0)).toInt()
             val crew = (shipClass.maxCrew * Random.range(0.6, 0.9)).toInt()
             val inv = Inventory(shipClass.cargoCapacity)
             inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
-            inv.addItems(InventoryItem.FOOD, inv.capacity/4)
+            inv.addItems(InventoryItem.FOOD, inv.capacity/5)
             return Ship(name, shipClass, hull, crew, inv, null, null)
         }
     }

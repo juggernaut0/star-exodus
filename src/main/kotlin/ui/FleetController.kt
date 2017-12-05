@@ -41,10 +41,11 @@ class FleetController(val gameService: GameService) {
     @JsName("refreshFleet")
     fun refreshFleet() {
         val ship = selectedShip?.ship
+        val cargoTarget = cargoTransferTarget?.ship
         fleet = FleetView(gameService.game.fleet)
                 .also {
                     crewTransferTarget = it.ships[0]
-                    cargoTransferTarget = it.ships[0]
+                    cargoTransferTarget = it.ships.find { it.ship == cargoTarget }
                     selectedShip = it.ships.find { it.ship == ship }
                 }
     }
@@ -52,8 +53,9 @@ class FleetController(val gameService: GameService) {
     @JsName("shipRowClass")
     fun shipRowClass(shipView: ShipView) = when {
         shipView == selectedShip -> "table-primary"
-        shipView.lowFood() || shipView.lowFuel(gameService.game.fleet) -> "table-warning"
         shipView.ship.crew < shipView.ship.minCrew -> "table-danger"
+        shipView.lowFood(1) || shipView.lowFuel(1, gameService.game.fleet) -> "table-danger"
+        shipView.lowFood(3) || shipView.lowFuel(3, gameService.game.fleet) -> "table-warning"
         else -> ""
     }
 
@@ -116,12 +118,13 @@ class FleetController(val gameService: GameService) {
 
     @JsName("selectedShipMine")
     fun selectedShipMine(planet: PlanetView?, resourceName: String?) {
-        val mining = if (planet != null && resourceName != null) {
-            Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))
-        } else {
-            null
+        selectedShip?.apply {
+            ship.mining = if (planet != null && resourceName != null) {
+                Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))
+            } else {
+                null
+            }
         }
-        selectedShip?.apply { ship.mining = mining }
     }
 
     @JsName("setDestination")

@@ -69,7 +69,8 @@ private class JsonSaver {
     private fun save(fleet: Fleet): String = obj(
             "location" to saveLocation(fleet.location),
             "destination" to saveLocation(fleet.destination),
-            "ships" to saveReferenceList(fleet.ships.toList(), this::save)
+            "ships" to saveReferenceList(fleet.ships.toList(), this::save),
+            "discovered" to saveReferenceList(fleet.discoveredStars.toList(), this::save)
     )
 
     private fun save(ship: Ship): String = obj(
@@ -103,9 +104,9 @@ private class JsonLoader(string: String) {
         objs = obj.objs.unsafeCast<Array<dynamic>>()
     }
 
-    private inline fun <reified T> checkUndef(obj: dynamic, loader: (dynamic) -> T): T {
+    private inline fun <reified T> checkUndef(obj: dynamic, innerName: String? = null, loader: (dynamic) -> T): T {
         if (obj === undefined) {
-            throw SerializationException("Undefined property; expecting a ${T::class.simpleName}")
+            throw SerializationException("Undefined property; expecting a ${T::class.simpleName}" + (innerName?.let { "<$it>" } ?: ""))
         }
         return loader(obj)
     }
@@ -132,7 +133,7 @@ private class JsonLoader(string: String) {
         return objectCache.getOrPut(ref) { loader(objs[ref]) }.unsafeCast<T>()
     }
 
-    private inline fun <T : Serializable> loadReferenceList(arr: dynamic, loader: (dynamic) -> T) = checkUndef(arr) {
+    private inline fun <reified T: Serializable> loadReferenceList(arr: dynamic, loader: (dynamic) -> T) = checkUndef(arr, T::class.simpleName) {
         (arr as Array<dynamic>).map { loadReference(it, loader) }
     }
 
@@ -168,8 +169,9 @@ private class JsonLoader(string: String) {
     private fun loadFleet(obj: dynamic) = checkUndef(obj) {
         val location = loadLocation(obj.location)
         val destination = loadLocation(obj.destination)
-        val ships = loadReferenceList(obj.ships, this::loadShip)
-        Fleet(ships, location, destination)
+        val ships = loadReferenceList(obj.ships) { loadShip(it) }
+        val discovered = loadReferenceList(obj.discovered) { loadStar(it) }
+        Fleet(ships, location, destination, discovered)
     }
 
     private fun loadShip(obj: dynamic) = checkUndef(obj) {

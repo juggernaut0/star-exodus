@@ -21,7 +21,8 @@ class ExodusGame(val galaxy: Galaxy, val fleet: Fleet, day: Int) : Serializable,
     companion object {
         operator fun invoke(resourceLoader: ResourceLoader): ExodusGame {
             val galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
-            val fleet = Fleet(10, resourceLoader.getShipNames(), Random.choice(galaxy.stars).location)
+            val startingLoc = Random.choice(galaxy.stars).location
+            val fleet = Fleet(10, resourceLoader.getShipNames(), startingLoc, galaxy.getNearbyStars(startingLoc, Fleet.SENSOR_RANGE))
             return ExodusGame(galaxy, fleet, 0)
         }
     }

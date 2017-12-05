@@ -4,13 +4,22 @@ import serialization.Serializable
 import util.*
 import kotlin.math.ceil
 import kotlin.math.min
+import kotlin.math.roundToInt
 
-class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntVector2) : Serializable, EventEmitter<Fleet>() {
+class Fleet(
+        ships: Collection<Ship>,
+        location: IntVector2,
+        var destination: IntVector2,
+        discoveredStars: Collection<StarSystem>
+) : EventEmitter<Fleet>(), Serializable {
     var location: IntVector2 = location
         private set
 
     private val _ships = ships.toMutableList()
     val ships: Collection<Ship> get() = _ships
+
+    private val _discovered = discoveredStars.toMutableSet()
+    val discoveredStars: Collection<StarSystem> get() = _discovered
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
 
@@ -20,13 +29,18 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         abandonUncrewed()
         growFood()
         eatFood()
+
         val moved = moveTowardsDestination()
         if (moved) {
+            _discovered.addAll(game.galaxy.getNearbyStars(location, SENSOR_RANGE))
+
             for (ship in ships) {
                 ship.exploring = null
                 ship.mining = null
             }
         }
+
+        ships.forEach { it.repair() }
 
         val currentStar = game.galaxy.getStarAt(location)
         if (currentStar != null) {
@@ -84,8 +98,6 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
         _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
         _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
 
-        // TODO discovered systems (600 range?)
-
         return true
     }
 
@@ -95,8 +107,8 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
     }
 
     fun autoSupply() {
-        autoSupply(InventoryItem.FOOD) { it.foodConsumption }
         autoSupply(InventoryItem.FUEL) { fuelConsumptionAtSpeed(it) }
+        autoSupply(InventoryItem.FOOD) { it.foodConsumption }
     }
 
     private fun autoSupply(item: InventoryItem, consFn: (Ship) -> Int) {
@@ -120,48 +132,68 @@ class Fleet(ships: Collection<Ship>, location: IntVector2, var destination: IntV
     }
 
     companion object {
-        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2): Fleet {
-            val weightedClasses = WeightedList(
-                    ShipClass.SMALL_PASSENGER_CARRIER to 52,
-                    ShipClass.MEDIUM_PASSENGER_CARRIER to 44,
-                    ShipClass.LARGE_PASSENGER_CARRIER to 34,
-                    ShipClass.HUGE_PASSENGER_CARRIER to 24,
-                    ShipClass.CRUISE_LINER to 16,
-                    ShipClass.DREAM_LINER to 12,
-                    ShipClass.SMALL_COLONY_SHIP to 12,
-                    ShipClass.LARGE_COLONY_SHIP to 8,
+        const val SENSOR_RANGE = 600.0
+
+        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2, nearbyStars: Collection<StarSystem>): Fleet {
+            val home = WeightedList(
+                    ShipClass.SMALL_COLONY_SHIP to 6,
+                    ShipClass.LARGE_COLONY_SHIP to 9,
                     ShipClass.LIVESHIP to 4,
-                    ShipClass.CITYSHIP to 3,
-                    ShipClass.SMALL_FREIGHT_CARRIER to 28,
-                    ShipClass.MEDIUM_FREIGHT_CARRIER to 22,
-                    ShipClass.LARGE_FREIGHT_CARRIER to 14,
-                    ShipClass.HUGE_FREIGHT_CARRIER to 8,
-                    ShipClass.SUPER_FREIGHT_CARRIER to 4,
-                    ShipClass.REFINERY_SHIP to 6,
-                    ShipClass.FUEL_TANKER to 3,
-                    ShipClass.MOBILE_DRY_DOCK to 1,
-                    ShipClass.MINING_SHIP to 6,
-                    ShipClass.CORVETTE to 20,
-                    ShipClass.SCOUT to 14,
-                    ShipClass.DESTROYER to 16,
-                    ShipClass.TROOP_CARRIER to 12,
-                    ShipClass.FRIGATE to 8,
-                    ShipClass.CRUISER to 6,
-                    ShipClass.HEAVY_CRUISER to 6,
-                    ShipClass.CARRIER to 4,
-                    ShipClass.BATTLESHIP to 4,
-                    ShipClass.DREADNOUGHT to 4,
-                    ShipClass.FLEET_CARRIER to 2,
-                    ShipClass.TITAN to 2,
+                    ShipClass.CITYSHIP to 1
+            )
+
+            val capital = WeightedList(
+                    ShipClass.BATTLESHIP to 7,
+                    ShipClass.DREADNOUGHT to 6,
+                    ShipClass.FLEET_CARRIER to 3,
+                    ShipClass.TITAN to 3,
                     ShipClass.BATTLECARRIER to 1
             )
 
-            val ships = Random.sample(shipNames, numShips).mapTo(mutableListOf()) { name ->
-                val cls = Random.choice(weightedClasses)
-                Ship(name, cls)
-            }
+            val escort = WeightedList(
+                    ShipClass.CORVETTE to 20,
+                    ShipClass.SCOUT to 14,
+                    ShipClass.DESTROYER to 16,
+                    ShipClass.TROOP_CARRIER to 4,
+                    ShipClass.FRIGATE to 8,
+                    ShipClass.CRUISER to 6,
+                    ShipClass.HEAVY_CRUISER to 6,
+                    ShipClass.CARRIER to 4
+            )
 
-            return Fleet(ships, startingLocation, startingLocation)
+            val civilian = WeightedList(
+                    ShipClass.SMALL_PASSENGER_CARRIER to 12,
+                    ShipClass.MEDIUM_PASSENGER_CARRIER to 10,
+                    ShipClass.LARGE_PASSENGER_CARRIER to 8,
+                    ShipClass.HUGE_PASSENGER_CARRIER to 6,
+                    ShipClass.CRUISE_LINER to 4,
+                    ShipClass.DREAM_LINER to 2,
+                    ShipClass.SMALL_FREIGHT_CARRIER to 8,
+                    ShipClass.MEDIUM_FREIGHT_CARRIER to 6,
+                    ShipClass.LARGE_FREIGHT_CARRIER to 4,
+                    ShipClass.HUGE_FREIGHT_CARRIER to 2,
+                    ShipClass.SUPER_FREIGHT_CARRIER to 1,
+                    ShipClass.REFINERY_SHIP to 3,
+                    ShipClass.FUEL_TANKER to 4,
+                    ShipClass.MOBILE_DRY_DOCK to 1,
+                    ShipClass.MINING_SHIP to 3
+            )
+
+            val numEscort = ((numShips - 2) * Random.range(0.2, 0.5)).roundToInt()
+            val numCivilian = numShips - 2 - numEscort
+
+            val classes = listOf(
+                    Random.choice(home),
+                    Random.choice(capital),
+                    *Random.sample(escort, numEscort).toTypedArray(),
+                    *Random.sample(civilian, numCivilian).toTypedArray()
+            )
+
+            val ships = Random.sample(shipNames, numShips)
+                    .zip(classes)
+                    .mapTo(mutableListOf()) { (name, cls) -> Ship(name, cls) }
+
+            return Fleet(ships, startingLocation, startingLocation, nearbyStars)
         }
     }
 }
