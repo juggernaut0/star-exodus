@@ -123,6 +123,8 @@ class Ship(
         const val FUEL_COEFFICIENT = 0.006
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
         const val REPAIR_COST = 0.5 // per hull point
+        const val BIRTH_RATE = 18.0 // per 1000 people per year
+        const val DEATH_RATE = 11.0 // per 1000 people per year
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
             val hull = (shipClass.maxHull * Random.range(0.7, 1.0)).toInt()

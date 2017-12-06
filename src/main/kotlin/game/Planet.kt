@@ -53,6 +53,27 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
                 }
             }
             features.shuffle()
+
+            /*
+            int cap = 0;
+            if(features.contains(PlanetFeature.COLONIZED_MOON)) cap += 750;
+            else if(features.contains(PlanetFeature.SMALL_COLONY)) cap += 1500;
+            else if(features.contains(PlanetFeature.LARGE_COLONY)) cap += 4000;
+            else if(features.contains(PlanetFeature.HEAVILY_SETTLED)) cap += 10000;
+            if(cap != 0){
+                inventory = new Inventory(cap);
+                inventory.addItems(InventoryItem.FOOD, random.nextInt((int) (cap*0.3)));
+                inventory.addItems(InventoryItem.FUEL, random.nextInt((int) (cap*0.1)));
+                inventory.addItems(InventoryItem.METAL, random.nextInt((int) (cap*0.1)));
+                inventory.addItems(InventoryItem.GOODS, random.nextInt((int) (cap*0.15)));
+                inventory.addItems(InventoryItem.METAL_ORE, random.nextInt((int) (cap*0.1)));
+                inventory.addItems(InventoryItem.FUEL_ORE, random.nextInt((int) (cap*0.1)));
+                inventory.addItems(InventoryItem.RARE_METALS, random.nextInt((int) (cap*0.05)));
+                inventory.addItems(InventoryItem.TECHNOLOGY, random.nextInt((int) (cap*0.05)));
+                for(InventoryItem item : InventoryItem.values()) demand.put(item, random.nextGaussian());
+            }
+             */
+
             return Planet(name, type, features, 0)
         }
     }
