@@ -62,8 +62,9 @@ private class JsonSaver {
     private fun save(planet: Planet): String = obj(
             "name" to saveString(planet.name),
             "type" to saveEnum(planet.type),
-            "features" to saveList(planet.features, this::saveEnum),
-            "exploration" to saveNumber(planet.exploration)
+            "features" to saveList(planet.features, ::saveEnum),
+            "exploration" to saveNumber(planet.exploration),
+            "inventory" to saveReference(planet.inventory, ::save)
     )
 
     private fun save(fleet: Fleet): String = obj(
@@ -163,7 +164,8 @@ private class JsonLoader(string: String) {
         val type = PlanetType.valueOf(loadString(obj.type))
         val features = loadList(obj.features) { PlanetFeature.valueOf(loadString(it)) }
         val exploration = loadInt(obj.exploration)
-        Planet(planetName, type, features, exploration)
+        val inventory = loadReference(obj.inventory) { loadInventory(it) }
+        Planet(planetName, type, features, exploration, inventory)
     }
 
     private fun loadFleet(obj: dynamic) = checkUndef(obj) {

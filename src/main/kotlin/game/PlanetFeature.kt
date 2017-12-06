@@ -1,6 +1,6 @@
 package game
 
-enum class PlanetFeature {
+enum class PlanetFeature(val tradeCapacity: Int = 0) {
     NOTHING,
     ABANDONED_CITIES,
     PRIMITIVE_LOCALS,
@@ -8,13 +8,13 @@ enum class PlanetFeature {
     POOR_RESOURCE_DEPOSITS,
     UNDERGROUND_CAVERNS,
     CRASHED_SPACESHIP,
-    SMALL_COLONY,
-    LARGE_COLONY,
-    HEAVILY_SETTLED,
+    SMALL_COLONY(tradeCapacity = 1500),
+    LARGE_COLONY(tradeCapacity = 4000),
+    HEAVILY_SETTLED(tradeCapacity = 10000),
     CARNIVOROUS_PLANTS,
     MASSIVE_CANYON,
     RARE_ELEMENTS,
-    COLONIZED_MOON,
+    COLONIZED_MOON(tradeCapacity = 750),
     NUCLEAR_WINTER,
     UNUSUAL_GASES,
     MASSIVE_SHIPYARDS,
