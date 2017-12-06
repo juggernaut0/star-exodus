@@ -1,14 +1,13 @@
 import angular.DirectiveDefinition
 import angular.HttpService
-import ui.FleetController
-import ui.GameService
-import ui.StarExodusController
-import ui.SystemController
+import ui.*
 
 fun main() {
     angular.module("star-exodus", emptyArray())
             .controller("star-exodus-controller",
                     inject("\$scope", "game", cls = StarExodusController::class.js))
+            .controller("log-controller",
+                    inject("game", cls = LogController::class.js))
             .controller("fleet-controller",
                     inject("game", cls = FleetController::class.js))
             .controller("system-controller",

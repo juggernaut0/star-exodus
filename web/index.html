@@ -18,11 +18,11 @@
         </ul>
 
         <div class="tab-content">
-            <div id="main" class="tab-pane active" role="tabpanel">
+            <div id="main" class="tab-pane active" role="tabpanel" ng-controller="log-controller as log">
                 <div class="row">
                     <div class="col-md-9">
                         <ul class="list-group">
-                            <li class="list-group-item" ng-repeat="msg in _.log track by $index">{{msg}}</li>
+                            <li class="list-group-item" ng-repeat="msg in log.log track by $index">{{msg}}</li>
                         </ul>
                     </div>
                     <div class="col-md-3">
