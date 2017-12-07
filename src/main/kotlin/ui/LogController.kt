@@ -28,6 +28,14 @@ class LogController(val gameService: GameService) {
         for (ship in game.fleet.ships) {
             ship.onMine += { sender, args -> log("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
             ship.onRepair += { sender, amt -> log("${sender.name} has repaired for $amt hull points.") }
+            ship.onBirth += { sender, amt ->
+                val pl = if (amt == 1) " has" else "s have"
+                log("$amt birth$pl occured on ${sender.name}")
+            }
+            ship.onDeath += { sender, amt ->
+                val pl = if (amt == 1) "" else "s"
+                log("$amt death$pl occured on ${sender.name}")
+            }
         }
     }
 

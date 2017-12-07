@@ -37,7 +37,7 @@ object Random {
 
     //private val NORMAL_MAGIC = 4 * Math.exp(-0.5)/Math.sqrt(2.0)
     private const val NORMAL_MAGIC = 4 * 0.6065306597126334 / 1.4142135623730951
-    fun normal(mu: Double = 1.0, sigma: Double = 1.0): Number {
+    fun normal(mu: Double = 0.0, sigma: Double = 1.0): Double {
         var z: Double
         while (true) {
             val u1 = random()

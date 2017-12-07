@@ -29,6 +29,7 @@ class Fleet(
         abandonUncrewed()
         growFood()
         eatFood()
+        ships.forEach { it.births(); it.deaths() }
 
         val moved = moveTowardsDestination()
         if (moved) {
@@ -44,12 +45,12 @@ class Fleet(
 
         val currentStar = game.galaxy.getStarAt(location)
         if (currentStar != null) {
-            exploreSystem(currentStar)
-            ships.forEach { it.mine() }
-        }
-
-        if (moved && currentStar != null) {
-            onArrive(currentStar)
+            if (moved) {
+                onArrive(currentStar)
+            } else {
+                exploreSystem(currentStar)
+                ships.forEach { it.mine() }
+            }
         }
     }
 

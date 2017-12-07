@@ -40,6 +40,8 @@ class Ship(
 
     val onMine = Event<Ship, MiningEventArgs>().bind(this)
     val onRepair = Event<Ship, Int>().bind(this)
+    val onBirth = Event<Ship, Int>().bind(this)
+    val onDeath = Event<Ship, Int>().bind(this)
 
     fun rename(newName: String) {
         if (newName.isNotBlank()){
@@ -116,6 +118,34 @@ class Ship(
             modHullPoints(amt)
             inventory.removeItems(InventoryItem.METAL, cost)
             onRepair(amt)
+        }
+    }
+
+    private fun changePop(rate: Double, increase: Boolean): Int {
+        val chance = (crew * (rate/365000.0) * Random.normal(1.0, 0.5)).coerceAtLeast(0.0)
+        val whole = floor(chance).toInt()
+        val frac = chance - whole
+        val amt = whole + if (Random.random() < frac) 1 else 0
+        modCrew((if (increase) 1 else -1) * amt)
+        return amt
+    }
+
+    internal fun births() {
+        if (shipClass.military) return
+        if (crew < 5) return
+
+        val amt = changePop(BIRTH_RATE, true)
+        if (amt > 0) {
+            onBirth(amt)
+        }
+    }
+
+    internal fun deaths() {
+        if (shipClass.military) return
+
+        val amt = changePop(DEATH_RATE, false)
+        if (amt > 0) {
+            onDeath(amt)
         }
     }
 

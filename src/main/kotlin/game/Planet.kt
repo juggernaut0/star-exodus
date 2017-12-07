@@ -64,7 +64,7 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
                 inv.addItems(InventoryItem.METAL_ORE, Random.range(cap * 0.1).toInt())
                 inv.addItems(InventoryItem.FUEL_ORE, Random.range(cap * 0.1).toInt())
                 inv.addItems(InventoryItem.RARE_METALS, Random.range(cap * 0.05).toInt())
-                inv.addItems(InventoryItem.TECHNOLOGY, Random.range(cap * 0.5).toInt())
+                inv.addItems(InventoryItem.TECHNOLOGY, Random.range(cap * 0.05).toInt())
             }
 
             return Planet(name, type, features, 0, inv)

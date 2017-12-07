@@ -5,6 +5,7 @@ import game.PlanetType
 import game.StarType
 import jQuery
 import util.IntVector2
+import util.toTypedArray
 import kotlin.math.ceil
 
 @Suppress("MemberVisibilityCanPrivate", "unused")
@@ -24,9 +25,13 @@ class SystemController(val gameService: GameService) {
             return gameService.game.fleet.run { ceil(IntVector2.distance(location, destination) / speed).toInt() }
         }
 
+    var ships: Array<ShipView> = emptyArray()
+    var tradeShip: ShipView? = null
+
     init {
         gameService.onReady += { _, _ ->
             refreshStar()
+            refreshFleet()
 
             gameService.game.onTurn += { _, _ -> refreshStar() }
         }
@@ -91,6 +96,12 @@ class SystemController(val gameService: GameService) {
 
             systemRenderer.render(stage)
         }
+    }
+
+    @JsName("refreshFleet")
+    fun refreshFleet() {
+        ships = gameService.game.fleet.ships.asSequence().map { ShipView(it) }.toTypedArray()
+        tradeShip = ships.firstOrNull()
     }
 
     @JsName("planetRowClass")
