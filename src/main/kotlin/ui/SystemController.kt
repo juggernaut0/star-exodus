@@ -118,4 +118,11 @@ class SystemController(val gameService: GameService) {
         selectedPlanet = null
         jQuery("#planetDetails").collapse("hide")
     }
+
+    @JsName("trade")
+    fun trade() {
+        tradeShip?.let {
+            it.inventory.forEach { item -> console.log("${item.itemName}: ${item.selected}") }
+        }
+    }
 }

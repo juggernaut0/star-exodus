@@ -31,5 +31,5 @@ class ShipView(internal val ship: Ship) {
         return ship.miningYield(Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))).toString()
     }
 
-    class InventoryContents(val itemName: String, val count: Int)
+    class InventoryContents(val itemName: String, val count: Int, var selected: Int = 0)
 }
