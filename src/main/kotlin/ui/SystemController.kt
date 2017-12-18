@@ -27,6 +27,13 @@ class SystemController(val gameService: GameService) {
 
     var ships: Array<ShipView> = emptyArray()
     var tradeShip: ShipView? = null
+    val tradeBalance: Int
+        get() {
+            val pl = selectedPlanet ?: return 0
+            val sh = tradeShip ?: return 0
+            val invValue = { it: ShipView.InventoryContents -> (it.selected ?: 0) * it.item.value }
+            return sh.inventory.sumBy(invValue) - pl.inventory.sumBy(invValue)
+        }
 
     init {
         gameService.onReady += { _, _ ->

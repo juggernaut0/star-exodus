@@ -291,8 +291,15 @@
                                         <div class="collapse" id="planetTrade">
                                             <h5>Trade</h5>
                                             <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6 class="mt-3 mb-2">Planet Inventory</h6>
+                                                <div class="col-6">
+                                                    <h6>Planet Inventory</h6>
+                                                </div>
+                                                <div class="col-6">
+                                                    <select title="Ship" class="form-control" ng-options="ship as ship.name for ship in star.ships" ng-model="star.tradeShip"></select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
                                                     <table class="table table-sm">
                                                         <tr ng-repeat="item in star.selectedPlanet.inventory">
                                                             <td>{{item.itemName}}</td>
@@ -301,8 +308,7 @@
                                                         </tr>
                                                     </table>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <select title="Ship" class="form-control" ng-options="ship as ship.name for ship in star.ships" ng-model="star.tradeShip"></select>
+                                                <div class="col-6">
                                                     <table class="table table-sm">
                                                         <tr ng-repeat="item in star.tradeShip.inventory">
                                                             <td>{{item.itemName}}</td>
@@ -312,6 +318,7 @@
                                                     </table>
                                                 </div>
                                             </div>
+                                            <div class="text-center">Balance of Trade: {{star.tradeBalance}}</div>
                                             <button class="btn btn-primary btn-block" ng-click="star.trade()">Trade</button>
                                         </div>
                                     </div>

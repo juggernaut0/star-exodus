@@ -12,7 +12,7 @@ class ShipView(internal val ship: Ship) {
     val hull get() = "${ship.hullPoints}/${ship.maxHull}"
     val crew get() = "${ship.crew}/${ship.maxCrew}"
     val cargo = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
-    val inventory = ship.inventory.items.map { (ii, c) -> InventoryContents(ii.name.toTitleCase(), c) }.toTypedArray()
+    val inventory = ship.inventory.items.map { (ii, c) -> InventoryContents(ii, c) }.toTypedArray()
 
     val foodProd = ship.shipClass.foodProduction
     val foodCons get() = ship.foodConsumption
@@ -31,5 +31,7 @@ class ShipView(internal val ship: Ship) {
         return ship.miningYield(Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))).toString()
     }
 
-    class InventoryContents(val itemName: String, val count: Int, var selected: Int = 0)
+    class InventoryContents(val item: InventoryItem, val count: Int, var selected: Int? = 0) {
+        val itemName = item.name.toTitleCase()
+    }
 }
