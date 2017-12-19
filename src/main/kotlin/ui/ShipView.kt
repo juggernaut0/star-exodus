@@ -33,5 +33,6 @@ class ShipView(internal val ship: Ship) {
 
     class InventoryContents(val item: InventoryItem, val count: Int, var selected: Int? = 0) {
         val itemName = item.name.toTitleCase()
+        var validClass = ""
     }
 }

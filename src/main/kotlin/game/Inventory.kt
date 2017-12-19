@@ -1,6 +1,7 @@
 package game
 
 import serialization.Serializable
+import kotlin.math.max
 import kotlin.math.min
 
 class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Serializable {
@@ -35,7 +36,7 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Seriali
     }
 
     fun transferItemsTo(other: Inventory, item: InventoryItem, amount: Int): Int {
-        val actual = arrayOf(this[item], other.freeSpace, amount).min() ?: 0
+        val actual = arrayOf(this[item], other.freeSpace, max(amount, 0)).min() ?: 0
         if (actual > 0) {
             removeItems(item, actual)
             other.addItems(item, actual)

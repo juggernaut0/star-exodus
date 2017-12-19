@@ -304,7 +304,7 @@
                                                         <tr ng-repeat="item in star.selectedPlanet.inventory">
                                                             <td>{{item.itemName}}</td>
                                                             <td>{{item.count}}</td>
-                                                            <td><input type="number" title="Selected" class="form-control" min="0" max="{{item.count}}" step="1" ng-model="item.selected"></td>
+                                                            <td><input type="number" title="Selected" class="form-control" min="0" max="{{item.count}}" step="1" ng-model="item.selected" ng-class="item.validClass"></td>
                                                         </tr>
                                                     </table>
                                                 </div>
@@ -313,13 +313,13 @@
                                                         <tr ng-repeat="item in star.tradeShip.inventory">
                                                             <td>{{item.itemName}}</td>
                                                             <td>{{item.count}}</td>
-                                                            <td><input type="number" title="Selected" class="form-control" min="0" max="{{item.count}}" step="1" ng-model="item.selected"></td>
+                                                            <td><input type="number" title="Selected" class="form-control" min="0" max="{{item.count}}" step="1" ng-model="item.selected" ng-class="item.validClass"></td>
                                                         </tr>
                                                     </table>
                                                 </div>
                                             </div>
                                             <div class="text-center">Balance of Trade: {{star.tradeBalance}}</div>
-                                            <button class="btn btn-primary btn-block" ng-click="star.trade()">Trade</button>
+                                            <button class="btn btn-primary btn-block" ng-click="star.execute()">Trade</button>
                                         </div>
                                     </div>
                                 </div>

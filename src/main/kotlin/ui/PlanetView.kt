@@ -14,7 +14,7 @@ class PlanetView(internal val planet: Planet) {
         List(5) { i -> if (i < feats.size) feats[i].name.toTitleCase() else "???" }.toTypedArray()
     }
 
-    val tradable = planet.discoveredFeatures.find { it.tradeCapacity > 0 } != null
+    val tradable get() = planet.tradable
 
     val inventory = planet.inventory.items.map { (ii, c) -> ShipView.InventoryContents(ii, c) }.toTypedArray()
 }

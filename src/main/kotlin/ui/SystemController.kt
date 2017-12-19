@@ -3,6 +3,7 @@ package ui
 import PIXI.SystemRenderer
 import game.PlanetType
 import game.StarType
+import game.Trade
 import jQuery
 import util.IntVector2
 import util.toTypedArray
@@ -26,13 +27,14 @@ class SystemController(val gameService: GameService) {
         }
 
     var ships: Array<ShipView> = emptyArray()
+
     var tradeShip: ShipView? = null
     val tradeBalance: Int
         get() {
             val pl = selectedPlanet ?: return 0
             val sh = tradeShip ?: return 0
             val invValue = { it: ShipView.InventoryContents -> (it.selected ?: 0) * it.item.value }
-            return sh.inventory.sumBy(invValue) - pl.inventory.sumBy(invValue)
+            return pl.inventory.sumBy(invValue) - sh.inventory.sumBy(invValue)
         }
 
     init {
@@ -126,10 +128,27 @@ class SystemController(val gameService: GameService) {
         jQuery("#planetDetails").collapse("hide")
     }
 
-    @JsName("trade")
+    @JsName("execute")
     fun trade() {
         tradeShip?.let {
             it.inventory.forEach { item -> console.log("${item.itemName}: ${item.selected}") }
+        }
+
+        val ship = tradeShip ?: return
+        val planet = selectedPlanet ?: return
+        val trade = Trade(ship.ship.inventory, planet.planet)
+        for (ic in planet.inventory) {
+            trade.proposed[ic.item] = ic.selected ?: run { ic.validClass = "is-invalid"; return }
+            ic.validClass = ""
+        }
+        for (ic in ship.inventory) {
+            trade.proposed[ic.item] = (trade.proposed[ic.item] ?: 0) - (ic.selected ?: run { ic.validClass = "is-invalid"; return })
+            ic.validClass = ""
+        }
+
+        if(trade.execute()) {
+            selectedPlanet = PlanetView(planet.planet)
+            refreshFleet()
         }
     }
 }

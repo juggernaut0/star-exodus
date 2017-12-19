@@ -11,6 +11,7 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
         private set
 
     val discoveredFeatures get() = features.subList(0, (exploration/20))
+    val tradable get() = discoveredFeatures.find { it.tradeCapacity > 0 } != null
 
     val oreAmount: Int
         get() {
