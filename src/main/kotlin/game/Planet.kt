@@ -47,7 +47,6 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
     companion object {
         operator fun invoke(name: String, type: PlanetType): Planet {
             val features = mutableListOf<PlanetFeature>()
-            features.add(PlanetFeature.HEAVILY_SETTLED) // TEMP
             while (features.size < 5) {
                 val feat = Random.choice(type.features)
                 if (feat == PlanetFeature.NOTHING || feat !in features) {
@@ -69,7 +68,7 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
                 inv.addItems(InventoryItem.TECHNOLOGY, Random.range(cap * 0.05).toInt())
             }
 
-            return Planet(name, type, features, 100 /* TEMP */, inv)
+            return Planet(name, type, features, 0, inv)
         }
     }
 }
