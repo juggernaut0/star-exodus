@@ -1,10 +1,9 @@
 FROM resin/raspberry-pi-python:3.6
-ENV INITSYSTEM on
 
 WORKDIR /app
 
-ADD ../out /app
+ADD . /app
 
-EXPOSE 80
+EXPOSE 8000
 
-CMD ["python", "-m", "http.server", "80"]
+CMD ["python", "-m", "http.server", "8000"]
