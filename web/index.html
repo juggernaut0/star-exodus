@@ -276,13 +276,18 @@
                                     <div class="item">
                                         <div class="collapse" id="planetExplore">
                                             <h5>Exploration</h5>
+                                            <p>Explorers: {{star.currentExplorers()}}</p>
+                                            <h6>Progress</h6>
                                             <div class="progress position-relative my-3">
                                                 <div class="progress-bar" ng-style="{'width': star.selectedPlanet.exploration}">{{star.selectedPlanet.exploration}}</div>
                                                 <div class="segments"><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment border-0"></div></div>
                                             </div>
                                             <h6>Features</h6>
                                             <ul class="list-group">
-                                                <li class="list-group-item" ng-repeat="feat in star.selectedPlanet.features track by $index">{{feat}}</li>
+                                                <li class="list-group-item flex-column" ng-repeat="feat in star.selectedPlanet.features track by $index">
+                                                    <h5 class="mt-1">{{feat.name}}</h5>
+                                                    <p ng-hide="feat.description == null">{{feat.description}}</p>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -319,7 +324,7 @@
                                                 </div>
                                             </div>
                                             <div class="text-center">Balance of Trade: {{star.tradeBalance}}</div>
-                                            <button class="btn btn-primary btn-block" ng-click="star.execute()">Trade</button>
+                                            <button class="btn btn-primary btn-block" ng-click="star.executeTrade()">Trade</button>
                                         </div>
                                     </div>
                                 </div>

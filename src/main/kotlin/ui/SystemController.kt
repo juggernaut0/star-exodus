@@ -128,7 +128,18 @@ class SystemController(val gameService: GameService) {
         jQuery("#planetDetails").collapse("hide")
     }
 
-    @JsName("execute")
+    @JsName("currentExplorers")
+    fun currentExplorers(): Int? {
+        return selectedPlanet?.let {
+            val planet = it.planet
+            gameService.game.fleet.ships
+                    .asSequence()
+                    .filter { it.exploring == planet }
+                    .sumBy { it.explorers }
+        }
+    }
+
+    @JsName("executeTrade")
     fun trade() {
         tradeShip?.let {
             it.inventory.forEach { item -> console.log("${item.itemName}: ${item.selected}") }
