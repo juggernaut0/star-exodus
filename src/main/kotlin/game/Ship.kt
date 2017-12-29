@@ -34,7 +34,7 @@ class Ship(
     // food per turn
     val foodConsumption get() = ceil(crew * FOOD_COEFFICIENT).toInt()
 
-    val explorers get() = min(floor(0.1 * crew).toInt(), 50)
+    val explorers get() = min(floor(0.1 * crew).toInt(), MAX_EXPLORERS)
 
     val destroyed get() = hullPoints == 0
 
@@ -125,7 +125,7 @@ class Ship(
         val chance = (crew * (rate/365000.0) * Random.normal(1.0, 0.5)).coerceAtLeast(0.0)
         val whole = floor(chance).toInt()
         val frac = chance - whole
-        val amt = whole + if (Random.random() < frac) 1 else 0
+        val amt = whole + if (Random.chance(frac)) 1 else 0
         modCrew((if (increase) 1 else -1) * amt)
         return amt
     }
@@ -150,6 +150,7 @@ class Ship(
     }
 
     companion object {
+        const val MAX_EXPLORERS = 50 // per ship
         const val FUEL_COEFFICIENT = 0.006
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
         const val REPAIR_COST = 0.5 // per hull point

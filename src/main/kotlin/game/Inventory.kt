@@ -2,12 +2,11 @@ package game
 
 import serialization.Serializable
 import kotlin.math.max
-import kotlin.math.min
 
 class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Serializable {
     constructor(capacity: Int) : this(capacity, emptyMap())
 
-    private val contents: MutableMap<InventoryItem, Int> = contents.toMutableMap()
+    private val contents: MutableMap<InventoryItem, Int> = contents.filterTo(mutableMapOf()) { it.value > 0 }
     val items: List<Pair<InventoryItem, Int>> get() = contents.map { (k, v) -> k to v }
 
     val usedSpace get() = contents.values.sum()
@@ -19,13 +18,15 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Seriali
      * @return Amount actually added
      */
     fun addItems(item: InventoryItem, amount: Int = 1): Int {
-        val trueAmt = minOf(freeSpace, amount)
-        contents[item] = trueAmt + this[item]
+        val trueAmt = minOf(freeSpace, amount.coerceAtLeast(0))
+        if (trueAmt > 0) {
+            contents[item] = trueAmt + this[item]
+        }
         return trueAmt
     }
 
     fun removeItems(item: InventoryItem, amount: Int = 1): Int {
-        val trueAmt = minOf(this[item], amount)
+        val trueAmt = minOf(this[item], amount.coerceAtLeast(0))
         val newAmt = this[item] - trueAmt
         if (newAmt == 0) {
             contents.remove(item)
@@ -36,7 +37,7 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Seriali
     }
 
     fun transferItemsTo(other: Inventory, item: InventoryItem, amount: Int): Int {
-        val actual = arrayOf(this[item], other.freeSpace, max(amount, 0)).min() ?: 0
+        val actual = arrayOf(this[item], other.freeSpace, amount.coerceAtLeast(0)).min() ?: 0
         if (actual > 0) {
             removeItems(item, actual)
             other.addItems(item, actual)

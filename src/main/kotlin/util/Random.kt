@@ -7,6 +7,8 @@ object Random {
     @Suppress("DEPRECATION")
     fun random() = kotlin.js.Math.random()
 
+    fun chance(chance: Double): Boolean = Random.random() < chance
+
     fun range(upper: Int) = (random() * upper).toInt()
     fun range(upper: Double) = random() * upper
     fun range(lower: Int, upper: Int) = lower + range(upper - lower)

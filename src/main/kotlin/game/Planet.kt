@@ -5,7 +5,7 @@ import util.*
 import kotlin.math.min
 
 class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int, val inventory: Inventory) : Serializable, EventEmitter<Planet>() {
-    val onDiscoverFeature = Event<Planet, PlanetFeature>().bind(this)
+    val onDiscoverFeature = Event<Planet, DiscoverFeatureEventArgs>().bind(this)
 
     var exploration: Int = exploration // out of 100
         private set
@@ -13,15 +13,7 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
     val discoveredFeatures get() = features.subList(0, (exploration/20))
     val tradable get() = discoveredFeatures.find { it.tradeCapacity > 0 } != null
 
-    val oreAmount: Int
-        get() {
-            val feats = discoveredFeatures
-            return when {
-                PlanetFeature.POOR_RESOURCE_DEPOSITS in feats -> 8
-                PlanetFeature.RICH_RESOURCE_DEPOSITS in feats -> 16
-                else -> 0
-            }
-        }
+    val oreAmount: Int get() = discoveredFeatures.sumBy { it.oreAmt }
 
     fun explore(ships: List<Ship>) {
         if (ships.isEmpty()) return
@@ -35,8 +27,12 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
             val l = end / 20
             (n until l)
                     .asSequence()
-                    .filter { features[it] != PlanetFeature.NOTHING }
-                    .forEach { onDiscoverFeature(features[it]) }
+                    .map { features[it] }
+                    .filter { it != PlanetFeature.NOTHING }
+                    .forEach {
+                        val result = it.discoveryAction?.perform(this, ships)
+                        onDiscoverFeature(DiscoverFeatureEventArgs(it, result))
+                    }
         }
 
         if (exploration == 100) {
@@ -71,4 +67,6 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
             return Planet(name, type, features, 0, inv)
         }
     }
+
+    class DiscoverFeatureEventArgs(val feature: PlanetFeature, val result: PlanetFeatureActionResult?)
 }

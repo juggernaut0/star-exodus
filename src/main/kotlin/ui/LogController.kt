@@ -18,13 +18,25 @@ class LogController(val gameService: GameService) {
     }
 
     private fun registerGameListeners(game: ExodusGame) {
-        game.onTurn += { sender, _ ->
-            log("Day ${sender.day}")
-        }
+        game.onTurn += { sender, _ -> log("Day ${sender.day}") }
+
         game.fleet.onArrive += { _, star -> log("The fleet has arrived in the ${star.name} system.") }
+
         game.galaxy.stars
                 .flatMap { it.planets }
-                .forEach { it.onDiscoverFeature += { sender, feature -> log("${feature.name.toTitleCase()} has been discovered on ${sender.name}.") } }
+                .forEach {
+                    it.onDiscoverFeature += { sender, args ->
+                        var msg = "${args.feature.name.toTitleCase()} has been discovered on ${sender.name}."
+                        if (args.result != null) {
+                            args.result.resources
+                                    .asSequence()
+                                    .filter { (_, amt) -> amt > 0 }
+                                    .forEach { (item, amt) -> msg += "\n$amt ${item.name.toTitleCase()} was collected." }
+                        }
+                        log(msg)
+                    }
+                }
+
         for (ship in game.fleet.ships) {
             ship.onMine += { sender, args -> log("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
             ship.onRepair += { sender, amt -> log("${sender.name} has repaired for $amt hull points.") }

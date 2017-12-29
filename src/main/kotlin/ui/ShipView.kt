@@ -20,7 +20,7 @@ class ShipView(internal val ship: Ship) {
     fun lowFood(days: Int) = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * days
     fun lowFuel(days: Int, fleet: Fleet) = ship.inventory[InventoryItem.FUEL] < fleet.fuelConsumptionAtSpeed(ship) * days
 
-    val explorers = ship.explorers
+    val explorers get() = ship.explorers
     val exploring get() = ship.exploring?.name?.let { "$it ($explorers explorers)" } ?: "None"
 
     val mining get() = ship.mining?.run { "${resource.name.toTitleCase()} on ${planet.name}" } ?: "None"
