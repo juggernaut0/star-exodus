@@ -112,7 +112,7 @@ class Ship(
     }
 
     internal fun repair() {
-        val amt = min(25, maxHull - hullPoints)
+        val amt = intArrayOf(MAX_REPAIR_RATE, maxHull - hullPoints, floor(inventory[InventoryItem.METAL] / REPAIR_COST).toInt()).min() ?: 0
         val cost = ceil(amt * REPAIR_COST).toInt()
         if (amt > 0 && inventory[InventoryItem.METAL] >= cost) {
             modHullPoints(amt)
@@ -151,11 +151,12 @@ class Ship(
 
     companion object {
         const val MAX_EXPLORERS = 50 // per ship
-        const val FUEL_COEFFICIENT = 0.006
+        const val FUEL_COEFFICIENT = 0.005
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
         const val REPAIR_COST = 0.5 // per hull point
         const val BIRTH_RATE = 18.0 // per 1000 people per year
         const val DEATH_RATE = 11.0 // per 1000 people per year
+        const val MAX_REPAIR_RATE = 25 // hp per day
 
         operator fun invoke(name: String, shipClass: ShipClass): Ship {
             val hull = (shipClass.maxHull * Random.range(0.7, 1.0)).toInt()

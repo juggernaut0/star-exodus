@@ -46,6 +46,7 @@ class Fleet(
         val currentStar = game.galaxy.getStarAt(location)
         if (currentStar != null) {
             if (moved) {
+                SystemArrival.execute(this, currentStar)
                 onArrive(currentStar)
             } else {
                 exploreSystem(currentStar)

@@ -1,9 +1,9 @@
-FROM resin/raspberry-pi-python:3.6
+FROM python:3
 
 WORKDIR /app
 
-ADD . /app
+COPY . /app
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["python", "-m", "http.server", "8000"]
+CMD ["python", "-m", "http.server", "8080"]
