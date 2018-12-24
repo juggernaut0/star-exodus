@@ -3,9 +3,12 @@ import ui.components.FleetTabComponent
 import ui.components.LogTabComponent
 import ui.components.StarTabComponent
 import util.HttpClient
+import kotlin.browser.window
 import kotlin.js.Promise
 
 fun main() {
+    if (window.asDynamic().test != undefined) return
+
     val svc = GameService().loadOrCreate(object : HttpClient {
         override fun get(url: String): Promise<String> {
             return jQuery.get(url)
@@ -17,6 +20,3 @@ fun main() {
         kui.mountComponent("star", StarTabComponent(svc))
     }
 }
-
-private fun <T: Any> inject(vararg deps: String, cls: JsClass<T>): Array<Any> = arrayOf(*deps, cls)
-private fun <T: Any> inject(vararg deps: String, factory: Function<T>): Array<Any> = arrayOf(*deps, factory)
