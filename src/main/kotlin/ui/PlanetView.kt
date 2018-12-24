@@ -9,18 +9,33 @@ class PlanetView(internal val planet: Planet) {
     val type: String = planet.type.name.toTitleCase()
     val nametype: String = "$name - $type"
 
-    val exploration: String = "${planet.exploration}%"
-    val features: Array<FeatureView> = let {
+    val exploration get() = "${planet.exploration}%"
+    val features: List<FeatureView> get() {
         val feats = planet.discoveredFeatures
-        List(5) { i -> FeatureView(if (i < feats.size) feats[i] else null) }.toTypedArray()
+        return List(5) { i -> FeatureView(if (i < feats.size) feats[i] else null) }
     }
 
     val tradable get() = planet.tradable
 
-    val inventory = planet.inventory.items.map { (ii, c) -> ShipView.InventoryContents(ii, c) }.toTypedArray()
+    val inventory = planet.inventory.items.map { (ii, c) -> ShipView.InventoryContents(ii, c) }
 
     class FeatureView(feature: PlanetFeature?) {
         val name = feature?.name?.toTitleCase() ?: "???"
         val description = feature?.description
     }
+
+    override fun toString(): String {
+        return nametype
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return other != null && other is PlanetView && planet == other.planet
+    }
+
+    override fun hashCode(): Int {
+        return planet.hashCode() * 31
+    }
+
+
 }

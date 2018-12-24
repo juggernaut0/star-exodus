@@ -11,10 +11,10 @@ class ShipView(internal val ship: Ship) {
     val nameclass get() = "${ship.name} - ${ship.shipClass.displayName}"
     val hull get() = "${ship.hullPoints}/${ship.maxHull}"
     val crew get() = "${ship.crew}/${ship.maxCrew}"
-    val cargo = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
-    val inventory = ship.inventory.items.map { (ii, c) -> InventoryContents(ii, c) }.toTypedArray()
+    val cargo get() = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
+    val inventory get() = ship.inventory.items.map { (ii, c) -> InventoryContents(ii, c) }
 
-    val foodProd = ship.shipClass.foodProduction
+    val foodProd get() = ship.shipClass.foodProduction
     val foodCons get() = ship.foodConsumption
 
     fun lowFood(days: Int) = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * days
@@ -26,13 +26,25 @@ class ShipView(internal val ship: Ship) {
     val mining get() = ship.mining?.run { "${resource.name.toTitleCase()} on ${planet.name}" } ?: "None"
 
     @JsName("miningYield")
-    fun miningYield(planet: PlanetView?, resourceName: String?): String {
-        if(planet == null || resourceName == null) return "..."
-        return ship.miningYield(Ship.MiningTarget(planet.planet, InventoryItem.valueOf(resourceName))).toString()
+    fun miningYield(planet: PlanetView?, resource: InventoryItem?): String {
+        if(planet == null || resource == null) return "..."
+        return ship.miningYield(Ship.MiningTarget(planet.planet, resource)).toString()
     }
 
-    class InventoryContents(val item: InventoryItem, val count: Int, var selected: Int? = 0) {
+    class InventoryContents(val item: InventoryItem, val count: Int, var selected: Int = 0) {
         val itemName = item.name.toTitleCase()
         var validClass = ""
+    }
+
+    override fun toString(): String {
+        return nameclass
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other != null && other is ShipView && ship == other.ship
+    }
+
+    override fun hashCode(): Int {
+        return ship.hashCode() * 31
     }
 }

@@ -2,15 +2,18 @@ package ui
 
 import game.ExodusGame
 import util.Deque
+import util.event
+import util.EventEmitter
 import util.toTitleCase
 
-@Suppress("MemberVisibilityCanPrivate", "unused")
-class LogController(val gameService: GameService) {
-    private val _log = Deque<String>()
-    val log: Array<String> get() = _log.toTypedArray()
+class EventLog(gameService: GameService) : EventEmitter<EventLog>() {
+    private val _messages = Deque<String>()
+    val messages: Collection<String> get() = _messages
+
+    val eventAdded = event<EventLog, String>()
 
     init {
-        _log.pushFront("Welcome to Star Exodus!")
+        _messages.pushFront("Welcome to Star Exodus!")
 
         gameService.onReady += { sender, _ ->
             registerGameListeners(sender.game)
@@ -52,9 +55,10 @@ class LogController(val gameService: GameService) {
     }
 
     private fun log(msg: String) {
-        _log.pushFront(msg)
-        if (_log.size > 20) {
-            _log.popBack()
+        _messages.pushFront(msg)
+        if (_messages.size > 20) {
+            _messages.popBack()
         }
+        eventAdded(msg)
     }
 }

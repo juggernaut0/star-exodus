@@ -2,7 +2,7 @@ group 'tomwamt'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.10'
+    ext.kotlin_version = '1.2.70'
 
     repositories {
         mavenCentral()
@@ -15,11 +15,13 @@ buildscript {
 apply plugin: 'kotlin2js'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile "com.github.juggernaut0.kui:kui:0.2-SNAPSHOT"
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 

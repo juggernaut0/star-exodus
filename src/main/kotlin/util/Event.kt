@@ -1,18 +1,20 @@
 package util
 
 open class Event<TSender : EventEmitter<TSender>, TArgs : Any> {
+    private val handlers: MutableMap<Any, (TSender, TArgs) -> Unit> = mutableMapOf()
 
-    private val handlers: MutableList<(TSender, TArgs) -> Unit> = mutableListOf()
-
-    open fun bind(emitter: TSender): Event<TSender, TArgs> {
+    internal open fun bind(emitter: TSender): Event<TSender, TArgs> {
         emitter.register(this, ::invoke)
         return this
     }
 
-    protected fun invoke(sender: TSender, args: TArgs) = handlers.forEach { it(sender, args) }
+    protected fun invoke(sender: TSender, args: TArgs) = handlers.values.forEach { it(sender, args) }
 
-    open operator fun plusAssign(handler: (TSender, TArgs) -> Unit) { handlers.add(handler) }
-    open operator fun minusAssign(handler: (TSender, TArgs) -> Unit) { handlers.remove(handler) }
+    open operator fun plusAssign(handler: (TSender, TArgs) -> Unit) { handlers[Any()] = handler }
+    open operator fun plusAssign(handler: Handler<TSender, TArgs>) { handlers[handler.key] = handler.fn }
+    open operator fun minusAssign(key: Any) { handlers.remove(key) }
+
+    class Handler<TSender : EventEmitter<TSender>, TArgs : Any>(val key: Any, val fn: (TSender, TArgs) -> Unit)
 }
 
 class OneTimeEvent<TSender : EventEmitter<TSender>, TArgs : Any> : Event<TSender, TArgs>() {
@@ -43,7 +45,7 @@ class OneTimeEvent<TSender : EventEmitter<TSender>, TArgs : Any> : Event<TSender
 abstract class EventEmitter<TSender : EventEmitter<TSender>> {
     private val events: MutableMap<Event<*, *>, Function<Unit>> = mutableMapOf()
 
-    fun <TArgs : Any> register(event: Event<TSender, TArgs>, invoker: (TSender, TArgs) -> Unit) {
+    internal fun <TArgs : Any> register(event: Event<TSender, TArgs>, invoker: (TSender, TArgs) -> Unit) {
         events[event] = invoker
     }
 
@@ -53,3 +55,6 @@ abstract class EventEmitter<TSender : EventEmitter<TSender>> {
         invoker.unsafeCast<(TSender, TArgs) -> Unit>().invoke(this@EventEmitter.unsafeCast<TSender>(), args)
     }
 }
+
+fun <TSender : EventEmitter<TSender>, TArgs : Any> TSender.event() = Event<TSender, TArgs>().bind(this)
+fun <TSender : EventEmitter<TSender>, TArgs : Any> TSender.oneTimeEvent() = OneTimeEvent<TSender, TArgs>().bind(this)
