@@ -1,6 +1,9 @@
 package game
 
-import serialization.Serializable
+import kotlinx.serialization.Serializable
+import serialization.RefLoader
+import serialization.RefSaver
+import serialization.Serializer
 import util.*
 import kotlin.math.ceil
 import kotlin.math.min
@@ -11,7 +14,7 @@ class Fleet(
         location: IntVector2,
         var destination: IntVector2,
         discoveredStars: Collection<StarSystem>
-) : EventEmitter<Fleet>(), Serializable {
+) : EventEmitter<Fleet>() {
     var location: IntVector2 = location
         private set
 
@@ -196,6 +199,22 @@ class Fleet(
                     .mapTo(mutableListOf()) { (name, cls) -> Ship(name, cls) }
 
             return Fleet(ships, startingLocation, startingLocation, nearbyStars)
+        }
+    }
+
+    object Serial : Serializer<Fleet, Serial.Data> {
+        @Serializable
+        class Data(val ships: List<Int>,
+                   val location: IntVector2,
+                   val destination: IntVector2,
+                   val discoveredStars: Collection<Int>)
+
+        override fun save(model: Fleet, refs: RefSaver): Data {
+            return Data(model.ships.map { refs.saveShipRef(it) }, model.location, model.destination, model.discoveredStars.map { refs.saveStarRef(it) })
+        }
+
+        override fun load(data: Data, refs: RefLoader): Fleet {
+            return Fleet(data.ships.map { refs.loadShipRef(it) }, data.location, data.destination, data.discoveredStars.map { refs.loadStarRef(it) })
         }
     }
 }

@@ -1,6 +1,6 @@
 package serialization
 
-interface Serializer<TModel : Serializable, TData> {
-    fun save(model: TModel): TData
-    fun load(data: TData): TModel
+interface Serializer<TModel, TData> {
+    fun save(model: TModel, refs: RefSaver): TData
+    fun load(data: TData, refs: RefLoader): TModel
 }

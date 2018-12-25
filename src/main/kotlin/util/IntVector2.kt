@@ -1,7 +1,9 @@
 package util
 
+import kotlinx.serialization.Serializable
 import kotlin.math.sqrt
 
+@Serializable
 data class IntVector2(val x: Int, val y: Int) {
     operator fun plus(other: IntVector2) = IntVector2(x + other.x, y + other.y)
     operator fun minus(other: IntVector2) = IntVector2(x - other.x, y - other.y)

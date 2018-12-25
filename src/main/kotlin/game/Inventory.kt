@@ -1,9 +1,11 @@
 package game
 
-import serialization.Serializable
-import kotlin.math.max
+import kotlinx.serialization.Serializable
+import serialization.RefLoader
+import serialization.RefSaver
+import serialization.Serializer
 
-class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Serializable {
+class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) {
     constructor(capacity: Int) : this(capacity, emptyMap())
 
     private val contents: MutableMap<InventoryItem, Int> = contents.filterTo(mutableMapOf()) { it.value > 0 }
@@ -46,4 +48,17 @@ class Inventory (val capacity: Int, contents: Map<InventoryItem, Int>) : Seriali
     }
 
     fun asMap(): Map<InventoryItem, Int> = contents
+
+    object Serial : Serializer<Inventory, Serial.Data> {
+        @Serializable
+        class Data(val capacity: Int, val contents: Map<String, Int>)
+
+        override fun save(model: Inventory, refs: RefSaver): Data {
+            return Data(model.capacity, model.contents.mapKeys { it.key.name })
+        }
+
+        override fun load(data: Data, refs: RefLoader): Inventory {
+            return Inventory(data.capacity, data.contents.mapKeys { InventoryItem.valueOf(it.key) })
+        }
+    }
 }

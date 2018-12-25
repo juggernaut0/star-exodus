@@ -1,6 +1,7 @@
 package game
 
-import serialization.Serializable
+import kotlinx.serialization.Serializable
+import serialization.*
 import util.Event
 import util.EventEmitter
 import util.Random
@@ -14,7 +15,7 @@ class Ship(
         val inventory: Inventory,
         var exploring: Planet?,
         var mining: MiningTarget?
-) : EventEmitter<Ship>(), Serializable {
+) : EventEmitter<Ship>() {
     var name: String = name
         private set
 
@@ -170,4 +171,42 @@ class Ship(
 
     data class MiningTarget(val planet: Planet, val resource: InventoryItem)
     data class MiningEventArgs(val planet: Planet, val resource: InventoryItem, val amount: Int)
+
+    object Serial : Serializer<Ship, Serial.Data> {
+        @Serializable
+        class Data(
+                val name: String,
+                val shipClass: ShipClass,
+                val hullPoints: Int,
+                val crew: Int,
+                val inventory: Inventory.Serial.Data,
+                val exploring: Int?,
+                val mining: MiningTargetData?
+        )
+        @Serializable
+        class MiningTargetData(val planet: Int, val resource: InventoryItem)
+
+        override fun save(model: Ship, refs: RefSaver): Data {
+            return Data(
+                    model.name,
+                    model.shipClass,
+                    model.hullPoints,
+                    model.crew,
+                    Inventory.Serial.save(model.inventory, refs),
+                    model.exploring?.let { refs.savePlanetRef(it) },
+                    model.mining?.let { MiningTargetData(refs.savePlanetRef(it.planet), it.resource) }
+            )
+        }
+
+        override fun load(data: Data, refs: RefLoader): Ship {
+            return Ship(data.name,
+                    data.shipClass,
+                    data.hullPoints,
+                    data.crew,
+                    Inventory.Serial.load(data.inventory, refs),
+                    data.exploring?.let { refs.loadPlanetRef(it) },
+                    data.mining?.let { MiningTarget(refs.loadPlanetRef(it.planet), it.resource) }
+            )
+        }
+    }
 }

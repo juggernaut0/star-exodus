@@ -1,10 +1,13 @@
 package game
 
-import serialization.Serializable
+import kotlinx.serialization.Serializable
+import serialization.RefLoader
+import serialization.RefSaver
+import serialization.Serializer
 import util.*
 import kotlin.math.min
 
-class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int, val inventory: Inventory) : Serializable, EventEmitter<Planet>() {
+class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int, val inventory: Inventory) : EventEmitter<Planet>() {
     val onDiscoverFeature = Event<Planet, DiscoverFeatureEventArgs>().bind(this)
 
     var exploration: Int = exploration // out of 100
@@ -69,4 +72,22 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
     }
 
     class DiscoverFeatureEventArgs(val feature: PlanetFeature, val result: PlanetFeatureActionResult?)
+
+    object Serial : Serializer<Planet, Serial.Data> {
+        @Serializable
+        class Data(val name: String,
+                   val type: PlanetType,
+                   val features: List<PlanetFeature>,
+                   val exploration: Int,
+                   val inventory: Inventory.Serial.Data
+        )
+
+        override fun save(model: Planet, refs: RefSaver): Data {
+            return Data(model.name, model.type, model.features, model.exploration, Inventory.Serial.save(model.inventory, refs))
+        }
+
+        override fun load(data: Data, refs: RefLoader): Planet {
+            return Planet(data.name, data.type, data.features, data.exploration, Inventory.Serial.load(data.inventory, refs))
+        }
+    }
 }

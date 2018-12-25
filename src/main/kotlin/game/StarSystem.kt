@@ -1,10 +1,13 @@
 package game
 
-import serialization.Serializable
+import kotlinx.serialization.Serializable
+import serialization.RefLoader
+import serialization.RefSaver
+import serialization.Serializer
 import util.IntVector2
 import util.Random
 
-class StarSystem(val name: String, val location: IntVector2, val type: StarType, val planets: List<Planet>) : Serializable {
+class StarSystem(val name: String, val location: IntVector2, val type: StarType, val planets: List<Planet>) {
     companion object {
         operator fun invoke(name: String, location: IntVector2): StarSystem {
             val type = Random.choice(StarType.values())
@@ -31,6 +34,19 @@ class StarSystem(val name: String, val location: IntVector2, val type: StarType,
                 10 -> "X"
                 else -> n.toString()
             }
+        }
+    }
+
+    object Serial : Serializer<StarSystem, Serial.Data> {
+        @Serializable
+        class Data(val name: String, val location: IntVector2, val type: StarType, val planets: List<Int>)
+
+        override fun save(model: StarSystem, refs: RefSaver): Serial.Data {
+            return Data(model.name, model.location, model.type, model.planets.map { refs.savePlanetRef(it) })
+        }
+
+        override fun load(data: Serial.Data, refs: RefLoader): StarSystem {
+            return StarSystem(data.name, data.location, data.type, data.planets.map { refs.loadPlanetRef(it) })
         }
     }
 }

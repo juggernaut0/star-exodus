@@ -1,3 +1,0 @@
-package serialization
-
-interface Serializable
