@@ -3,16 +3,14 @@ package util
 import kotlin.math.ln
 
 object Random {
-    // kotlin.js.Math may be removed in the future... this is to reduce changes to only this function
-    @Suppress("DEPRECATION")
-    fun random() = kotlin.js.Math.random()
+    private val rand = kotlin.random.Random.Default
 
-    fun chance(chance: Double): Boolean = Random.random() < chance
+    fun chance(chance: Double): Boolean = rand.nextDouble() < chance
 
-    fun range(upper: Int) = (random() * upper).toInt()
-    fun range(upper: Double) = random() * upper
-    fun range(lower: Int, upper: Int) = lower + range(upper - lower)
-    fun range(lower: Double, upper: Double) = lower + range(upper - lower)
+    fun range(upper: Int) = rand.nextInt(upper)
+    fun range(upper: Double) = rand.nextDouble(upper)
+    fun range(lower: Int, upper: Int) = rand.nextInt(lower, upper)
+    fun range(lower: Double, upper: Double) = rand.nextDouble(lower, upper)
 
     fun <T> choice(list: List<T>): T = list[range(list.size)]
     fun <T> choice(arr: Array<T>): T = arr[range(arr.size)]
@@ -22,7 +20,7 @@ object Random {
         if (count > size) throw IllegalArgumentException("count is greater than size of list")
 
         val set: HashSet<T>
-        if (count < size) {
+        if (count < size / 2) {
             set = HashSet()
             while (set.size < count) {
                 set.add(choice(list))
@@ -42,8 +40,8 @@ object Random {
     fun normal(mu: Double = 0.0, sigma: Double = 1.0): Double {
         var z: Double
         while (true) {
-            val u1 = random()
-            val u2 = 1 - random()
+            val u1 = rand.nextDouble()
+            val u2 = 1 - rand.nextDouble()
             z = NORMAL_MAGIC*(u1-0.5)/u2
             if (z*z/4.0 <= -ln(u2)) {
                 break

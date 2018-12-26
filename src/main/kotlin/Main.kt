@@ -7,6 +7,7 @@ import kotlin.browser.window
 import kotlin.js.Promise
 
 fun main() {
+    // Don't run main in test
     if (window.asDynamic().test != undefined) return
 
     val svc = GameService().loadOrCreate(object : HttpClient {
