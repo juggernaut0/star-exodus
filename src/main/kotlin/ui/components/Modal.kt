@@ -6,8 +6,12 @@ import ui.CLOSE
 
 class Modal(private val id: String,
             private val title: String,
+            large: Boolean = false,
             private val danger: Boolean = false,
-            private val ok: (() -> Unit)? = null) : Component() {
+            private val ok: (() -> Unit)? = null
+) : Component() {
+    private val dialogClasses = if (large) classes("modal-dialog", "modal-lg") else classes("modal-dialog")
+
     fun show() {
         jQuery("#$id").modal("show")
     }
@@ -19,7 +23,7 @@ class Modal(private val id: String,
     override fun render() {
         // TODO rendering while open prevents closing (wipes out jquery props on dom object)
         markup().div(Props(id, listOf("modal", "fade"))) {
-            div(classes("modal-dialog")) {
+            div(dialogClasses) {
                 div(classes("modal-content")) {
                     div(classes("modal-header")) {
                         h5(classes("modal-title")) { +title }

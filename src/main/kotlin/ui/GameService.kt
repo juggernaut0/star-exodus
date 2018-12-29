@@ -36,11 +36,12 @@ class GameService : EventEmitter<GameService>() {
     fun loadOrCreate(http: HttpClient): GameService {
         val loader = HttpResourceLoader(http)
         loader.fetchResources().then {
+            ExodusGame.resources = loader
             val savedString = window.localStorage.getItem("savedgame")
             game = if (savedString != null) {
                 JsonSerializer.load(savedString)
             } else {
-                ExodusGame(loader)
+                ExodusGame()
             }
             setCurrentSystem()
             registerListeners()
@@ -60,16 +61,6 @@ class GameService : EventEmitter<GameService>() {
     }
 
     private fun setCurrentSystem() {
-        currentSystem = game.galaxy.getStarAt(game.fleet.location)?.let { StarView(it) }
-    }
-
-    fun findNearbyStars(): List<StarView> {
-        if (!::game.isInitialized) return emptyList()
-
-        return game.galaxy.getNearbyStars(game.fleet.location, game.fleet.speed * 10.0)
-                .asSequence()
-                .filter { it.location != game.fleet.location }
-                .map { StarView(it) }
-                .toList()
+        currentSystem = game.fleet.currentLocation.toView()
     }
 }

@@ -4,8 +4,6 @@ import kui.Component
 import kui.Props
 import kui.classes
 import ui.*
-import util.IntVector2
-import kotlin.math.ceil
 
 class StarTabComponent(private val gameService: GameService) : Component() {
     private val details = PlanetDetailsComponent(gameService)
@@ -28,13 +26,7 @@ class StarTabComponent(private val gameService: GameService) : Component() {
         markup().div {
             val star = gameService.currentSystem
             if (star == null) {
-                console.log(gameService.game)
-                val destLoc = gameService.game.fleet.destination
-                val dest = gameService.game.galaxy.getStarAt(destLoc)?.name ?: destLoc.toDisplayString()
-                val eta = gameService.game.fleet.run { ceil(IntVector2.distance(location, destination) / speed).toInt() }
-                h4 {
-                    +"En Route to $dest (ETA: $eta days)"
-                }
+                throw IllegalStateException("current system is null")
             } else {
                 h4 {
                     +"${star.name} "

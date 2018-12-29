@@ -4,9 +4,17 @@ import kui.Component
 import kui.classes
 import ui.GameService
 import ui.PlanetView
+import util.Event
 
 class PlanetDetailsComponent(private val gameService: GameService) : Component() {
     var selectedPlanet: PlanetView? = null
+
+    init {
+        gameService.game.fleet.onArrive += Event.Handler("PlanetDetailsComponent") { _, _ ->
+            selectedPlanet = null
+            render()
+        }
+    }
 
     override fun render() {
         markup().div {

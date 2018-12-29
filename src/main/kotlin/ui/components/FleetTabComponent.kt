@@ -23,12 +23,25 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
         render()
     }
 
+    private fun targetDist(): Int? = gameService.game.fleet.ftlTargetDestination?.distance
+
     private fun shipRowClass(shipView: ShipView) = when {
         shipView == shipDetailsComponent.selectedShip -> selectedRow
         shipView.ship.crew < shipView.ship.minCrew -> dangerRow
-        shipView.lowFood(1) || shipView.lowFuel(1, gameService.game.fleet) -> dangerRow
-        shipView.lowFood(3) || shipView.lowFuel(3, gameService.game.fleet) -> warningRow
+        shipView.lowFood(1) || shipView.lowFuel(targetDist() ?: 80) -> dangerRow
+        shipView.lowFood(3) || shipView.lowFuel(400) -> warningRow
         else -> defaultRow
+    }
+
+    private fun ftlStatus(): String {
+        with(gameService.game.fleet) {
+            val cooldown = ftlCooldownTimeRemaining
+            if (cooldown > 0) return "Cooling down ($cooldown days remaining)"
+            val warmup = ftlWarmupTimeRemaining
+            if (warmup > 0) return "Warming up ($warmup days remaining)"
+            if (isFtlReady) return "Ready"
+        }
+        return "Unknown"
     }
 
     override fun render() {
@@ -36,13 +49,35 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
         val fleetView = FleetView(gameService.game.fleet)
         markup().div {
             div(classes("btn-group")) {
-                button(Props(classes = listOf("btn", "btn-primary"), attrs = bsModalToggle("destinationModal"))) { +"Select Destination" }
+                if (fleetView.destination == null) {
+                    button(Props(
+                            id = "selectDestinationBtn", // Hack to force kui to reconstruct element because bootstrap attaches data to it
+                            classes = listOf("btn", "btn-primary"),
+                            attrs = bsModalToggle("destinationModal"),
+                            disabled = !fleetView.isFtlReady
+                    )) { +"Select Destination" }
+                } else {
+                    button(Props(
+                            classes = listOf("btn", "btn-warning"),
+                            click = { gameService.game.fleet.cancelFtl(); render() }
+                    )) { +"Cancel FTL" }
+                }
                 button(Props(classes = listOf("btn", "btn-primary"), click = ::autoSupply)) { +"Auto-Supply Fleet" }
             }
             row {
                 colMd4 { +"Ships: ${fleetView.ships.size}" }
                 colMd4 { +"Population: ${fleetView.totalPopulation}" }
                 colMd4 { +"Speed: ${fleetView.speed}" }
+            }
+            row {
+                colMd6 { +"FTL Status: ${ftlStatus()}" }
+                colMd6 {
+                    if (fleetView.destination == null) {
+                        +"No destination set"
+                    } else {
+                        +"Destination: ${fleetView.destination.star.name} (${fleetView.destination.distance})"
+                    }
+                }
             }
             row {
                 colMd3 {
@@ -68,7 +103,7 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
             }
 
             val destinationModal = DestinationModal(gameService)
-            component(Modal("destinationModal", "Select Destination", ok = { destinationModal.setDestination() })) {
+            component(Modal("destinationModal", "Select Destination", large = true, ok = { destinationModal.setDestination(); render() })) {
                 component(destinationModal)
             }
         }

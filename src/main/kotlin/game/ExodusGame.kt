@@ -8,7 +8,7 @@ import util.Event
 import util.EventEmitter
 import util.Random
 
-class ExodusGame(val galaxy: Galaxy, val fleet: Fleet, day: Int) : EventEmitter<ExodusGame>() {
+class ExodusGame(val fleet: Fleet, day: Int) : EventEmitter<ExodusGame>() {
     val onTurn = Event<ExodusGame, Unit>().bind(this)
 
     var day = day
@@ -17,29 +17,29 @@ class ExodusGame(val galaxy: Galaxy, val fleet: Fleet, day: Int) : EventEmitter<
     fun nextDay(){
         day += 1
 
-        fleet.doTurn(this)
+        fleet.doTurn()
         onTurn(Unit)
     }
 
     companion object {
-        operator fun invoke(resourceLoader: ResourceLoader): ExodusGame {
-            val galaxy = Galaxy(400, 10000, resourceLoader.getStarNames())
-            val startingLoc = Random.choice(galaxy.stars).location
-            val fleet = Fleet(10, resourceLoader.getShipNames(), startingLoc, galaxy.getNearbyStars(startingLoc, Fleet.SENSOR_RANGE))
-            return ExodusGame(galaxy, fleet, 0)
+        lateinit var resources: ResourceLoader
+
+        operator fun invoke(): ExodusGame {
+            val fleet = Fleet(10)
+            return ExodusGame(fleet, 0)
         }
     }
 
     object Serial : Serializer<ExodusGame, Serial.Data> {
         @Serializable
-        class Data(val galaxy: Galaxy.Serial.Data, val fleet: Fleet.Serial.Data, val day: Int)
+        class Data(val fleet: Fleet.Serial.Data, val day: Int)
 
         override fun save(model: ExodusGame, refs: RefSaver): Data {
-            return Data(Galaxy.Serial.save(model.galaxy, refs), Fleet.Serial.save(model.fleet, refs), model.day)
+            return Data(Fleet.Serial.save(model.fleet, refs), model.day)
         }
 
         override fun load(data: Data, refs: RefLoader): ExodusGame {
-            return ExodusGame(Galaxy.Serial.load(data.galaxy, refs), Fleet.Serial.load(data.fleet, refs), data.day)
+            return ExodusGame(Fleet.Serial.load(data.fleet, refs), data.day)
         }
     }
 }

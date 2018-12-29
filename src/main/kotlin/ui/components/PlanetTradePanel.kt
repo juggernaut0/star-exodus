@@ -6,24 +6,35 @@ import kui.Props
 import kui.classes
 import kui.renderOnSet
 import ui.*
+import util.Event
 
 class PlanetTradePanel(private val gameService: GameService, private var planet: PlanetView) : Component() {
     private var tradeShip: ShipView by renderOnSet(gameService.game.fleet.ships.first().let { ShipView(it) })
+    private var planetInventory = planet.inventory
+    private var shipInventory = tradeShip.inventory
 
-    private fun tradeBalance(): Int {
-        fun invValue(ic: ShipView.InventoryContents) = ic.selected * ic.item.value
-        return planet.inventory.sumBy { invValue(it) } - tradeShip.inventory.sumBy { invValue(it) }
+    init {
+        gameService.onFleetUpdate += Event.Handler("PlanetTradePanel") { _, _ ->
+            planetInventory = planet.inventory
+            shipInventory = tradeShip.inventory
+            render()
+        }
     }
 
-    fun trade() {
+    private fun tradeBalance(): Int {
+        fun invValue(ic: InventoryContents) = ic.selected * ic.item.value
+        return planetInventory.sumBy { invValue(it) } - shipInventory.sumBy { invValue(it) }
+    }
+
+    private fun trade() {
         //tradeShip.inventory.forEach { item -> console.log("${item.itemName}: ${item.selected}") }
 
         val trade = Trade(tradeShip.ship.inventory, planet.planet)
-        for (ic in planet.inventory) {
+        for (ic in planetInventory) {
             trade.proposed[ic.item] = ic.selected
             ic.validClass = ""
         }
-        for (ic in tradeShip.inventory) {
+        for (ic in shipInventory) {
             trade.proposed[ic.item] = (trade.proposed[ic.item] ?: 0) - ic.selected
             ic.validClass = ""
         }
@@ -31,6 +42,7 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
         if(trade.execute()) {
             planet = PlanetView(planet.planet)
             gameService.invokeFleetUpdate()
+            render()
         }
     }
 
@@ -48,7 +60,7 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
             row {
                 col6 {
                     table(classes("table", "table-sm")) {
-                        for (item in planet.inventory) {
+                        for (item in planetInventory) {
                             tr {
                                 td { +item.itemName }
                                 td { +item.count.toString() }
@@ -59,7 +71,7 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
                 }
                 col6 {
                     table(classes("table", "table-sm")) {
-                        for (item in tradeShip.inventory) {
+                        for (item in shipInventory) {
                             tr {
                                 td { +item.itemName }
                                 td { +item.count.toString() }
@@ -69,8 +81,9 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
                     }
                 }
             }
-            div(classes("text-center")) { +"Balance of Trade: ${tradeBalance()}" }
-            button(Props(classes = listOf("btn", "btn-primary", "btn-block"), click = ::trade)) { +"Trade" }
+            val balance = tradeBalance()
+            div(classes("text-center")) { +"Balance of Trade: $balance" }
+            button(Props(classes = listOf("btn", "btn-primary", "btn-block"), click = ::trade, disabled = balance > 0)) { +"Trade" }
         }
     }
 }

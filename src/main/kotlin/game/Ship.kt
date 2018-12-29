@@ -30,7 +30,7 @@ class Ship(
 
     val mass get() = maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
 
-    // fuel per distance unit per turn
+    // fuel per distance unit
     val fuelConsumption get() = sqrt(mass.toDouble()) * FUEL_COEFFICIENT
     // food per turn
     val foodConsumption get() = ceil(crew * FOOD_COEFFICIENT).toInt()
@@ -79,6 +79,17 @@ class Ship(
             modCrew(-toKill)
             inventory.removeItems(InventoryItem.FOOD, curFood)
         }
+    }
+
+    fun fuelConsumption(distance: Int): Int {
+        return ceil(fuelConsumption * distance).toInt()
+    }
+
+    internal fun consumeFuel(distance: Int): Boolean {
+        val amt = fuelConsumption(distance)
+        if (amt > inventory[InventoryItem.FUEL]) return false
+        inventory.removeItems(InventoryItem.FUEL, amt)
+        return true
     }
 
     fun miningYield(target: MiningTarget) = when (target.resource) {
@@ -152,7 +163,7 @@ class Ship(
 
     companion object {
         const val MAX_EXPLORERS = 50 // per ship
-        const val FUEL_COEFFICIENT = 0.005
+        const val FUEL_COEFFICIENT = 0.01
         const val FOOD_COEFFICIENT = 0.008 // food per person per turn
         const val REPAIR_COST = 0.5 // per hull point
         const val BIRTH_RATE = 18.0 // per 1000 people per year

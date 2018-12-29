@@ -1,6 +1,8 @@
 package ui
 
 import game.ExodusGame
+import game.Planet
+import game.StarSystem
 import util.Deque
 import util.event
 import util.EventEmitter
@@ -23,22 +25,12 @@ class EventLog(gameService: GameService) : EventEmitter<EventLog>() {
     private fun registerGameListeners(game: ExodusGame) {
         game.onTurn += { sender, _ -> log("Day ${sender.day}") }
 
-        game.fleet.onArrive += { _, star -> log("The fleet has arrived in the ${star.name} system.") }
+        game.fleet.onArrive += { _, star ->
+            log("The fleet has arrived in the ${star.name} system.")
+            registerPlanetListeners(star)
+        }
 
-        game.galaxy.stars
-                .flatMap { it.planets }
-                .forEach {
-                    it.onDiscoverFeature += { sender, args ->
-                        var msg = "${args.feature.name.toTitleCase()} has been discovered on ${sender.name}."
-                        if (args.result != null) {
-                            args.result.resources
-                                    .asSequence()
-                                    .filter { (_, amt) -> amt > 0 }
-                                    .forEach { (item, amt) -> msg += "\n$amt ${item.name.toTitleCase()} was collected." }
-                        }
-                        log(msg)
-                    }
-                }
+        registerPlanetListeners(game.fleet.currentLocation)
 
         for (ship in game.fleet.ships) {
             ship.onMine += { sender, args -> log("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
@@ -50,6 +42,21 @@ class EventLog(gameService: GameService) : EventEmitter<EventLog>() {
             ship.onDeath += { sender, amt ->
                 val pl = if (amt == 1) "" else "s"
                 log("$amt death$pl occured on ${sender.name}")
+            }
+        }
+    }
+
+    private fun registerPlanetListeners(star: StarSystem) {
+        for (planet in star.planets) {
+            planet.onDiscoverFeature += { sender, args ->
+                var msg = "${args.feature.name.toTitleCase()} has been discovered on ${sender.name}."
+                if (args.result != null) {
+                    args.result.resources
+                            .asSequence()
+                            .filter { (_, amt) -> amt > 0 }
+                            .forEach { (item, amt) -> msg += "\n$amt ${item.name.toTitleCase()} was collected." }
+                }
+                log(msg)
             }
         }
     }

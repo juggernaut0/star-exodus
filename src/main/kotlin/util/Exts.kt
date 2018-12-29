@@ -22,3 +22,6 @@ fun <T> Sequence<T>.toTypedArray(): Array<T> {
     forEach { arr.asDynamic().push(it); Unit }
     return arr
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Double.toPrecision(precision: Int): String = asDynamic().toPrecision(precision).unsafeCast<String>()

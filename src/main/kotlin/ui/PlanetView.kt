@@ -17,7 +17,7 @@ class PlanetView(internal val planet: Planet) {
 
     val tradable get() = planet.tradable
 
-    val inventory = planet.inventory.items.map { (ii, c) -> ShipView.InventoryContents(ii, c) }
+    val inventory get() = planet.inventory.toView()
 
     class FeatureView(feature: PlanetFeature?) {
         val name = feature?.name?.toTitleCase() ?: "???"

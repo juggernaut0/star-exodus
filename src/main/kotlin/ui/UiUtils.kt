@@ -1,6 +1,9 @@
 package ui
 
+import game.Inventory
 import game.Ship
+import game.StarSequence
+import game.StarSystem
 
 // Bootstrap button
 fun bsBtnBlock(type: String) = listOf("btn", "btn-$type", "btn-block")
@@ -15,3 +18,7 @@ fun bsCollapseToggle(target: String, parent: String): Map<String, String> {
 const val CLOSE = "\u00d7"
 
 fun Ship.toView(): ShipView = ShipView(this)
+fun StarSystem.toView() = StarView(this)
+fun StarSequence.StarTarget.toView() = StarView(star, distance)
+
+fun Inventory.toView() = items.map { (ii, c) -> InventoryContents(ii, c) }

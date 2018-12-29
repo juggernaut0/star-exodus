@@ -28,7 +28,6 @@ class ExplorationPanel(private val gameService: GameService, private val planet:
                     div(classes("segment")) {}
                     div(classes("segment")) {}
                     div(classes("segment")) {}
-                    div(classes("segment")) {}
                 }
             }
             h6 { +"Features" }

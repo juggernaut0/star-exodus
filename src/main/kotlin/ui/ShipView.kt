@@ -1,6 +1,5 @@
 package ui
 
-import game.Fleet
 import game.InventoryItem
 import game.Ship
 import util.toTitleCase
@@ -12,13 +11,13 @@ class ShipView(internal val ship: Ship) {
     val hull get() = "${ship.hullPoints}/${ship.maxHull}"
     val crew get() = "${ship.crew}/${ship.maxCrew}"
     val cargo get() = "${ship.inventory.usedSpace}/${ship.shipClass.cargoCapacity}"
-    val inventory get() = ship.inventory.items.map { (ii, c) -> InventoryContents(ii, c) }
+    val inventory get() = ship.inventory.toView()
 
     val foodProd get() = ship.shipClass.foodProduction
     val foodCons get() = ship.foodConsumption
 
     fun lowFood(days: Int) = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * days
-    fun lowFuel(days: Int, fleet: Fleet) = ship.inventory[InventoryItem.FUEL] < fleet.fuelConsumptionAtSpeed(ship) * days
+    fun lowFuel(distance: Int) = ship.inventory[InventoryItem.FUEL] < ship.fuelConsumption(distance)
 
     val explorers get() = ship.explorers
     val exploring get() = ship.exploring?.name?.let { "$it ($explorers explorers)" } ?: "None"
@@ -29,11 +28,6 @@ class ShipView(internal val ship: Ship) {
     fun miningYield(planet: PlanetView?, resource: InventoryItem?): String {
         if(planet == null || resource == null) return "..."
         return ship.miningYield(Ship.MiningTarget(planet.planet, resource)).toString()
-    }
-
-    class InventoryContents(val item: InventoryItem, val count: Int, var selected: Int = 0) {
-        val itemName = item.name.toTitleCase()
-        var validClass = ""
     }
 
     override fun toString(): String {

@@ -3,42 +3,33 @@ package ui.components
 import kui.Component
 import kui.Props
 import kui.classes
-import ui.GameService
-import ui.StarView
-import ui.colMd6
-import ui.row
-import util.MutVector2
+import kui.renderOnSet
+import ui.*
 
 class DestinationModal(private val gameService: GameService) : Component() {
-    private val nearbyStars = gameService.findNearbyStars()
+    private val destinations: List<StarView> = gameService.game.fleet.destinations.map { it.toView() }
 
-    private var selectedStar: StarView? = null
-        set(value) {
-            field = value
-            if (value != null) {
-                customDestination = value.location.toMutVector()
-            }
-            render()
-        }
-    private var customDestination: MutVector2 = gameService.game.fleet.destination.toMutVector()
+    private var selectedStar: Int by renderOnSet(0)
 
     fun setDestination() {
-        gameService.game.fleet.destination = selectedStar?.location ?: customDestination.toIntVector()
+        gameService.game.fleet.startFtl(selectedStar)
+    }
+
+    private fun listItemClass(i: Int): List<String> {
+        return if (i == selectedStar) listOf("list-group-item", "list-group-item-action", "active")
+        else listOf("list-group-item", "list-group-item-action")
     }
 
     override fun render() {
-        markup().div {
-            label {
-                +"Nearby Stars"
-                select(classes("form-control"), nearbyStars, "Custom", ::selectedStar)
-            }
-            label { +"Coordinates" }
-            row {
-                colMd6 {
-                    inputNumber(Props(classes = listOf("form-control"), disabled = selectedStar != null), customDestination::x)
-                }
-                colMd6 {
-                    inputNumber(Props(classes = listOf("form-control"), disabled = selectedStar != null), customDestination::y)
+        markup().div(classes("list-group")) {
+            for ((i, star) in destinations.withIndex()) {
+                button(Props(classes = listItemClass(i), click = { selectedStar = i })) {
+                    h5 { +star.name }
+                    row {
+                        colMd4 { +star.type }
+                        colMd4 { +"${star.planets.size} planets" }
+                        colMd4 { +"Distance: ${star.distance}" }
+                    }
                 }
             }
         }

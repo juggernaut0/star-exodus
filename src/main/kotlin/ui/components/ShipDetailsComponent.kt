@@ -2,12 +2,20 @@ package ui.components
 
 import kui.*
 import ui.*
+import util.Event
+import util.toPrecision
 
 class ShipDetailsComponent(private val gameService: GameService) : Component() {
     var selectedShip: ShipView? = null
 
     private var newName: String = ""
     private var exploreTarget: PlanetView? = null
+
+    init {
+        gameService.game.fleet.onArrive += Event.Handler("ShipDetailsComponent") { _, _ ->
+            exploreTarget = null
+        }
+    }
 
     private fun setExplore(ship: ShipView) {
         ship.ship.exploring = exploreTarget?.planet
@@ -25,7 +33,16 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
         gameService.invokeFleetUpdate()
     }
 
+    private fun requiredFuel(): Int? {
+        val ship = selectedShip ?: return null
+        val dest = gameService.game.fleet.ftlTargetDestination ?: return null
+        return ship.ship.fuelConsumption(dest.distance)
+    }
+
     override fun render() {
+        if (selectedShip?.let { it.ship in gameService.game.fleet.ships } == false) {
+            selectedShip = null
+        }
         markup().div {
             val ship = selectedShip
             if (ship != null) {
@@ -36,8 +53,10 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                 p { +"Food consumption: ${ship.foodCons} / day" }
                 if (ship.foodProd > 0) p { +"Food production: ${ship.foodProd} / day" }
                 p {
-                    span(Props(title = "At current speed")) { +"Fuel Consumption" }
-                    +": ${gameService.game.fleet.fuelConsumptionAtSpeed(ship.ship)} / day"
+                    +"Fuel consumption: ${ship.ship.fuelConsumption.toPrecision(3)} / distance unit"
+                    requiredFuel()?.let {
+                        +" ($it required for next jump)"
+                    }
                 }
                 p { +"Exploring: ${ship.exploring}" }
                 p { +"Mining: ${ship.mining} "}

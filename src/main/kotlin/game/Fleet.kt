@@ -11,51 +11,60 @@ import kotlin.math.roundToInt
 
 class Fleet(
         ships: Collection<Ship>,
-        location: IntVector2,
-        var destination: IntVector2,
-        discoveredStars: Collection<StarSystem>
+        private val galaxy: Galaxy,
+        private var ftlTargetIndex: Int? = null, // only set when warming up
+        private var ftlWarmupProgress: Int = 0,
+        private var ftlCooldownProgress: Int = 0
 ) : EventEmitter<Fleet>() {
-    var location: IntVector2 = location
-        private set
-
     private val _ships = ships.toMutableList()
     val ships: Collection<Ship> get() = _ships
 
-    private val _discovered = discoveredStars.toMutableSet()
-    val discoveredStars: Collection<StarSystem> get() = _discovered
+    val currentLocation get() = galaxy.main.current
+    val destinations get() = galaxy.main.next
 
     val speed: Int get() = ships.asSequence().map { it.shipClass.speed }.min() ?: 0
+    val ftlWarmupTimeRemaining get() = ftlWarmupProgress
+    val ftlCooldownTimeRemaining get() = ftlCooldownProgress
+    val isFtlReady get() = ftlCooldownTimeRemaining == 0
+    val ftlTargetDestination get() = ftlTargetIndex?.let { galaxy.main.next[it] }
 
     val onArrive = Event<Fleet, StarSystem>().bind(this)
 
-    fun doTurn(game: ExodusGame) {
+    fun doTurn() {
         abandonUncrewed()
         growFood()
         eatFood()
         ships.forEach { it.births(); it.deaths() }
 
-        val moved = moveTowardsDestination()
-        if (moved) {
-            _discovered.addAll(game.galaxy.getNearbyStars(location, SENSOR_RANGE))
-
-            for (ship in ships) {
-                ship.exploring = null
-                ship.mining = null
-            }
-        }
-
         ships.forEach { it.repair() }
 
-        val currentStar = game.galaxy.getStarAt(location)
-        if (currentStar != null) {
-            if (moved) {
-                SystemArrival.execute(this, currentStar)
-                onArrive(currentStar)
+        val ti = ftlTargetIndex
+        if (ti != null) {
+            if (ftlWarmupTimeRemaining <= 1) {
+                val dist = galaxy.main.next[ti].distance
+                galaxy.main.advance(ti)
+                for (ship in ships) {
+                    if (!ship.consumeFuel(dist)) {
+                        abandonShip(ship)
+                    }
+
+                    ship.exploring = null
+                    ship.mining = null
+                }
+                ftlTargetIndex = null
+                ftlCooldownProgress = ftlCooldownTime(dist)
+                ftlWarmupProgress = 0
+
+                onArrive(galaxy.main.current)
             } else {
-                exploreSystem(currentStar)
-                ships.forEach { it.mine() }
+                ftlWarmupProgress--
             }
+        } else if (ftlCooldownTimeRemaining > 0) {
+            ftlCooldownProgress--
         }
+
+        exploreSystem(galaxy.main.current)
+        ships.forEach { it.mine() }
     }
 
     fun abandonShip(ship: Ship) {
@@ -88,23 +97,20 @@ class Fleet(
         ships.forEach { it.eatFood() }
     }
 
-    fun fuelConsumptionAtSpeed(ship: Ship, dist: Double = speed.toDouble()) = ceil(ship.fuelConsumption * dist).toInt()
-
-    private fun moveTowardsDestination(): Boolean {
-        if (destination == location) return false
-
-        val dist = IntVector2.distance(destination, location)
-        if (dist <= speed) {
-            location = destination
-        } else {
-            location += (destination - location) * (speed / dist)
-        }
-        val fuelNeeded = _ships.associate { it to fuelConsumptionAtSpeed(it, min(speed.toDouble(), dist)) }
-        _ships.removeAll { it.inventory[InventoryItem.FUEL] < fuelNeeded[it]!! }
-        _ships.forEach { it.inventory.removeItems(InventoryItem.FUEL, fuelNeeded[it]!!) }
-
-        return true
+    fun startFtl(destIndex: Int) {
+        if (!isFtlReady) throw IllegalStateException("Cannot start FTL if not ready")
+        if (destIndex !in galaxy.main.next.indices) throw IndexOutOfBoundsException()
+        ftlTargetIndex = destIndex
+        ftlWarmupProgress = FTL_WARMUP
+        ftlCooldownProgress = 0
     }
+
+    fun cancelFtl() {
+        ftlTargetIndex = null
+        ftlWarmupProgress = 0
+    }
+
+    private fun ftlCooldownTime(distance: Int) = ceil(FTL_COOLDOWN_FACTOR * distance / speed).toInt()
 
     private fun exploreSystem(star: StarSystem) {
         val explorers = ships.groupBy { it.exploring }
@@ -112,7 +118,7 @@ class Fleet(
     }
 
     fun autoSupply() {
-        autoSupply(InventoryItem.FUEL) { fuelConsumptionAtSpeed(it) }
+        autoSupply(InventoryItem.FUEL) { it.fuelConsumption(400) }
         autoSupply(InventoryItem.FOOD) { it.foodConsumption }
     }
 
@@ -137,9 +143,11 @@ class Fleet(
     }
 
     companion object {
-        const val SENSOR_RANGE = 600.0
+        // Days to warmup FTL
+        private const val FTL_WARMUP = 4
+        private const val FTL_COOLDOWN_FACTOR = 1.5
 
-        operator fun invoke(numShips: Int, shipNames: List<String>, startingLocation: IntVector2, nearbyStars: Collection<StarSystem>): Fleet {
+        operator fun invoke(numShips: Int): Fleet {
             val home = WeightedList(
                     ShipClass.SMALL_COLONY_SHIP to 6,
                     ShipClass.LARGE_COLONY_SHIP to 9,
@@ -194,27 +202,43 @@ class Fleet(
                     *Random.sample(civilian, numCivilian).toTypedArray()
             )
 
+            val shipNames = ExodusGame.resources.getShipNames()
             val ships = Random.sample(shipNames, numShips)
                     .zip(classes)
                     .mapTo(mutableListOf()) { (name, cls) -> Ship(name, cls) }
 
-            return Fleet(ships, startingLocation, startingLocation, nearbyStars)
+            return Fleet(ships, Galaxy())
         }
     }
 
     object Serial : Serializer<Fleet, Serial.Data> {
         @Serializable
-        class Data(val ships: List<Int>,
-                   val location: IntVector2,
-                   val destination: IntVector2,
-                   val discoveredStars: Collection<Int>)
+        class Data(
+                val ships: List<Int>,
+                val galaxy: Galaxy.Serial.Data,
+                val ftlTargetIndex: Int?,
+                val ftlWarmupProgress: Int,
+                val ftlCooldownProgress: Int
+        )
 
         override fun save(model: Fleet, refs: RefSaver): Data {
-            return Data(model.ships.map { refs.saveShipRef(it) }, model.location, model.destination, model.discoveredStars.map { refs.saveStarRef(it) })
+            return Data(
+                    model.ships.map { refs.saveShipRef(it) },
+                    Galaxy.Serial.save(model.galaxy, refs),
+                    model.ftlTargetIndex,
+                    model.ftlWarmupProgress,
+                    model.ftlCooldownProgress
+            )
         }
 
         override fun load(data: Data, refs: RefLoader): Fleet {
-            return Fleet(data.ships.map { refs.loadShipRef(it) }, data.location, data.destination, data.discoveredStars.map { refs.loadStarRef(it) })
+            return Fleet(
+                    data.ships.map { refs.loadShipRef(it) },
+                    Galaxy.Serial.load(data.galaxy, refs),
+                    data.ftlTargetIndex,
+                    data.ftlWarmupProgress,
+                    data.ftlCooldownProgress
+            )
         }
     }
 }
