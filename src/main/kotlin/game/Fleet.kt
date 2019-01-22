@@ -14,7 +14,8 @@ class Fleet(
         private val galaxy: Galaxy,
         private var ftlTargetIndex: Int? = null, // only set when warming up
         private var ftlWarmupProgress: Int = 0,
-        private var ftlCooldownProgress: Int = 0
+        private var ftlCooldownProgress: Int = 0,
+        private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf()
 ) : EventEmitter<Fleet>() {
     private val _ships = ships.toMutableList()
     val ships: Collection<Ship> get() = _ships
@@ -28,7 +29,8 @@ class Fleet(
     val isFtlReady get() = ftlCooldownTimeRemaining == 0
     val ftlTargetDestination get() = ftlTargetIndex?.let { galaxy.main.next[it] }
 
-    val onArrive = Event<Fleet, StarSystem>().bind(this)
+    val onArrive = event<Fleet, ArriveEventArgs>()
+    val onTimerFinished = event<Fleet, SystemArrivalEvent>()
 
     fun doTurn() {
         abandonUncrewed()
@@ -36,7 +38,7 @@ class Fleet(
         eatFood()
         ships.forEach { it.births(); it.deaths() }
 
-        ships.forEach { it.repair() }
+        ships.forEach { it.repair(galaxy.main.current.passiveRepair) }
 
         val ti = ftlTargetIndex
         if (ti != null) {
@@ -55,12 +57,28 @@ class Fleet(
                 ftlCooldownProgress = ftlCooldownTime(dist)
                 ftlWarmupProgress = 0
 
-                onArrive(galaxy.main.current)
+                timers.clear()
+
+                val newStar = galaxy.main.current
+                val arrivalEvent = SystemArrivalEvent.generateAndExecute(this)
+
+                onArrive(ArriveEventArgs(newStar, arrivalEvent))
             } else {
                 ftlWarmupProgress--
             }
         } else if (ftlCooldownTimeRemaining > 0) {
             ftlCooldownProgress--
+        }
+
+        for (event in timers.keys.toSet()) {
+            val days = timers[event]!!
+            if (days == 0) {
+                event.onTimerFinished(this)
+                timers.remove(event)
+                onTimerFinished(event)
+            } else {
+                timers[event] = days - 1
+            }
         }
 
         exploreSystem(galaxy.main.current)
@@ -140,6 +158,10 @@ class Fleet(
             surplus = has()
             deficit = needs()
         }
+    }
+
+    internal fun startTimer(event: SystemArrivalEvent, days: Int) {
+        timers[event] = days
     }
 
     companion object {
@@ -241,4 +263,6 @@ class Fleet(
             )
         }
     }
+
+    class ArriveEventArgs(val star: StarSystem, val arrivalEvent: SystemArrivalEvent)
 }

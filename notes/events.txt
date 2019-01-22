@@ -1,0 +1,129 @@
+Main Sequence Events
+
+System Arrival
+	- Nothing
+	- Attacked by main enemy (attack on sight)
+	- Attacked by pirates (attack on sight)
+		- Req: No colonized planets
+	- Attacked by bandits (will demand cargo first)
+		- Req: No colonized planets
+	- Attacked by hostile civilization in this system
+		- Req: Colonized planet in system
+		- chance to attack on sight
+		- chance to demand you leave within 8-10 days, if not will attack
+		- If enemy is defeated and planet is explored, will not trade
+		- Threat rate increased
+	- Distress signal
+		- Req: No habitable planets in system, one of the following features on a planet: Destroyed Ship, Abandonded Ship, Refugees on Surface, Refugees in orbit
+	- Colony Distress signal
+		- Req: Habitable planet in system, feature on the planet: Colony Distress Signal
+	- FTL Interference
+		- Req: High energy star (types TBD)
+		- FTL Cooldown increased
+	- FTL malfunction
+		- Higher chance when ships are damaged
+		- One ship takes heavy damage
+		- FTL Cooldown greatly increased
+	- Severe FTL malfuction
+		- One ship does not arrive in system
+		- Can only happen when a ship is badly damaged (<20%)
+	- Safe Haven system
+		- Req: Heavily colonized planet
+		- A friendly civilization welcomes you to the system, tells you which planet they're at
+		- Threat rate greatly decreased
+	- Nebula
+		- Req: Young star (types TBD), no colonized planets
+		- Threat rate increased
+	- Strong EM Interference
+		- Req: High energy star
+		- Lowers exploration rate
+	- Mysterious signal
+		- Req: Gas giant in system, no colonized planets
+		- Very rare
+		- Garantees Jupiter Brain feature on gas giant (impossible without this event)
+
+Every Day (By Threat)
+	- Attacked by main enemy (attack on sight)
+	- Attacked by pirates (attack on sight)
+		- Req: No colonized planets
+	- Attacked by bandits (will demand cargo first)
+		- Req: No colonized planets
+
+Planet Feature Discovery
+	- NOTHING
+	- ABANDONED_CITIES
+		- Grants a moderate amount of metal
+	- PRIMITIVE_LOCALS
+		- Req: Habitable planet
+		- Can choose to contact them or leave them be
+		- If contacted:
+			- chance they will open trade for food and ore
+			- chance they will be hostile, slowing further exploration on this planet
+	- RICH_RESOURCE_DEPOSITS
+		- Grants a large amount of metal ore and fuel ore
+		- Allows mining (10)
+	- POOR_RESOURCE_DEPOSITS
+		- Grants a moderate amount of metal ore and fuel ore
+		- Allows mining (5)
+	- UNDERGROUND_CAVERNS
+		- Grants a moderate amount of ore
+	- CRASHED_SPACESHIP
+		- Grants a small amount of metal
+	- SMALL_COLONY
+		- Req: Habitable planet
+		- Allows trading
+	- LARGE_COLONY
+		- Req: Habitable planet
+		- Allows trading
+	- HEAVILY_SETTLED
+		- Req: Terran planet
+		- Allows trading
+		- Must appear first in feature list
+		- Greatly Raises exploration rate
+	- CARNIVOROUS_PLANTS
+		- Slightly inhibits exploration
+	- MASSIVE_CANYON
+		- Grants a small amount of metal ore and fuel ore
+	- RARE_ELEMENTS
+		- Grants a small amount of rare metals
+	- COLONIZED_MOON
+		- Allows trading
+	- UNUSUAL_GASES
+		- Req: Gas giant
+		- Grants a very small amount of rare metals
+	- MASSIVE_SHIPYARDS
+		- Req: Heavily Settled on same planet
+		- Grants passive repair without consuming metals
+	- Wrecked Massive Shipyards
+		- Req: Tomb world
+		- Grants large amount of metal, very small amount of technology
+	- RING_SYSTEM
+		- Grants very small amount of rare metals
+	- JUPITER_BRAIN
+		- Req: Mysterious signal event
+		- ???
+	- FEROCIOUS_FAUNA
+		- Slightly inhibits exploration
+	- Ancient Ship
+		- Grants a small amount of metal, technology
+	- Destroyed Ship
+		- Grants a small amount of metal
+	- Abandoned Ship
+		- Grants a small amount of metal, goods
+	- ELECTROMAGNETIC_DISTORTIONS
+		- Slightly inhibits exploration
+	- Refugees on Surface
+		- Req: Distress Signal event
+		- Can choose to rescue them to join your fleet or ignore them
+	- Refugees in orbit
+		- Req: Distress Signal event
+		- Can choose to contact them or ignore
+		- If contacted:
+			- Chance they will ask for metal to repair ship, will provide goods, rare metal, or tech in trade
+			- Chance they will ask to join crew, can scrap ship for metal (can refuse)
+	- Colony distress signal
+		- Req: Colony distress signal event, habitable planet
+		- Can choose to contact them or ignore
+		- If contacted:
+			- Chance they will ask for metal & food, will provide goods, rare metal, or tech in trade
+			- Chance they will ask to join your fleet (can refuse)

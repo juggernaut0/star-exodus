@@ -11,6 +11,17 @@ class PlanetFeatureActionResult(
         val resources: Map<InventoryItem, Int> = emptyMap()
 )
 
+class CompoundAction(private vararg val actions: PlanetFeatureAction) : PlanetFeatureAction {
+    override fun perform(planet: Planet, ships: List<Ship>): PlanetFeatureActionResult {
+        return actions
+                .asSequence()
+                .map { it.perform(planet, ships) }
+                .reduce { r1, r2 ->
+                    PlanetFeatureActionResult(r1.resources + r2.resources)
+                }
+    }
+}
+
 class OreAction(private val minAmt: Int, private val maxAmt: Int) : PlanetFeatureAction {
     override fun perform(planet: Planet, ships: List<Ship>): PlanetFeatureActionResult {
         val mostSpace = ships.asSequence().map { it.inventory.freeSpace }.max() ?: 0

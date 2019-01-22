@@ -6,6 +6,7 @@ import serialization.RefSaver
 import serialization.Serializer
 import util.*
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 class Planet(val name: String, val type: PlanetType, val features: List<PlanetFeature>, exploration: Int, val inventory: Inventory) : EventEmitter<Planet>() {
     val onDiscoverFeature = Event<Planet, DiscoverFeatureEventArgs>().bind(this)
@@ -23,7 +24,8 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
 
         val numExplorers = ships.sumBy { it.explorers }
         val begin = exploration
-        exploration = min(exploration + numExplorers / 5, 100)
+        val de = (numExplorers * explorationRate() / 5).roundToInt()
+        exploration = (exploration + de).coerceAtMost(100)
         val end = exploration
         if(begin % 20 > end % 20 || end - begin >= 20){
             val n = begin / 20
@@ -43,6 +45,10 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
         }
     }
 
+    private fun explorationRate(): Double {
+        return (1.0 + discoveredFeatures.sumByDouble { it.explorationMod }).coerceAtLeast(0.1)
+    }
+
     companion object {
         operator fun invoke(name: String, type: PlanetType): Planet {
             val features = mutableListOf<PlanetFeature>()
@@ -53,6 +59,19 @@ class Planet(val name: String, val type: PlanetType, val features: List<PlanetFe
                 }
             }
             features.shuffle()
+
+            // heavily settled must come first
+            features.indexOf(PlanetFeature.HEAVILY_SETTLED).takeIf { it >= 0 }?.let {
+                features[it] = features[0]
+                features[0] = PlanetFeature.HEAVILY_SETTLED
+            }
+
+            // massive shipyards requires heavily settled
+            features.indexOf(PlanetFeature.MASSIVE_SHIPYARDS).takeIf { it >= 0 }?.let {
+                if (PlanetFeature.HEAVILY_SETTLED !in features) {
+                    features[it] = PlanetFeature.NOTHING
+                }
+            }
 
             val cap = features.sumBy { it.tradeCapacity }
             val inv = Inventory(cap)

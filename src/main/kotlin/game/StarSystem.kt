@@ -7,7 +7,24 @@ import serialization.Serializer
 import util.Random
 import kotlin.math.roundToInt
 
-class StarSystem(val name: String, val type: StarType, val planets: List<Planet>) {
+class StarSystem(
+        val name: String,
+        val type: StarType,
+        val planets: List<Planet>,
+        threat: Double,
+        threatRate: Double
+) {
+    val passiveRepair get() = planets.asSequence().flatMap { it.discoveredFeatures.asSequence() }.sumBy { it.passiveRepair }
+
+    var threat = threat
+        internal set
+    var threatRate = threatRate
+        internal set
+
+    internal fun increaseThreat() {
+        threat += threatRate
+    }
+
     companion object {
         operator fun invoke(forceName: String? = null): StarSystem {
             val name = forceName ?: Random.choice(ExodusGame.resources.getStarNames())
@@ -18,7 +35,7 @@ class StarSystem(val name: String, val type: StarType, val planets: List<Planet>
                 val pType = Random.choice(type.planetTypes)
                 Planet(pName, pType)
             }
-            return StarSystem(name, type, planets)
+            return StarSystem(name, type, planets, 0.0, 0.01)
         }
 
         private fun romanNumeral(n: Int): String {
@@ -42,14 +59,31 @@ class StarSystem(val name: String, val type: StarType, val planets: List<Planet>
 
     object Serial : Serializer<StarSystem, Serial.Data> {
         @Serializable
-        class Data(val name: String, val type: StarType, val planets: List<Int>)
+        class Data(
+                val name: String,
+                val type: StarType,
+                val planets: List<Int>,
+                val threat: Double,
+                val threatRate: Double)
 
         override fun save(model: StarSystem, refs: RefSaver): Serial.Data {
-            return Data(model.name, model.type, model.planets.map { refs.savePlanetRef(it) })
+            return Data(
+                    model.name,
+                    model.type,
+                    model.planets.map { refs.savePlanetRef(it) },
+                    model.threat,
+                    model.threatRate
+            )
         }
 
         override fun load(data: Serial.Data, refs: RefLoader): StarSystem {
-            return StarSystem(data.name, data.type, data.planets.map { refs.loadPlanetRef(it) })
+            return StarSystem(
+                    data.name,
+                    data.type,
+                    data.planets.map { refs.loadPlanetRef(it) },
+                    data.threat,
+                    data.threatRate
+            )
         }
     }
 }

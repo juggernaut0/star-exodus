@@ -51,13 +51,13 @@ class Ship(
     }
 
     // returns amount actually changed
-    fun modHullPoints(amt: Int): Int {
+    private fun modHullPoints(amt: Int): Int {
         val oldHp = hullPoints
         hullPoints = minOf(maxOf(hullPoints + amt, 0), maxHull)
         return hullPoints - oldHp
     }
 
-    fun modCrew(amt: Int): Int {
+    internal fun modCrew(amt: Int): Int {
         val oldCrew = crew
         crew = minOf(maxOf(crew + amt, 0), maxCrew)
         return crew - oldCrew
@@ -123,13 +123,14 @@ class Ship(
         }
     }
 
-    internal fun repair() {
+    internal fun repair(passiveRepair: Int = 0) {
         val amt = intArrayOf(MAX_REPAIR_RATE, maxHull - hullPoints, floor(inventory[InventoryItem.METAL] / REPAIR_COST).toInt()).min() ?: 0
         val cost = ceil(amt * REPAIR_COST).toInt()
-        if (amt > 0 && inventory[InventoryItem.METAL] >= cost) {
-            modHullPoints(amt)
+        val amtWPassive = amt + passiveRepair
+        if (amtWPassive > 0 && inventory[InventoryItem.METAL] >= cost) {
+            modHullPoints(amtWPassive)
             inventory.removeItems(InventoryItem.METAL, cost)
-            onRepair(amt)
+            onRepair(amtWPassive)
         }
     }
 

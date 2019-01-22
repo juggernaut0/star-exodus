@@ -1,0 +1,96 @@
+star exodus notes
+
+- Rework travel
+	- Rework FTL - DONE
+		- remove star map
+		- progression is more linear, procedurally generated as you go.
+		- Travel between stars is "instant", but requires spin-up and cooldown
+			- spin-up: constant time
+			- cooldown: proportional to distance travelled, inverse to fleet speed
+		- Fuel only consumed when FTL happens, consumed all at once
+		- Fuel consumed is proportional to distance travelled, larger ships have worse efficiency (based on mass stat)
+		- Each ship has independent fuel consumption
+		- Mining & exploring can continue during spin-up (but stops upon jump)
+		- Can abort jump during warmup
+	- Events
+		- Chance of event upon entering system or discovering planet feature
+		- Threat: % Chance of being attacked in system per day
+			- Threat starts low upon arrival
+			- Every day spent in system increases threat (rate varies per system)
+			- Threat over 100% causes stronger enemies to appear
+			- Threat stays low in colonized systems (safe havens)
+		- Need to stub in combat for now
+		- Combat events have "difficulty rating" depending on various factors (Threat, dark sector, fleet strength, etc.)
+	- Main sequence
+		- from a star, a list of 2-5 destinations with varying distances (fuel cost)
+		- Cannot go backwards
+		- theoretically infinite
+		- event difficulty is based on your current strength
+		- occasional safe haven systems
+	- Missions
+		- Unlocked upon reaching certain points in the main sequence or given by planets in colonized systems
+		- story driven, scripted sequences of systems & events
+		- required to "win" the game (retake homework)
+	- Dark sectors
+		- more dangerous sequences with loot & resources at the end
+		- procedurally generated each time
+		- various levels of difficulty, finish a level to unlock the next
+		- difficulty levels can be repeated (generates a new random sector)
+		- can bail from a dark sector run at any time (won't get rewards)
+
+- Rework resource gathering
+	- exploration yields "caches" of various size based on planet type
+	- resource gathering over time happens automatically (don't need to manually assign ships)
+- QoL changes
+	- Allow setting exploration & mining from planet details screen
+	- Move day counter and Next Day button to outside tabs (visible from all screens)
+	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
+	- Disallow exploring already explored planets
+	- Alerts on ship detail panel for low fuel, food, etc.
+	- Available cargo space of selected ship on trade panel
+- Add ship building
+	- Start with construction ship that can build small ships when stationary
+	- Can get mobile shipyard later to build bigger ships
+	- biggest ships must be built in pieces
+- Tech tree
+	- Able to research/acquire techs
+	- Techs allow building new ships, weapons, modules, improving existing ships, etc.
+- Combat
+	- Divide fleet into "Battlegroups"
+	- Number of battle groups is capped (research can increase)
+	- Battle groups act as "units" receiving orders as one
+	- Turn based actions
+		- Order determined by "initiative" (speed of slowest ship in group)
+		- Action consists of selecting a "Tactic" and a "Target"
+		- Tactics determine what the group does, target is who the group does it to
+		- Target can be friendly or enemy depending on tactic
+		- Example tactics: 
+			- Bombard (long range attack)
+			- Screen (intercept enemy tactics)
+			- Retreat (move back a zone with an evade bonus)
+			- Intercept (Interfere/disable enemy tactics)
+			- Blockade (prevent enemy movement)
+		- Special equipment & weapons can provide unique tactics
+		- Select actions for all ships, when all are ready, all actions are executed at once, ordering determined by ship speed
+	- Range: 5 "zones" where ships can be
+		- Each side has long and mid range zones, and share a close range zone
+		- Moving between zones is an affect of a tactic
+		- Moving out of a zone occupied by enemies evokes a penalty (similar to attack of opportunity)
+	- Weapons
+		- Determines what happens when an offensive tactic is used
+		- Attributes:
+			- Damage: Damage per shot
+			- Salvo: How many shots in an attack
+			- Tracking: How easily weapon can hit fast targets
+			- Accuracy: Hit chance at various ranges
+		- Hit chance based on tracking vs enemy evasion. accuracy vs enemy range
+	- Defenses
+		- Hull points: When this reaches 0, ship is destroyed. Must be repaired after combat
+		- Armor: Damage reduction to hull points. Can be reduced/removed
+		- Shields: Bonus "health." Does not benefit from armor. Regenerates automatically after combat
+		- Point defense: Can destroy missiles & damage fighters attacking the ship
+		- Evasion: Based on speed, lowers enemy accuracy
+- Endgame/Postgame
+	- Upon winning, two options
+		1. Timewarp back to before homeworld mission, can keep going forever
+		2. NG+: Keep your XP (maybe some ships?), start over with new fleet, everything is scaled higher

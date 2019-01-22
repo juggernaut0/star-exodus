@@ -9,16 +9,15 @@ import ui.*
 class ShipInventoryPanel(private val gameService: GameService, private val selectedShip: ShipView) : Component() {
     private var target: ShipView? = null
     private var item: ItemView? = null
-    private var amount: Double = 0.0
+    private var amount: Int = 0
 
     private fun transfer() {
         val src = selectedShip.ship
         val dest = target?.ship
-        val amt = amount.toInt()
         val item = item?.item
 
         if (dest != null && item != null) {
-            src.inventory.transferItemsTo(dest.inventory, item, amt)
+            src.inventory.transferItemsTo(dest.inventory, item, amount)
             gameService.invokeFleetUpdate()
         }
     }
@@ -50,7 +49,7 @@ class ShipInventoryPanel(private val gameService: GameService, private val selec
                 colMd6 {
                     label(classes("w-100")) {
                         +"Amount"
-                        inputNumber(classes("form-control"), ::amount)
+                        component(ValidatedIntInput(0..1000, ::amount, this@ShipInventoryPanel))
                     }
                 }
             }

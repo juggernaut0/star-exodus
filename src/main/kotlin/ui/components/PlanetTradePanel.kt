@@ -4,12 +4,16 @@ import game.Trade
 import kui.Component
 import kui.Props
 import kui.classes
-import kui.renderOnSet
 import ui.*
 import util.Event
 
 class PlanetTradePanel(private val gameService: GameService, private var planet: PlanetView) : Component() {
-    private var tradeShip: ShipView by renderOnSet(gameService.game.fleet.ships.first().let { ShipView(it) })
+    private var tradeShip: ShipView = gameService.game.fleet.ships.first().let { ShipView(it) }
+        set(value) {
+            field = value
+            shipInventory = value.inventory
+            render()
+        }
     private var planetInventory = planet.inventory
     private var shipInventory = tradeShip.inventory
 

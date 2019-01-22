@@ -10,5 +10,5 @@ enum class InventoryItem(val value: Int) {
     METAL_ORE(7),
     FUEL_ORE(10),
     RARE_METALS(50),
-    TECHNOLOGY(75);
+    TECHNOLOGY(75)
 }
