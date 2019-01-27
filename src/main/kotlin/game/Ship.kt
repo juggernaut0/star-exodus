@@ -13,8 +13,7 @@ class Ship(
         hullPoints: Int,
         crew: Int,
         val inventory: Inventory,
-        var exploring: Planet?,
-        var mining: MiningTarget?
+        var exploring: Planet?
 ) : EventEmitter<Ship>() {
     var name: String = name
         private set
@@ -38,6 +37,9 @@ class Ship(
     val explorers get() = min(floor(0.1 * crew).toInt(), MAX_EXPLORERS)
 
     val destroyed get() = hullPoints == 0
+
+    var mining: MiningTarget? = null
+        private set
 
     val onMine = Event<Ship, MiningEventArgs>().bind(this)
     val onRepair = Event<Ship, Int>().bind(this)
@@ -99,28 +101,28 @@ class Ship(
         else -> 0.0
     }.toInt()
 
-    internal fun mine() {
-        mining?.run {
-            fun mineAndInvoke(item: InventoryItem, amount: Int) {
-                val actual = inventory.addItems(item, amount)
-                if (actual > 0) {
-                    onMine(MiningEventArgs(planet, item, actual))
-                }
-            }
-
-            val amt = miningYield(this)
-
-            if (resource == InventoryItem.FUEL_ORE || resource == InventoryItem.METAL_ORE) {
-                val fuelAmt = Random.range(amt / 2)
-                val rareAmt = if (planet.discoveredFeatures.contains(PlanetFeature.RARE_ELEMENTS)) Random.range((amt - fuelAmt) / 2) else 0
-                val metalAmt = amt - fuelAmt - rareAmt
-                mineAndInvoke(InventoryItem.FUEL_ORE, fuelAmt)
-                mineAndInvoke(InventoryItem.METAL_ORE, metalAmt)
-                mineAndInvoke(InventoryItem.RARE_METALS, rareAmt)
-            } else {
-                mineAndInvoke(resource, amt)
+    internal fun mine(target: MiningTarget) {
+        fun mineAndInvoke(item: InventoryItem, amount: Int) {
+            val actual = inventory.addItems(item, amount)
+            if (actual > 0) {
+                onMine(MiningEventArgs(target.planet, item, actual))
             }
         }
+
+        val amt = miningYield(target)
+
+        if (target.resource == InventoryItem.FUEL_ORE || target.resource == InventoryItem.METAL_ORE) {
+            val fuelAmt = Random.range(amt / 2)
+            val rareAmt = if (target.planet.discoveredFeatures.contains(PlanetFeature.RARE_ELEMENTS)) Random.range((amt - fuelAmt) / 2) else 0
+            val metalAmt = amt - fuelAmt - rareAmt
+            mineAndInvoke(InventoryItem.FUEL_ORE, fuelAmt)
+            mineAndInvoke(InventoryItem.METAL_ORE, metalAmt)
+            mineAndInvoke(InventoryItem.RARE_METALS, rareAmt)
+        } else {
+            mineAndInvoke(target.resource, amt)
+        }
+
+        mining = target
     }
 
     internal fun repair(passiveRepair: Int = 0) {
@@ -177,7 +179,7 @@ class Ship(
             val inv = Inventory(shipClass.cargoCapacity)
             inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
             inv.addItems(InventoryItem.FOOD, inv.capacity/5)
-            return Ship(name, shipClass, hull, crew, inv, null, null)
+            return Ship(name, shipClass, hull, crew, inv, null)
         }
     }
 
@@ -192,11 +194,8 @@ class Ship(
                 val hullPoints: Int,
                 val crew: Int,
                 val inventory: Inventory.Serial.Data,
-                val exploring: Int?,
-                val mining: MiningTargetData?
+                val exploring: Int?
         )
-        @Serializable
-        class MiningTargetData(val planet: Int, val resource: InventoryItem)
 
         override fun save(model: Ship, refs: RefSaver): Data {
             return Data(
@@ -205,8 +204,7 @@ class Ship(
                     model.hullPoints,
                     model.crew,
                     Inventory.Serial.save(model.inventory, refs),
-                    model.exploring?.let { refs.savePlanetRef(it) },
-                    model.mining?.let { MiningTargetData(refs.savePlanetRef(it.planet), it.resource) }
+                    model.exploring?.let { refs.savePlanetRef(it) }
             )
         }
 
@@ -216,8 +214,7 @@ class Ship(
                     data.hullPoints,
                     data.crew,
                     Inventory.Serial.load(data.inventory, refs),
-                    data.exploring?.let { refs.loadPlanetRef(it) },
-                    data.mining?.let { MiningTarget(refs.loadPlanetRef(it.planet), it.resource) }
+                    data.exploring?.let { refs.loadPlanetRef(it) }
             )
         }
     }

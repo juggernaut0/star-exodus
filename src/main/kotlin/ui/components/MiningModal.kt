@@ -15,7 +15,7 @@ class MiningModal(
     private var miningTarget: PlanetView? by renderOnSet(null)
     private var miningResource: ItemView? by renderOnSet(gatherableItems[2])
 
-    fun ok() {
+    /*fun ok() {
         val planet = miningTarget
         val resource = miningResource
         ship.apply {
@@ -25,7 +25,7 @@ class MiningModal(
                 null
             }
         }
-    }
+    }*/
 
     override fun render() {
         markup().div {

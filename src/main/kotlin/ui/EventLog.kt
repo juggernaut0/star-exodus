@@ -76,7 +76,7 @@ class EventLog(gameService: GameService) : EventEmitter<EventLog>() {
             SystemArrivalEvent.ATTACKED -> log("You are being attacked by alien vessels!", Style.DANGER)
             SystemArrivalEvent.PIRATES -> log("You are being attacked by a fierce band of pirates!", Style.DANGER)
             SystemArrivalEvent.BANDITS ->
-                log("You are being hailed by a bandit fleet. They demand you hand over your cargo or face the consequences!", Style.DANGER) // TODO contact
+                log("You are being hailed by a bandit fleet. They demand you hand over your cargo or face the consequences!", Style.DANGER)
             SystemArrivalEvent.DISTRESS_SIGNAL ->
                 log("The fleet has picked up a faint distress signal originating in this system.", Style.WARNING)
         }

@@ -39,16 +39,19 @@ star exodus notes
 		- difficulty levels can be repeated (generates a new random sector)
 		- can bail from a dark sector run at any time (won't get rewards)
 
-- Rework resource gathering
+- Rework resource gathering - DONE
 	- exploration yields "caches" of various size based on planet type
 	- resource gathering over time happens automatically (don't need to manually assign ships)
+
 - QoL changes
 	- Allow setting exploration & mining from planet details screen
 	- Move day counter and Next Day button to outside tabs (visible from all screens)
 	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
 	- Disallow exploring already explored planets
 	- Alerts on ship detail panel for low fuel, food, etc.
-	- Available cargo space of selected ship on trade panel
+	- Show available cargo space of selected ship on trade panel
+	- Condense resource gather logs to single set of messages for whole fleet, not per ship
+	- Set limits on how much fuel/ore/food to gather
 - Add ship building
 	- Start with construction ship that can build small ships when stationary
 	- Can get mobile shipyard later to build bigger ships

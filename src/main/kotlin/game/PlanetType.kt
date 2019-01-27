@@ -2,7 +2,6 @@ package game
 
 import util.WeightedList
 
-// TODO rebalance with new features
 enum class PlanetType(
         val features: WeightedList<PlanetFeature>,
         val fuelGatherAmount: Int = 0,

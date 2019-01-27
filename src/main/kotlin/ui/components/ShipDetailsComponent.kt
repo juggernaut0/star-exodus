@@ -71,11 +71,6 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                             disabled = gameService.currentSystem == null)) {
                         +"Explore Planet"
                     }
-                    button(Props(classes = bsBtnOutline("primary"),
-                            attrs = bsModalToggle("shipMineModal"),
-                            disabled = gameService.currentSystem == null)) {
-                        +"Gather Resources"
-                    }
                     button(Props(classes = bsBtnOutline("danger"), attrs = bsModalToggle("shipAbandonModal"))) {
                         +"Abandon"
                     }
@@ -112,11 +107,6 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                         +"Planet"
                         select(classes("form-control"), gameService.currentSystem?.planets ?: emptyList(), model = ::exploreTarget, nullOption = "None")
                     }
-                }
-
-                val miningModal = MiningModal(gameService, ship)
-                component(Modal("shipMineModal", "Gather Resources", ok = { miningModal.ok() })) {
-                    component(miningModal)
                 }
 
                 component(Modal("shipAbandonModal", "Abandon Ship", danger = true, ok = { abandon(ship) })) {

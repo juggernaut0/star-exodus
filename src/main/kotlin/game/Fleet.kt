@@ -55,7 +55,6 @@ class Fleet(
                     }
 
                     ship.exploring = null
-                    ship.mining = null
                 }
                 ftlTargetIndex = null
                 ftlCooldownProgress = ftlCooldownTime(dist)
@@ -85,8 +84,8 @@ class Fleet(
             }
         }
 
-        exploreSystem(galaxy.main.current)
-        ships.forEach { it.mine() }
+        exploreSystem()
+        gatherResources()
     }
 
     fun abandonShip(ship: Ship) {
@@ -134,9 +133,29 @@ class Fleet(
 
     private fun ftlCooldownTime(distance: Int) = ceil(FTL_COOLDOWN_FACTOR * distance / speed).toInt()
 
-    private fun exploreSystem(star: StarSystem) {
+    private fun exploreSystem() {
         val explorers = ships.groupBy { it.exploring }
-        star.planets.forEach { planet -> planet.explore(explorers[planet] ?: emptyList()) }
+        currentLocation.planets.forEach { planet -> planet.explore(explorers[planet] ?: emptyList()) }
+    }
+
+    private fun gatherResources() {
+        // match ships to best planet
+        for (ship in ships) {
+            for (planet in currentLocation.planets) {
+                val food = Ship.MiningTarget(planet, InventoryItem.FOOD)
+                val ore = Ship.MiningTarget(planet, InventoryItem.METAL_ORE)
+                val fuel = Ship.MiningTarget(planet, InventoryItem.FUEL)
+
+                val foodYield = ship.miningYield(food)
+                val oreYield = ship.miningYield(ore)
+                val fuelYield = ship.miningYield(fuel)
+
+                sequenceOf(food to foodYield, ore to oreYield, fuel to fuelYield)
+                        .filter { (_, y) -> y > 0 }
+                        .maxBy { (_, y) -> y }
+                        ?.let { (t, _) -> ship.mine(t) }
+            }
+        }
     }
 
     fun autoSupply() {
