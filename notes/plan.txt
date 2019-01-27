@@ -12,7 +12,7 @@ star exodus notes
 		- Each ship has independent fuel consumption
 		- Mining & exploring can continue during spin-up (but stops upon jump)
 		- Can abort jump during warmup
-	- Events
+	- Events - DONE
 		- Chance of event upon entering system or discovering planet feature
 		- Threat: % Chance of being attacked in system per day
 			- Threat starts low upon arrival
@@ -21,7 +21,8 @@ star exodus notes
 			- Threat stays low in colonized systems (safe havens)
 		- Need to stub in combat for now
 		- Combat events have "difficulty rating" depending on various factors (Threat, dark sector, fleet strength, etc.)
-	- Main sequence
+		- Start of combat or contact with others blocks "Next Day" button until situation is resolved.
+	- Main sequence - DONE
 		- from a star, a list of 2-5 destinations with varying distances (fuel cost)
 		- Cannot go backwards
 		- theoretically infinite

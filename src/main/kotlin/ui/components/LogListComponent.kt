@@ -9,7 +9,6 @@ class LogListComponent(gameService: GameService) : Component() {
     private val eventLog = gameService.eventLog
 
     init {
-        gameService.onReady += { _, _ -> render() }
         eventLog.eventAdded += { _, _ -> render() }
     }
 

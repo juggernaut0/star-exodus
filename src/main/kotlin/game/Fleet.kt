@@ -29,6 +29,10 @@ class Fleet(
     val isFtlReady get() = ftlCooldownTimeRemaining == 0
     val ftlTargetDestination get() = ftlTargetIndex?.let { galaxy.main.next[it] }
 
+    // TODO serialize combat state
+    var blockedState: BlockedState? = null
+        private set
+
     val onArrive = event<Fleet, ArriveEventArgs>()
     val onTimerFinished = event<Fleet, SystemArrivalEvent>()
 
@@ -158,6 +162,21 @@ class Fleet(
             surplus = has()
             deficit = needs()
         }
+    }
+
+    internal fun startCombat() {
+        if (blockedState != null) throw IllegalStateException("Cannot start combat when blocked")
+        blockedState = BlockedState.Combat() // TODO combat strength
+    }
+
+    internal fun setHailed(hailed: BlockedState.Hailed) {
+        if (blockedState != null) throw IllegalStateException("Cannot be hailed when blocked")
+        blockedState = hailed
+    }
+
+    // TODO remove when combat is implemented
+    fun endBlocker() {
+        blockedState = null
     }
 
     internal fun startTimer(event: SystemArrivalEvent, days: Int) {

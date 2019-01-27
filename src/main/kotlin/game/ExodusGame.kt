@@ -14,11 +14,19 @@ class ExodusGame(val fleet: Fleet, day: Int) : EventEmitter<ExodusGame>() {
     var day = day
         private set
 
+    val inCombat get() = fleet.blockedState is BlockedState.Combat
+
     fun nextDay(){
+        if (!canNextDay()) throw IllegalStateException("Cannot advance when in combat")
+
         day += 1
 
         fleet.doTurn()
         onTurn(Unit)
+    }
+
+    fun canNextDay(): Boolean {
+        return fleet.blockedState == null
     }
 
     companion object {

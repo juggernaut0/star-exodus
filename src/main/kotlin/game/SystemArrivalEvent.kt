@@ -7,7 +7,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
     NOTHING(30),
     ATTACKED(12) {
         override fun execute(fleet: Fleet) {
-            // TODO start combat
+            fleet.startCombat() // TODO strength
         }
     },
     PIRATES(6) {
@@ -16,7 +16,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
         }
 
         override fun execute(fleet: Fleet) {
-            // TODO start combat
+            fleet.startCombat() // TODO strength
         }
     },
     BANDITS(6) {
@@ -25,7 +25,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
         }
 
         override fun execute(fleet: Fleet) {
-            // TODO start combat
+            fleet.setHailed(BlockedState.Hailed())
         }
     },
     HOSTILE_CIVILIZATION(2) {
@@ -40,7 +40,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
         override fun onTimerFinished(fleet: Fleet) {
             fleet.currentLocation.threatRate = 0.1
             fleet.currentLocation.threat = 0.5
-            // TODO start combat
+            fleet.startCombat() // TODO strength
         }
     },
     DISTRESS_SIGNAL(10) {
