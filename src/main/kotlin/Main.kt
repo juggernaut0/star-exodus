@@ -1,5 +1,6 @@
 import ui.*
 import ui.components.FleetTabComponent
+import ui.components.GlobalDisplayPanel
 import ui.components.LogTabComponent
 import ui.components.StarTabComponent
 import util.HttpClient
@@ -16,6 +17,7 @@ fun main() {
         }
     })
     svc.onReady += { _, _ ->
+        kui.mountComponent("global", GlobalDisplayPanel(svc))
         kui.mountComponent("main", LogTabComponent(svc))
         kui.mountComponent("fleet", FleetTabComponent(svc))
         kui.mountComponent("star", StarTabComponent(svc))

@@ -141,20 +141,23 @@ class Fleet(
     private fun gatherResources() {
         // match ships to best planet
         for (ship in ships) {
-            for (planet in currentLocation.planets) {
-                val food = Ship.MiningTarget(planet, InventoryItem.FOOD)
-                val ore = Ship.MiningTarget(planet, InventoryItem.METAL_ORE)
-                val fuel = Ship.MiningTarget(planet, InventoryItem.FUEL)
+            currentLocation.planets
+                    .asSequence()
+                    .mapNotNull {
+                        val food = Ship.MiningTarget(it, InventoryItem.FOOD)
+                        val ore = Ship.MiningTarget(it, InventoryItem.METAL_ORE)
+                        val fuel = Ship.MiningTarget(it, InventoryItem.FUEL)
 
-                val foodYield = ship.miningYield(food)
-                val oreYield = ship.miningYield(ore)
-                val fuelYield = ship.miningYield(fuel)
+                        val foodYield = ship.miningYield(food)
+                        val oreYield = ship.miningYield(ore)
+                        val fuelYield = ship.miningYield(fuel)
 
-                sequenceOf(food to foodYield, ore to oreYield, fuel to fuelYield)
-                        .filter { (_, y) -> y > 0 }
-                        .maxBy { (_, y) -> y }
-                        ?.let { (t, _) -> ship.mine(t) }
-            }
+                        sequenceOf(food to foodYield, ore to oreYield, fuel to fuelYield)
+                                .filter { (_, y) -> y > 0 }
+                                .maxBy { (_, y) -> y }
+                    }
+                    .maxBy { (_, y) -> y }
+                    ?.let { (t, _) -> ship.mine(t) }
         }
     }
 

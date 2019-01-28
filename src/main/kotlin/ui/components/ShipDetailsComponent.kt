@@ -67,8 +67,7 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                         +"Rename"
                     }
                     button(Props(classes = bsBtnOutline("primary"),
-                            attrs = bsModalToggle("shipExploreModal"),
-                            disabled = gameService.currentSystem == null)) {
+                            attrs = bsModalToggle("shipExploreModal"))) {
                         +"Explore Planet"
                     }
                     button(Props(classes = bsBtnOutline("danger"), attrs = bsModalToggle("shipAbandonModal"))) {
@@ -105,7 +104,8 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                     p { +"This ship can send ${ship.explorers} explorers." }
                     label {
                         +"Planet"
-                        select(classes("form-control"), gameService.currentSystem?.planets ?: emptyList(), model = ::exploreTarget, nullOption = "None")
+                        val exploreTargets = gameService.currentSystem.planets.filterNot { it.isExplored }
+                        select(classes("form-control"), exploreTargets, model = ::exploreTarget, nullOption = "None")
                     }
                 }
 

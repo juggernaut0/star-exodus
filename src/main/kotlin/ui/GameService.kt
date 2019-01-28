@@ -18,7 +18,7 @@ class GameService : EventEmitter<GameService>() {
     // TODO don't pass 'this' as param
     val eventLog = EventLog(this)
 
-    var currentSystem: StarView? = null
+    lateinit var currentSystem: StarView
         private set
 
     init {

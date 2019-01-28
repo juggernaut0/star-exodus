@@ -25,32 +25,28 @@ class StarTabComponent(private val gameService: GameService) : Component() {
     override fun render() {
         markup().div {
             val star = gameService.currentSystem
-            if (star == null) {
-                throw IllegalStateException("current system is null")
-            } else {
-                h4 {
-                    +"${star.name} "
-                    small { +star.type }
-                }
-                row {
-                    colMd3 {
-                        div(classes("list-group")) {
-                            for (planet in star.planets) {
-                                button(Props(classes = planetRowClass(planet), click = { openPlanetDetail(planet) })) {
-                                    h5 {
-                                        +planet.name
-                                        small(classes("ml-2")) { +planet.type }
-                                    }
-                                    p {
-                                        +"Explore: ${planet.exploration}"
-                                    }
+            h4 {
+                +"${star.name} "
+                small { +star.type }
+            }
+            row {
+                colMd3 {
+                    div(classes("list-group")) {
+                        for (planet in star.planets) {
+                            button(Props(classes = planetRowClass(planet), click = { openPlanetDetail(planet) })) {
+                                h5 {
+                                    +planet.name
+                                    small(classes("ml-2")) { +planet.type }
+                                }
+                                p {
+                                    +"Explore: ${planet.exploration}"
                                 }
                             }
                         }
                     }
-                    colMd9 {
-                        component(details)
-                    }
+                }
+                colMd9 {
+                    component(details)
                 }
             }
         }

@@ -31,7 +31,7 @@ class MiningModal(
         markup().div {
             label {
                 +"Planet"
-                select(classes("form-control"), gameService.currentSystem?.planets ?: emptyList(), model = ::miningTarget)
+                select(classes("form-control"), gameService.currentSystem.planets, model = ::miningTarget)
             }
             label {
                 +"Resource"

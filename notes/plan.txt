@@ -44,7 +44,7 @@ star exodus notes
 	- resource gathering over time happens automatically (don't need to manually assign ships)
 
 - QoL changes
-	- Allow setting exploration & mining from planet details screen
+	- Allow setting exploration from planet details screen
 	- Move day counter and Next Day button to outside tabs (visible from all screens)
 	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
 	- Disallow exploring already explored planets
@@ -52,13 +52,9 @@ star exodus notes
 	- Show available cargo space of selected ship on trade panel
 	- Condense resource gather logs to single set of messages for whole fleet, not per ship
 	- Set limits on how much fuel/ore/food to gather
-- Add ship building
-	- Start with construction ship that can build small ships when stationary
-	- Can get mobile shipyard later to build bigger ships
-	- biggest ships must be built in pieces
-- Tech tree
-	- Able to research/acquire techs
-	- Techs allow building new ships, weapons, modules, improving existing ships, etc.
+	- Add "resource focus" to focus on fuel or food gathering
+	- Auto-supply: limit food to half of cargo space
+
 - Combat
 	- Divide fleet into "Battlegroups"
 	- Number of battle groups is capped (research can increase)
@@ -94,6 +90,16 @@ star exodus notes
 		- Shields: Bonus "health." Does not benefit from armor. Regenerates automatically after combat
 		- Point defense: Can destroy missiles & damage fighters attacking the ship
 		- Evasion: Based on speed, lowers enemy accuracy
+
+- Add ship building
+	- Start with construction ship that can build small ships when stationary
+	- Can get mobile shipyard later to build bigger ships
+	- biggest ships must be built in pieces
+
+- Tech tree
+	- Able to research/acquire techs
+	- Techs allow building new ships, weapons, modules, improving existing ships, etc.
+
 - Endgame/Postgame
 	- Upon winning, two options
 		1. Timewarp back to before homeworld mission, can keep going forever

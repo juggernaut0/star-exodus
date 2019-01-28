@@ -14,6 +14,7 @@ class PlanetView(internal val planet: Planet) {
         val feats = planet.discoveredFeatures
         return List(5) { i -> FeatureView(if (i < feats.size) feats[i] else null) }
     }
+    val isExplored get() = planet.exploration == 100
 
     val tradable get() = planet.tradable
 

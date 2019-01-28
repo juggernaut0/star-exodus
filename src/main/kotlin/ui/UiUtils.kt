@@ -6,6 +6,7 @@ import game.StarSequence
 import game.StarSystem
 
 // Bootstrap button
+fun bsBtn(type: String) = listOf("btn", "btn-$type")
 fun bsBtnBlock(type: String) = listOf("btn", "btn-$type", "btn-block")
 fun bsBtnOutline(type: String) = listOf("btn", "btn-outline-$type")
 
