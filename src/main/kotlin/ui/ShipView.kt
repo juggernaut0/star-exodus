@@ -22,7 +22,7 @@ class ShipView(internal val ship: Ship) {
     val explorers get() = ship.explorers
     val exploring get() = ship.exploring?.name?.let { "$it ($explorers explorers)" } ?: "None"
 
-    val mining get() = ship.mining?.run { "${resource.name.toTitleCase()} on ${planet.name}" } ?: "None"
+    val mining get() = ship.mining?.let { "${it.resource.name.toTitleCase()} (${ship.miningYield(it)}) on ${it.planet.name}" } ?: "None"
 
     @JsName("miningYield")
     fun miningYield(planet: PlanetView?, resource: InventoryItem?): String {

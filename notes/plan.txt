@@ -44,13 +44,11 @@ star exodus notes
 	- resource gathering over time happens automatically (don't need to manually assign ships)
 
 - QoL changes
-	- Allow setting exploration from planet details screen
-	- Move day counter and Next Day button to outside tabs (visible from all screens)
+	- Move day counter and Next Day button to outside tabs (visible from all screens) - DONE
 	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
-	- Disallow exploring already explored planets
+	- Disallow exploring already explored planets - DONE
 	- Alerts on ship detail panel for low fuel, food, etc.
 	- Show available cargo space of selected ship on trade panel
-	- Condense resource gather logs to single set of messages for whole fleet, not per ship
 	- Set limits on how much fuel/ore/food to gather
 	- Add "resource focus" to focus on fuel or food gathering
 	- Auto-supply: limit food to half of cargo space

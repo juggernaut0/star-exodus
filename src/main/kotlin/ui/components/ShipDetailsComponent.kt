@@ -53,13 +53,13 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                 p { +"Food consumption: ${ship.foodCons} / day" }
                 if (ship.foodProd > 0) p { +"Food production: ${ship.foodProd} / day" }
                 p {
-                    +"Fuel consumption: ${ship.ship.fuelConsumption.toPrecision(3)} / distance unit"
+                    +"Fuel consumption: ${ship.ship.fuelConsumption.toPrecision(3)} / ly"
                     requiredFuel()?.let {
                         +" ($it required for next jump)"
                     }
                 }
                 p { +"Exploring: ${ship.exploring}" }
-                p { +"Mining: ${ship.mining} "}
+                p { +"Gathering: ${ship.mining} "}
                 div(classes("btn-group")) {
                     button(Props(classes = bsBtnOutline("primary"),
                             attrs = bsModalToggle("shipRenameModal"),

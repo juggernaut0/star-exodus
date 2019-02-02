@@ -15,7 +15,7 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
 
     private fun autoSupply() {
         gameService.game.fleet.autoSupply()
-        render()
+        gameService.invokeFleetUpdate()
     }
 
     private fun openShipDetail(shipView: ShipView) {

@@ -15,7 +15,6 @@ class GameService : EventEmitter<GameService>() {
     val onReady = oneTimeEvent<GameService, Unit>()
     val onFleetUpdate = event<GameService, Unit>()
 
-    // TODO don't pass 'this' as param
     val eventLog = EventLog(this)
 
     lateinit var currentSystem: StarView

@@ -1,5 +1,6 @@
 package ui.components
 
+import game.InventoryItem
 import kui.Component
 import kui.Props
 import kui.classes
@@ -8,6 +9,33 @@ import ui.*
 class GlobalDisplayPanel(private val gameService: GameService) : Component() {
     init {
         gameService.game.onTurn += { _, _ -> render() }
+        gameService.onFleetUpdate += { _, _ -> render() }
+    }
+
+    private fun total(item: InventoryItem) = gameService.game.fleet.ships.sumBy { it.inventory[item] }
+    private fun gathering(item: InventoryItem): Int {
+        return gameService.game.fleet.ships
+                .asSequence()
+                .filter { it.mining?.resource == item }
+                .sumBy { it.miningYield(it.mining!!) }
+    }
+    private fun foodProduction(): Int {
+        return gathering(InventoryItem.FOOD) + gameService.game.fleet.ships.sumBy { it.shipClass.foodProduction }
+    }
+    private fun foodConsumption(): Int {
+        return gameService.game.fleet.ships.sumBy { it.foodConsumption }
+    }
+    private fun daysOfFood(): Int {
+        return gameService.game.fleet.ships
+                .asSequence()
+                .map { it.inventory[InventoryItem.FOOD] / it.foodConsumption }
+                .min() ?: 0
+    }
+    private fun distanceOfFuel(): Int {
+        return gameService.game.fleet.ships
+                .asSequence()
+                .map { it.inventory[InventoryItem.FUEL] / it.fuelConsumption }
+                .min()?.toInt() ?: 0
     }
 
     override fun render() {
@@ -42,6 +70,14 @@ class GlobalDisplayPanel(private val gameService: GameService) : Component() {
                             +"Clear Saved Game"
                         }
                     }
+                }
+            }
+            row {
+                col6 {
+                    +"Food: ${total(InventoryItem.FOOD)} (+${foodProduction()}/-${foodConsumption()}) $EM ${daysOfFood()} days"
+                }
+                col6 {
+                    +"Fuel: ${total(InventoryItem.FUEL)} (+${gathering(InventoryItem.FUEL)}) $EM ${distanceOfFuel()} ly"
                 }
             }
             component(Modal("clearSaveModal", "Clear Saved Game", danger = true, ok = { gameService.clearSavedGame() })) {

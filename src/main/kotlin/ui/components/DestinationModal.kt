@@ -28,7 +28,7 @@ class DestinationModal(private val gameService: GameService) : Component() {
                     row {
                         colMd4 { +star.type }
                         colMd4 { +"${star.planets.size} planets" }
-                        colMd4 { +"Distance: ${star.distance}" }
+                        colMd4 { +"Distance: ${star.distance} ly" }
                     }
                 }
             }

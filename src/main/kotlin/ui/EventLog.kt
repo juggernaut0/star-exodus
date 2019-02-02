@@ -40,7 +40,7 @@ class EventLog(gameService: GameService) : EventEmitter<EventLog>() {
         registerPlanetListeners(game.fleet.currentLocation)
 
         for (ship in game.fleet.ships) {
-            ship.onMine += { sender, args -> log("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
+            //ship.onMine += { sender, args -> log("${sender.name} has gathered ${args.amount} ${args.resource.name.toTitleCase()} from ${args.planet.name}.") }
             ship.onRepair += { sender, amt -> log("${sender.name} has repaired for $amt hull points.") }
             ship.onBirth += { sender, amt ->
                 val pl = if (amt == 1) " has" else "s have"
