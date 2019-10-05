@@ -5,16 +5,19 @@ buildscript {
     ext.kotlin_version = '1.3.50'
 
     repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
     }
 }
 
 apply plugin: 'kotlin2js'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.moowork.node'
 
 repositories {
     mavenLocal()
@@ -69,39 +72,32 @@ assemble.dependsOn assembleWeb
 assemble.dependsOn copyStaticWeb
 assemble.dependsOn copyResources
 
-task assembleTestWeb(type: Sync, dependsOn: testClasses) {
-    configurations.testCompile.each { File file ->
-        from(zipTree(file.absolutePath), {
-            includeEmptyDirs = false
-            include { fileTreeElement ->
-                def path = fileTreeElement.path
-                path.endsWith(".js")
-            }
-        })
-    }
-
-    from compileKotlin2Js.destinationDir
-    from compileTestKotlin2Js.destinationDir
-    include '**/*.js'
-    includeEmptyDirs false
-    into "${projectDir}/testOut/js"
-}
-
-task copyTestStaticWeb(type: Copy, dependsOn: assembleTestWeb) {
-    from 'web'
-    into 'testOut'
-}
-
-test.dependsOn copyTestStaticWeb
-
-test {
-    doLast {
-        exec {
-            commandLine "phantomjs", "testRunner/runner-list.js", "testOut/test.html"
-        }
-    }
-}
-
-/*[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+[compileKotlin2Js, compileTestKotlin2Js]*.configure {
     kotlinOptions.moduleKind = "umd"
-}*/
+}
+
+task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+    from compileKotlin2Js.destinationDir
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    into "${buildDir}/node_modules"
+}
+
+node {
+    download = true
+}
+
+task installJest(type: NpmTask) {
+    args = ['install', 'jest']
+    outputs.dir("${projectDir}/node_modules")
+}
+
+task runJest(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installJest]) {
+    script = file('node_modules/jest/bin/jest.js')
+    args = [projectDir.toURI().relativize(compileTestKotlin2Js.outputFile.toURI())]
+}
+
+test.dependsOn runJest

@@ -4,3 +4,4 @@ out/
 testOut/
 .idea/
 /*.iml
+node_modules
