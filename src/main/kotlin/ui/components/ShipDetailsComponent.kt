@@ -94,23 +94,29 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                 }
 
                 component(Modal("shipRenameModal", "Rename Ship", ok = { rename(ship) })) {
-                    label {
-                        +"New Name"
-                        inputText(classes("form-control"), ::newName)
+                    slot(Unit) {
+                        label {
+                            +"New Name"
+                            inputText(classes("form-control"), model = ::newName)
+                        }
                     }
                 }
 
                 component(Modal("shipExploreModal", "Explore Planet", ok = { setExplore(ship) })) {
-                    p { +"This ship can send ${ship.explorers} explorers." }
-                    label {
-                        +"Planet"
-                        val exploreTargets = gameService.currentSystem.planets.filterNot { it.isExplored }
-                        select(classes("form-control"), exploreTargets, model = ::exploreTarget, nullOption = "None")
+                    slot(Unit) {
+                        p { +"This ship can send ${ship.explorers} explorers." }
+                        label {
+                            +"Planet"
+                            val exploreTargets = gameService.currentSystem.planets.filterNot { it.isExplored }
+                            select(classes("form-control"), exploreTargets, model = ::exploreTarget, nullOption = "None")
+                        }
                     }
                 }
 
                 component(Modal("shipAbandonModal", "Abandon Ship", danger = true, ok = { abandon(ship) })) {
-                    +"You will lose this ship forever. Are you sure?"
+                    slot(Unit) {
+                        +"You will lose this ship forever. Are you sure?"
+                    }
                 }
             } else {
                 p { +"Select a ship to view details." }

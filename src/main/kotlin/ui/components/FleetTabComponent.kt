@@ -104,7 +104,9 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
 
             val destinationModal = DestinationModal(gameService)
             component(Modal("destinationModal", "Select Destination", large = true, ok = { destinationModal.setDestination(); render() })) {
-                component(destinationModal)
+                slot(Unit) {
+                    component(destinationModal)
+                }
             }
         }
     }

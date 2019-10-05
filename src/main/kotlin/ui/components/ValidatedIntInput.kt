@@ -22,7 +22,7 @@ class ValidatedIntInput(private val range: IntRange, private val prop: KMutableP
     private var classes = if (prop.get() in range) VALID_CLASSES else INVALID_CLASSES
 
     override fun render() {
-        markup().inputNumber(Props(classes = classes), ::value)
+        markup().inputNumber(Props(classes = classes), model = ::value)
     }
 
     companion object {

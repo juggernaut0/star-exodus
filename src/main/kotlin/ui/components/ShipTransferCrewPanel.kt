@@ -28,7 +28,7 @@ class ShipTransferCrewPanel(private val gameService: GameService, private val se
             }
             label(classes("w-100")) {
                 +"Amount"
-                inputNumber(classes("form-control"), ::amount)
+                inputNumber(classes("form-control"), model = ::amount)
             }
             button(Props(classes = listOf("btn", "btn-primary", "mt-2"), click = ::transferCrew)) { +"Transfer" }
         }

@@ -81,7 +81,9 @@ class GlobalDisplayPanel(private val gameService: GameService) : Component() {
                 }
             }
             component(Modal("clearSaveModal", "Clear Saved Game", danger = true, ok = { gameService.clearSavedGame() })) {
-                +"This will erase your saved game. Are you sure?"
+                slot(Unit) {
+                    +"This will erase your saved game. Are you sure?"
+                }
             }
         }
     }

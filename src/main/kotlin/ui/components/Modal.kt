@@ -9,7 +9,7 @@ class Modal(private val id: String,
             large: Boolean = false,
             private val danger: Boolean = false,
             private val ok: (() -> Unit)? = null
-) : Component() {
+) : SlottedComponent<Unit>() {
     private val dialogClasses = if (large) classes("modal-dialog", "modal-lg") else classes("modal-dialog")
 
     fun show() {
@@ -30,7 +30,7 @@ class Modal(private val id: String,
                         button(Props(classes = listOf("close"), click = { hide() })) { +CLOSE }
                     }
                     div(classes("modal-body")) {
-                        renderInner()
+                        slot(Unit)
                     }
                     div(classes("modal-footer")) {
                         button(Props(classes = listOf("btn", "btn-secondary"), click = { hide() })) { +"Cancel" }
