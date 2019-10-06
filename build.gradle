@@ -38,7 +38,6 @@ jar.enabled = false
 
 clean {
     delete 'out'
-    delete 'testOut'
 }
 
 task assembleWeb(type: Copy, dependsOn: classes) {

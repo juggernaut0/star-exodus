@@ -47,7 +47,7 @@ star exodus notes
 	- Move day counter and Next Day button to outside tabs (visible from all screens) - DONE
 	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
 	- Disallow exploring already explored planets - DONE
-	- Alerts on ship detail panel for low fuel, food, etc.
+	- Alerts on ship detail panel for low fuel, food, etc. - DONE
 	- Show available cargo space of selected ship on trade panel
 	- Set limits on how much fuel/ore/food to gather
 	- Add "resource focus" to focus on fuel or food gathering
@@ -68,23 +68,26 @@ star exodus notes
 			- Retreat (move back a zone with an evade bonus)
 			- Intercept (Interfere/disable enemy tactics)
 			- Blockade (prevent enemy movement)
+			- Advance (move forward a zone)
 		- Special equipment & weapons can provide unique tactics
-		- Select actions for all ships, when all are ready, all actions are executed at once, ordering determined by ship speed
-	- Range: 5 "zones" where ships can be
-		- Each side has long and mid range zones, and share a close range zone
+		- HOLD: Select actions for all ships, when all are ready, all actions are executed at once, ordering determined by ship speed
+		- Select and execute actions one at a time, cycling through all units, D:OS style
+	- Range: 7 "zones" where ships can be
+		- Each side has long, mid, and short range zones, and share a no-mans land
 		- Moving between zones is an affect of a tactic
-		- Moving out of a zone occupied by enemies evokes a penalty (similar to attack of opportunity)
+		- Moving out of a zone occupied by enemies evokes a penalty (similar to attack of opportunity) (tactics can prevent this)
 	- Weapons
 		- Determines what happens when an offensive tactic is used
 		- Attributes:
 			- Damage: Damage per shot
 			- Salvo: How many shots in an attack
-			- Tracking: How easily weapon can hit fast targets
+			- Tracking: Partially negates enemy evasion
 			- Accuracy: Hit chance at various ranges
 		- Hit chance based on tracking vs enemy evasion. accuracy vs enemy range
 	- Defenses
 		- Hull points: When this reaches 0, ship is destroyed. Must be repaired after combat
 		- Armor: Damage reduction to hull points. Can be reduced/removed
+			- Flat or percent reduction? Both?
 		- Shields: Bonus "health." Does not benefit from armor. Regenerates automatically after combat
 		- Point defense: Can destroy missiles & damage fighters attacking the ship
 		- Evasion: Based on speed, lowers enemy accuracy

@@ -28,8 +28,8 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
     private fun shipRowClass(shipView: ShipView) = when {
         shipView == shipDetailsComponent.selectedShip -> selectedRow
         shipView.ship.crew < shipView.ship.minCrew -> dangerRow
-        shipView.lowFood(1) || shipView.lowFuel(targetDist() ?: 80) -> dangerRow
-        shipView.lowFood(3) || shipView.lowFuel(400) -> warningRow
+        shipView.isCriticalFood || shipView.lowFuel(targetDist() ?: 80) -> dangerRow
+        shipView.isLowFood || shipView.isLowFuel -> warningRow
         else -> defaultRow
     }
 

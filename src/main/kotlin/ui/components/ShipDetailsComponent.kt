@@ -50,6 +50,21 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
                     +"${ship.name} "
                     small(classes("text-muted")) { +ship.shipClass }
                 }
+
+                if (ship.ship.crew < ship.ship.minCrew) {
+                    p(classes("text-danger")) { +"$WARNING_SIGN Missing crew" }
+                }
+                if (ship.isCriticalFood) {
+                    p(classes("text-danger")) { +"$WARNING_SIGN Critical food supply" }
+                } else if (ship.isLowFood) {
+                    p(classes("text-warning")) { +"$WARNING_SIGN Low food supply" }
+                }
+                if (ship.lowFuel(gameService.game.fleet.ftlTargetDestination?.distance ?: 80)) {
+                    p(classes("text-danger")) { +"$WARNING_SIGN Not enough fuel to jump" }
+                } else if (ship.isLowFuel) {
+                    p(classes("text-warning")) { +"$WARNING_SIGN Low fuel supply" }
+                }
+
                 p { +"Food consumption: ${ship.foodCons} / day" }
                 if (ship.foodProd > 0) p { +"Food production: ${ship.foodProd} / day" }
                 p {

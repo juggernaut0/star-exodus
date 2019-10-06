@@ -18,6 +18,9 @@ class ShipView(internal val ship: Ship) {
 
     fun lowFood(days: Int) = ship.inventory[InventoryItem.FOOD] < ship.foodConsumption * days
     fun lowFuel(distance: Int) = ship.inventory[InventoryItem.FUEL] < ship.fuelConsumption(distance)
+    val isLowFood get() = lowFood(3)
+    val isCriticalFood get() = lowFood(1)
+    val isLowFuel get() = lowFuel(400)
 
     val explorers get() = ship.explorers
     val exploring get() = ship.exploring?.name?.let { "$it ($explorers explorers)" } ?: "None"

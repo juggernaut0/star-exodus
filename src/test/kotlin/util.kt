@@ -5,7 +5,7 @@ class ExtsTest {
     @Test
     fun scan() {
         val expected = listOf(0, 1, 3, 6, 10, 15)
-        val actual = (1..5).toList().scan(0, { a, b -> a + b})
+        val actual = (1..5).toList().scan(0) { a, b -> a + b }
         assertEquals(expected, actual)
     }
 }

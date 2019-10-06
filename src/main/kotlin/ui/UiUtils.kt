@@ -18,6 +18,7 @@ fun bsCollapseToggle(target: String, parent: String): Map<String, String> {
 
 const val CLOSE = "\u00d7"
 const val EM = "\u2014"
+const val WARNING_SIGN = "\u26A0"
 
 fun Ship.toView(): ShipView = ShipView(this)
 fun StarSystem.toView() = StarView(this)
