@@ -48,10 +48,10 @@ star exodus notes
 	- Overview screens (cargo of all ships, net resource consumption & gathering, exploration)
 	- Disallow exploring already explored planets - DONE
 	- Alerts on ship detail panel for low fuel, food, etc. - DONE
-	- Show available cargo space of selected ship on trade panel
+	- Show available cargo space of selected ship on trade panel - DONE
 	- Set limits on how much fuel/ore/food to gather
-	- Add "resource focus" to focus on fuel or food gathering
-	- Auto-supply: limit food to half of cargo space
+	- Add "resource focus" to focus on fuel or food gathering - DONE
+	- Auto-supply: limit food to half of cargo space - DONE
 
 - Combat
 	- Divide fleet into "Battlegroups"

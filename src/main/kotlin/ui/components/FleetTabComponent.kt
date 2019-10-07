@@ -1,9 +1,11 @@
 package ui.components
 
+import game.Fleet
 import kui.Component
 import kui.Props
 import kui.classes
 import ui.*
+import util.toTitleCase
 
 class FleetTabComponent(private val gameService: GameService) : Component() {
     private val shipDetailsComponent = ShipDetailsComponent(gameService)
@@ -63,6 +65,20 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
                     )) { +"Cancel FTL" }
                 }
                 button(Props(classes = listOf("btn", "btn-primary"), click = ::autoSupply)) { +"Auto-Supply Fleet" }
+                button(Props(
+                        classes = listOf("btn", "btn-primary", "dropdown-toggle"),
+                        attrs = mapOf("data-toggle" to "dropdown")
+                )) {
+                    +"Gather Focus: ${fleetView.gatherFocus}"
+                }
+                div(classes("dropdown-menu")) {
+                    for (gf in Fleet.GatherFocus.values()) {
+                        a(Props(
+                                classes = listOf("dropdown-item"),
+                                click = { gameService.game.fleet.gatherFocus = gf }
+                        )) { +gf.name.toTitleCase() }
+                    }
+                }
             }
             row {
                 colMd4 { +"Ships: ${fleetView.ships.size}" }

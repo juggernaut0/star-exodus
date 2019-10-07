@@ -15,6 +15,7 @@ class Fleet(
         private var ftlTargetIndex: Int? = null, // only set when warming up
         private var ftlWarmupProgress: Int = 0,
         private var ftlCooldownProgress: Int = 0,
+        var gatherFocus: GatherFocus = GatherFocus.NONE,
         private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf()
 ) : EventEmitter<Fleet>() {
     private val _ships = ships.toMutableList()
@@ -119,7 +120,7 @@ class Fleet(
     }
 
     fun startFtl(destIndex: Int) {
-        if (!isFtlReady) throw IllegalStateException("Cannot start FTL if not ready")
+        check(isFtlReady) { "Cannot start FTL if not ready" }
         if (destIndex !in galaxy.main.next.indices) throw IndexOutOfBoundsException()
         ftlTargetIndex = destIndex
         ftlWarmupProgress = FTL_WARMUP
@@ -139,6 +140,10 @@ class Fleet(
     }
 
     private fun gatherResources() {
+        val foodMult = if (gatherFocus == GatherFocus.FOOD) FOCUS_MUTLIPLIER else 1
+        val oreMult = if (gatherFocus == GatherFocus.ORE) FOCUS_MUTLIPLIER else 1
+        val fuelMult = if (gatherFocus == GatherFocus.FUEL) FOCUS_MUTLIPLIER else 1
+
         // match ships to best planet
         for (ship in ships) {
             currentLocation.planets
@@ -148,9 +153,9 @@ class Fleet(
                         val ore = Ship.MiningTarget(it, InventoryItem.METAL_ORE)
                         val fuel = Ship.MiningTarget(it, InventoryItem.FUEL)
 
-                        val foodYield = ship.miningYield(food)
-                        val oreYield = ship.miningYield(ore)
-                        val fuelYield = ship.miningYield(fuel)
+                        val foodYield = ship.miningYield(food) * foodMult
+                        val oreYield = ship.miningYield(ore) * oreMult
+                        val fuelYield = ship.miningYield(fuel) * fuelMult
 
                         sequenceOf(food to foodYield, ore to oreYield, fuel to fuelYield)
                                 .filter { (_, y) -> y > 0 }
@@ -163,16 +168,16 @@ class Fleet(
 
     fun autoSupply() {
         autoSupply(InventoryItem.FUEL) { it.fuelConsumption(400) }
-        autoSupply(InventoryItem.FOOD) { it.foodConsumption }
+        autoSupply(InventoryItem.FOOD, capFn = { it.inventory.capacity / 2 }) { it.foodConsumption }
     }
 
-    private fun autoSupply(item: InventoryItem, consFn: (Ship) -> Int) {
+    private fun autoSupply(item: InventoryItem, capFn: (Ship) -> Int = { it.inventory.capacity }, consFn: (Ship) -> Int) {
         val total = ships.sumBy { it.inventory[item] }
         val totalCons = ships.sumBy(consFn)
 
         val days = ceil(total.toDouble() / totalCons).toInt()
 
-        fun shipsToSurplus() = ships.asSequence().map{ it to it.inventory[item] - consFn(it) * days }
+        fun shipsToSurplus() = ships.asSequence().map{ it to it.inventory[item] - (consFn(it) * days).coerceAtMost(capFn(it)) }
         fun has() = shipsToSurplus().find { it.second > 0 }
         fun needs() = shipsToSurplus().find { it.second < 0 && it.first.inventory.freeSpace > 0 }
 
@@ -187,12 +192,12 @@ class Fleet(
     }
 
     internal fun startCombat() {
-        if (blockedState != null) throw IllegalStateException("Cannot start combat when blocked")
+        check(blockedState == null) { "Cannot start combat when blocked" }
         blockedState = BlockedState.Combat() // TODO combat strength
     }
 
     internal fun setHailed(hailed: BlockedState.Hailed) {
-        if (blockedState != null) throw IllegalStateException("Cannot be hailed when blocked")
+        check(blockedState == null) { "Cannot be hailed when blocked" }
         blockedState = hailed
     }
 
@@ -209,6 +214,8 @@ class Fleet(
         // Days to warmup FTL
         private const val FTL_WARMUP = 4
         private const val FTL_COOLDOWN_FACTOR = 1.5
+
+        private const val FOCUS_MUTLIPLIER = 3
 
         operator fun invoke(numShips: Int): Fleet {
             val home = WeightedList(
@@ -281,7 +288,8 @@ class Fleet(
                 val galaxy: Galaxy.Serial.Data,
                 val ftlTargetIndex: Int?,
                 val ftlWarmupProgress: Int,
-                val ftlCooldownProgress: Int
+                val ftlCooldownProgress: Int,
+                val gatherFocus: GatherFocus
         )
 
         override fun save(model: Fleet, refs: RefSaver): Data {
@@ -290,7 +298,8 @@ class Fleet(
                     Galaxy.Serial.save(model.galaxy, refs),
                     model.ftlTargetIndex,
                     model.ftlWarmupProgress,
-                    model.ftlCooldownProgress
+                    model.ftlCooldownProgress,
+                    model.gatherFocus
             )
         }
 
@@ -300,10 +309,18 @@ class Fleet(
                     Galaxy.Serial.load(data.galaxy, refs),
                     data.ftlTargetIndex,
                     data.ftlWarmupProgress,
-                    data.ftlCooldownProgress
+                    data.ftlCooldownProgress,
+                    data.gatherFocus
             )
         }
     }
 
     class ArriveEventArgs(val star: StarSystem, val arrivalEvent: SystemArrivalEvent)
+
+    enum class GatherFocus {
+        NONE,
+        FUEL,
+        FOOD,
+        ORE
+    }
 }

@@ -74,6 +74,7 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
                     }
                 }
                 col6 {
+                    p(classes("mt-2")) { +"Cargo space: ${tradeShip.cargo}" }
                     table(classes("table", "table-sm")) {
                         for (item in shipInventory) {
                             tr {

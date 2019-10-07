@@ -17,7 +17,7 @@ class ExodusGame(val fleet: Fleet, day: Int) : EventEmitter<ExodusGame>() {
     val inCombat get() = fleet.blockedState is BlockedState.Combat
 
     fun nextDay(){
-        if (!canNextDay()) throw IllegalStateException("Cannot advance when in combat")
+        check(canNextDay()) { "Cannot advance when in combat" }
 
         day += 1
 
