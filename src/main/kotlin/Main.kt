@@ -9,11 +9,12 @@ import kotlin.js.Promise
 
 fun main() {
     // Don't run main in test
-    if (window.asDynamic().test != undefined) return
+    @Suppress("UnsafeCastFromDynamic")
+    if (jsTypeOf(js("process")) !== "undefined" && js("process").env.NODE_ENV == "test") return
 
     val svc = GameService().loadOrCreate(object : HttpClient {
         override fun get(url: String): Promise<String> {
-            return jQuery.get(url)
+            return window.fetch(url).then { it.text() }.unsafeCast<Promise<String>>()
         }
     })
     svc.onReady += { _, _ ->
