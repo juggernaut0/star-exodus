@@ -4,7 +4,7 @@ import game.Fleet
 import util.toTitleCase
 
 class FleetView(fleet: Fleet) {
-    val ships = fleet.ships.map { ShipView(it) }.toTypedArray()
+    val numShips = fleet.ships.count()
     val totalPopulation = fleet.ships.sumBy { it.crew }
     val speed = fleet.speed
     val isFtlReady = fleet.isFtlReady

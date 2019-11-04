@@ -58,7 +58,7 @@ class PlanetTradePanel(private val gameService: GameService, private var planet:
                     h6 { +"Planet Inventory" }
                 }
                 col6 {
-                    select(classes("form-control"), gameService.game.fleet.ships.map { ShipView(it) }, ::tradeShip)
+                    select(classes("form-control"), gameService.game.fleet.ships.map { ShipView(it) }.toList(), ::tradeShip)
                 }
             }
             row {

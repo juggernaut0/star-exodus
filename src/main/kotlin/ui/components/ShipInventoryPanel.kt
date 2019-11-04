@@ -37,7 +37,7 @@ class ShipInventoryPanel(private val gameService: GameService, private val selec
             h6 { +"Transfer" }
             label(classes("w-100")) {
                 +"Transfer To"
-                select(classes("form-control"), gameService.game.fleet.ships.filter { it != selectedShip.ship }.map { ShipView(it) }, "", ::target)
+                select(classes("form-control"), gameService.game.fleet.ships.filter { it != selectedShip.ship }.map { ShipView(it) }.toList(), "", ::target)
             }
             row {
                 colMd6 {

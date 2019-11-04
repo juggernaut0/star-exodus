@@ -81,7 +81,7 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
                 }
             }
             row {
-                colMd4 { +"Ships: ${fleetView.ships.size}" }
+                colMd4 { +"Ships: ${fleetView.numShips}" }
                 colMd4 { +"Population: ${fleetView.totalPopulation}" }
                 colMd4 { +"Speed: ${fleetView.speed}" }
             }
@@ -97,21 +97,29 @@ class FleetTabComponent(private val gameService: GameService) : Component() {
             }
             row {
                 colMd3 {
-                    div(classes("list-group")) {
-                        for (ship in fleetView.ships.sortedBy { it.name }) {
-                            button(Props(classes = shipRowClass(ship), click = { openShipDetail(ship) })) {
-                                h5 {
-                                    +ship.name
-                                    small(classes("ml-2")) { +ship.shipClass }
-                                }
-                                row {
-                                    // TODO icons?
-                                    col6 { +"HP: ${ship.hull}" }
-                                    col6 { +"Crew: ${ship.crew}" }
+                    for (group in gameService.game.fleet.groups) {
+                        div(classes("card", "mb-2")) {
+                            div(classes("card-header")) {
+                                h5 { +group.name }
+                            }
+                            div(classes("list-group", "list-group-flush")) {
+                                for (ship in group.ships.sortedBy { it.name }.map { ShipView(it) }) {
+                                    button(Props(classes = shipRowClass(ship), click = { openShipDetail(ship) })) {
+                                        h5 {
+                                            +ship.name
+                                            small(classes("ml-2")) { +ship.shipClass }
+                                        }
+                                        row {
+                                            // TODO icons?
+                                            col6 { +"HP: ${ship.hull}" }
+                                            col6 { +"Crew: ${ship.crew}" }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+
                 }
                 colMd9 {
                     component(shipDetailsComponent)

@@ -24,7 +24,13 @@ class ShipTransferCrewPanel(private val gameService: GameService, private val se
             h5(classes("card-title")) { +"Transfer Crew" }
             label(classes("w-100")) {
                 +"Transfer To"
-                select(classes("form-control"), gameService.game.fleet.ships.filter { it != selectedShip.ship }.map { ShipView(it) }, "", ::target)
+                select(classes("form-control"),
+                        options = gameService.game.fleet.ships
+                                .filter { it != selectedShip.ship }
+                                .map { ShipView(it) }
+                                .toList(),
+                        nullOption = "",
+                        model = ::target)
             }
             label(classes("w-100")) {
                 +"Amount"

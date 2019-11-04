@@ -10,7 +10,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class Fleet(
-        ships: Collection<Ship>,
+        groups: List<BattleGroup>,
         private val galaxy: Galaxy,
         private var ftlTargetIndex: Int? = null, // only set when warming up
         private var ftlWarmupProgress: Int = 0,
@@ -18,8 +18,9 @@ class Fleet(
         var gatherFocus: GatherFocus = GatherFocus.NONE,
         private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf()
 ) : EventEmitter<Fleet>() {
-    private val _ships = ships.toMutableList()
-    val ships: Collection<Ship> get() = _ships
+    private val _groups = groups.toMutableList()
+    val groups: List<BattleGroup> get() = _groups
+    val ships: Sequence<Ship> get() = groups.asSequence().flatMap { it.ships.asSequence() }
 
     val currentLocation get() = galaxy.main.current
     val destinations get() = galaxy.main.next
@@ -89,16 +90,24 @@ class Fleet(
         gatherResources()
     }
 
+    private fun Ship.findGroup(): BattleGroup = groups.find { this in it.ships }!!
+
     fun abandonShip(ship: Ship) {
-        _ships.remove(ship)
+        ship.findGroup().abandonShip(ship)
     }
 
     private fun abandonUncrewed() {
-        val uncrewed = _ships.filter { it.crew < it.shipClass.minCrew }
-        var remaining = uncrewed.sumBy { it.crew }
-        _ships.removeAll(uncrewed)
+        val allShips = ships.toMutableList()
+        val uncrewed = allShips.filter { it.crew < it.shipClass.minCrew }
+        if (uncrewed.isEmpty()) return
 
-        val notFull = _ships.filter { it.crew < it.shipClass.maxCrew }.toMutableList()
+        for (ship in uncrewed) {
+            abandonShip(ship)
+        }
+        allShips.removeAll(uncrewed)
+
+        val notFull = allShips.filterTo(mutableListOf()) { it.crew < it.shipClass.maxCrew }
+        var remaining = uncrewed.sumBy { it.crew }
         while (remaining > 0) {
             if (notFull.size == 0) break
 
@@ -265,26 +274,28 @@ class Fleet(
             val numEscort = ((numShips - 2) * Random.range(0.2, 0.5)).roundToInt()
             val numCivilian = numShips - 2 - numEscort
 
-            val classes = listOf(
-                    Random.choice(home),
-                    Random.choice(capital),
-                    *Random.sample(escort, numEscort).toTypedArray(),
-                    *Random.sample(civilian, numCivilian).toTypedArray()
+            val shipNames = Deque(Random.sample(ExodusGame.resources.getShipNames(), numShips).shuffled())
+
+            val capitalShip = Ship(shipNames.popFront(), Random.choice(capital))
+            val escortShips = Random.sample(escort, numEscort).map { Ship(shipNames.popFront(), it) }
+            val homeShip = Ship(shipNames.popFront(), Random.choice(home))
+            val civilianShips = Random.sample(civilian, numCivilian).mapTo(mutableListOf()) { Ship(shipNames.popFront(), it) }
+            civilianShips.add(homeShip)
+
+            val groups = listOf(
+                    BattleGroup("Capital Ships", listOf(capitalShip)),
+                    BattleGroup("Escorts", escortShips),
+                    BattleGroup("Civilians", civilianShips)
             )
 
-            val shipNames = ExodusGame.resources.getShipNames()
-            val ships = Random.sample(shipNames, numShips)
-                    .zip(classes)
-                    .mapTo(mutableListOf()) { (name, cls) -> Ship(name, cls) }
-
-            return Fleet(ships, Galaxy())
+            return Fleet(groups, Galaxy())
         }
     }
 
     object Serial : Serializer<Fleet, Serial.Data> {
         @Serializable
         class Data(
-                val ships: List<Int>,
+                val groups: List<BattleGroup.Serial.Data>,
                 val galaxy: Galaxy.Serial.Data,
                 val ftlTargetIndex: Int?,
                 val ftlWarmupProgress: Int,
@@ -294,7 +305,7 @@ class Fleet(
 
         override fun save(model: Fleet, refs: RefSaver): Data {
             return Data(
-                    model.ships.map { refs.saveShipRef(it) },
+                    model.groups.map { BattleGroup.Serial.save(it, refs) },
                     Galaxy.Serial.save(model.galaxy, refs),
                     model.ftlTargetIndex,
                     model.ftlWarmupProgress,
@@ -305,7 +316,7 @@ class Fleet(
 
         override fun load(data: Data, refs: RefLoader): Fleet {
             return Fleet(
-                    data.ships.map { refs.loadShipRef(it) },
+                    data.groups.map { BattleGroup.Serial.load(it, refs) },
                     Galaxy.Serial.load(data.galaxy, refs),
                     data.ftlTargetIndex,
                     data.ftlWarmupProgress,

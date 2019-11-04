@@ -1,6 +1,12 @@
 package util
 
-class Deque<T> : Collection<T> {
+class Deque<T>() : Collection<T> {
+    constructor(itbl: Iterable<T>) : this() {
+        for (it in itbl) {
+            pushFront(it)
+        }
+    }
+
     private class Node<T>(val data: T, var prev : Node<T>? = null, var next: Node<T>? = null)
 
     private var head: Node<T>? = null
