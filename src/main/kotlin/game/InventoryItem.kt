@@ -1,7 +1,5 @@
 package game
 
-import util.toTitleCase
-
 enum class InventoryItem(val value: Int) {
     FOOD(10),
     FUEL(20),

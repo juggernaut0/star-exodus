@@ -72,7 +72,9 @@ assemble.dependsOn copyStaticWeb
 assemble.dependsOn copyResources
 
 [compileKotlin2Js, compileTestKotlin2Js]*.configure {
-    kotlinOptions.moduleKind = "umd"
+    kotlinOptions {
+        moduleKind = "umd"
+    }
 }
 
 task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {

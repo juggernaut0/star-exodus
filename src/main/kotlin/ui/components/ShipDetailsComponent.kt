@@ -92,19 +92,17 @@ class ShipDetailsComponent(private val gameService: GameService) : Component() {
 
                 div(classes("card", "mt-2")) {
                     div(classes("card-body")) {
-                        component(ShipTransferCrewPanel(gameService, ship))
-                    }
-                }
-
-                div(classes("card", "mt-2")) {
-                    div(classes("card-body")) {
                         component(ShipInventoryPanel(gameService, ship))
                     }
                 }
 
+                if (ship.ship.shipClass.military) {
+                    component(ShipWeaponsPanel(gameService, ship))
+                }
+
                 div(classes("card", "mt-2")) {
                     div(classes("card-body")) {
-                        h5(classes("card-title")) { +"Weapons" } // TODO weapons panel
+                        component(ShipTransferCrewPanel(gameService, ship))
                     }
                 }
 

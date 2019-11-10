@@ -17,7 +17,7 @@ object Random {
 
     fun <T> sample(list: List<T>, count: Int): Set<T> {
         val size = list.size
-        if (count > size) throw IllegalArgumentException("count is greater than size of list")
+        require(count <= size) { "count is greater than size of list" }
 
         val set: HashSet<T>
         if (count < size / 2) {

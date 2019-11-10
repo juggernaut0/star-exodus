@@ -37,22 +37,24 @@ enum class ShipClass(
     // military
     CORVETTE(                "Corvette",                 15,   5,  300, 180,   40, 0, smSlots = 2),
     SCOUT(                   "Scout",                    10,   5,  300, 220,   48, 1, smSlots = 2),
-    DESTROYER(               "Destroyer",                35,  10,  440, 150,  100, 1, smSlots = 2, mdSlots = 1),
+    DESTROYER(               "Destroyer",                35,  10,  440, 150,  100, 1, smSlots = 4),
     TROOP_CARRIER(           "Troop Carrier",           100,  10,  500, 120,   60, 1, smSlots = 2),
-    FRIGATE(                 "Frigate",                  75,  25,  700, 110,  160, 2, smSlots = 3, mdSlots = 1),
-    CRUISER(                 "Cruiser",                 150,  60,  900, 110,  160, 2, smSlots = 4, mdSlots = 2,              hanger =   2),
-    HEAVY_CRUISER(           "Heavy Cruiser",           300, 125, 1200, 100,  200, 3, smSlots = 4, mdSlots = 1, lgSlots = 1, hanger =   5),
-    CARRIER(                 "Carrier",                 250, 125, 1100, 100,  240, 2, smSlots = 1, mdSlots = 1,              hanger =  50),
-    BATTLESHIP(              "Battleship",              500, 250, 1600,  90,  280, 3, smSlots = 4, mdSlots = 2, lgSlots = 1, hanger =  20),
+    FRIGATE(                 "Frigate",                  75,  25,  700, 110,  160, 2, smSlots = 2, mdSlots = 1),
+    CRUISER(                 "Cruiser",                 150,  60,  900, 110,  160, 2, smSlots = 3, mdSlots = 2,              hanger =   2),
+    HEAVY_CRUISER(           "Heavy Cruiser",           300, 125, 1200, 100,  200, 3, smSlots = 4, mdSlots = 3,              hanger =   5),
+    CARRIER(                 "Carrier",                 250, 125, 1100, 100,  240, 2, smSlots = 2, mdSlots = 1,              hanger =  50),
+    BATTLESHIP(              "Battleship",              500, 250, 1600,  90,  280, 3, smSlots = 2, mdSlots = 1, lgSlots = 1, hanger =  20),
     DREADNOUGHT(             "Dreadnought",             800, 400, 2400,  80,  400, 4, smSlots = 5, mdSlots = 3, lgSlots = 1, hanger =  30),
-    FLEET_CARRIER(           "Fleet Carrier",           750, 400, 1800,  75,  480, 4, smSlots = 2, mdSlots = 2,              hanger = 120),
+    FLEET_CARRIER(           "Fleet Carrier",           750, 400, 1800,  75,  480, 4, smSlots = 4, mdSlots = 2,              hanger = 120),
     TITAN(                   "Titan",                  1100, 600, 3600,  60,  600, 5, smSlots = 5, mdSlots = 4, lgSlots = 2, hanger =  50),
     BATTLECARRIER(           "BattleCarrier",          1500, 800, 4800,  60,  640, 5, smSlots = 4, mdSlots = 3, lgSlots = 2, hanger = 100),
-    // strike craft
-    INTERCEPTOR(             "Interceptor",               1,   1,  100,   0,    0, 0, smSlots = 1, hanger = -1),
-    BOMBER(                  "Bomber",                    1,   1,  120,   0,    8, 0, mdSlots = 1, hanger = -1),
-    RAPTOR(                  "Raptor",                    3,   1,  120,  30,   20, 1, smSlots = 1, hanger = -1);
+    // strike craft - TODO
+    DRONE(                   "Drone",                     0,   0,  120,   0,    0, 0, hanger = -2),
+    INTERCEPTOR(             "Interceptor",               1,   1,  100,   0,    0, 0, hanger = -1),
+    BOMBER(                  "Bomber",                    1,   1,  120,   0,    8, 0, smSlots = 1, hanger = -1),
+    RAPTOR(                  "Raptor",                    3,   1,  120,  30,   20, 1, hanger = -1);
 
-    val weaponSlots = mapOf(WeaponType.SMALL to smSlots, WeaponType.MEDIUM to mdSlots, WeaponType.LARGE to lgSlots)
+    private val weaponSlots = mapOf(WeaponType.SMALL to smSlots, WeaponType.MEDIUM to mdSlots, WeaponType.LARGE to lgSlots)
+    fun weaponSlots(type: WeaponType): Int = weaponSlots.getValue(type)
     val military get() = weaponSlots.values.sum() > 0
 }

@@ -35,3 +35,29 @@
 label {
     width: 100%;
 }
+
+.accuracy-box {
+    height: 4em;
+    width: 100%;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 0.25rem;
+}
+
+.accuracy-bar {
+    width: 100%;
+    background-color: #d8edf1;
+    position: absolute;
+    bottom: 0;
+}
+
+.accuracy-bar-label {
+    width: 14.2857%;
+    height: 100%;
+    display: inline-block;
+    position: relative;
+    border-right: 1px solid rgba(0,0,0,.125);
+}
+
+.accuracy-bar-label:last-child {
+    border-right: none;
+}

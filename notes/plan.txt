@@ -54,9 +54,9 @@ star exodus notes
 	- Auto-supply: limit food to half of cargo space - DONE
 
 - Combat
-	- Divide fleet into "Battlegroups"
+	- Divide fleet into "Battlegroups" - DONE
+		- Battle groups act as "units" receiving orders as one
 	- Number of battle groups is capped (research can increase)
-	- Battle groups act as "units" receiving orders as one
 	- Turn based actions
 		- Order determined by "initiative" (speed of slowest ship in group)
 		- Action consists of selecting a "Tactic" and a "Target"
@@ -76,14 +76,22 @@ star exodus notes
 		- Each side has long, mid, and short range zones, and share a no-mans land
 		- Moving between zones is an affect of a tactic
 		- Moving out of a zone occupied by enemies evokes a penalty (similar to attack of opportunity) (tactics can prevent this)
-	- Weapons
+	- Weapons - DONE
 		- Determines what happens when an offensive tactic is used
 		- Attributes:
 			- Damage: Damage per shot
 			- Salvo: How many shots in an attack
-			- Tracking: Partially negates enemy evasion
-			- Accuracy: Hit chance at various ranges
+			- Tracking: Negates enemy evasion. Uses same scale as Speed (200 is "perfect tracking")
+			- Accuracy: Hit chance at various ranges (Treat as "chance to hit non-moving target at X range")
 		- Hit chance based on tracking vs enemy evasion. accuracy vs enemy range
+		- Rules of thumb:
+			- Automatic kinetics: High Salvo, Low damage, Med Accuracy at short range
+			- Railguns: Single shot, High Damage, Good Accuracy
+			- Lasers: High Accuracy at short range, but falls off quickly
+			- Missiles: Med accuracy, but wide range & decent tracking
+			- Turrets: Better tracking
+			- Fixed: More damage, better range
+			- Array: Like smaller counterpart, but much higher salvo
 	- Defenses
 		- Hull points: When this reaches 0, ship is destroyed. Must be repaired after combat
 		- Armor: Damage reduction to hull points. Can be reduced/removed
@@ -91,6 +99,9 @@ star exodus notes
 		- Shields: Bonus "health." Does not benefit from armor. Regenerates automatically after combat
 		- Point defense: Can destroy missiles & damage fighters attacking the ship
 		- Evasion: Based on speed, lowers enemy accuracy
+	- WIP Damage calcs:
+		- Est Damage = Damage * Salvo * Chance to hit * (1 - Armor / (100 + Armor))
+		- Chance to hit = Min(1.0, Tracking / Target Speed) * Accuracy[range]
 
 - Add ship building
 	- Start with construction ship that can build small ships when stationary

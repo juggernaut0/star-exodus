@@ -16,7 +16,8 @@ class Fleet(
         private var ftlWarmupProgress: Int = 0,
         private var ftlCooldownProgress: Int = 0,
         var gatherFocus: GatherFocus = GatherFocus.NONE,
-        private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf()
+        private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf(),
+        private val spareWeapons: Counter<Weapon> = Counter()
 ) : EventEmitter<Fleet>() {
     private val _groups = groups.toMutableList()
     val groups: List<BattleGroup> get() = _groups
@@ -219,6 +220,27 @@ class Fleet(
         timers[event] = days
     }
 
+    fun spareWeapons(type: WeaponType): Set<Weapon> {
+        return spareWeapons.asMap().keys.filterTo(mutableSetOf()) { it.type == type }
+    }
+
+    fun equipWeapon(ship: Ship, weapon: Weapon) {
+        check(spareWeapons[weapon] > 0) { "Cannot equip a weapon that you do not have" }
+        check(ship.weapons.count { it.type == weapon.type } < ship.shipClass.weaponSlots(weapon.type)) {
+            "Ship has no open weapon slots of that type"
+        }
+
+        ship._weapons.add(weapon)
+        spareWeapons[weapon] -= 1
+    }
+
+    fun unequipWeapon(ship: Ship, weapon: Weapon) {
+        check(weapon in ship.weapons) { "Ship does not currently have that weapon equipped" }
+
+        ship._weapons.remove(weapon)
+        spareWeapons[weapon] += 1
+    }
+
     companion object {
         // Days to warmup FTL
         private const val FTL_WARMUP = 4
@@ -300,7 +322,8 @@ class Fleet(
                 val ftlTargetIndex: Int?,
                 val ftlWarmupProgress: Int,
                 val ftlCooldownProgress: Int,
-                val gatherFocus: GatherFocus
+                val gatherFocus: GatherFocus,
+                val spareWeapons: Map<Weapon, Int>
         )
 
         override fun save(model: Fleet, refs: RefSaver): Data {
@@ -310,7 +333,8 @@ class Fleet(
                     model.ftlTargetIndex,
                     model.ftlWarmupProgress,
                     model.ftlCooldownProgress,
-                    model.gatherFocus
+                    model.gatherFocus,
+                    model.spareWeapons.asMap()
             )
         }
 
@@ -321,7 +345,8 @@ class Fleet(
                     data.ftlTargetIndex,
                     data.ftlWarmupProgress,
                     data.ftlCooldownProgress,
-                    data.gatherFocus
+                    data.gatherFocus,
+                    spareWeapons = Counter(data.spareWeapons)
             )
         }
     }

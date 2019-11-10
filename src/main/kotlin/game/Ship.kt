@@ -13,7 +13,8 @@ class Ship(
         hullPoints: Int,
         crew: Int,
         val inventory: Inventory,
-        var exploring: Planet?
+        var exploring: Planet?,
+        weapons: List<Weapon>
 ) : EventEmitter<Ship>() {
     var name: String = name
         private set
@@ -29,6 +30,8 @@ class Ship(
 
     val mass get() = maxCrew/2 + inventory.freeSpace/2 + inventory.usedSpace + shipClass.hanger*2
 
+    val speed get() = shipClass.speed
+
     // fuel per distance unit
     val fuelConsumption get() = sqrt(mass.toDouble()) * FUEL_COEFFICIENT
     // food per turn
@@ -40,6 +43,9 @@ class Ship(
 
     var mining: MiningTarget? = null
         private set
+
+    internal val _weapons: MutableList<Weapon> = weapons.toMutableList()
+    val weapons: List<Weapon> get() = _weapons
 
     val onMine = Event<Ship, MiningEventArgs>().bind(this)
     val onRepair = Event<Ship, Int>().bind(this)
@@ -179,7 +185,13 @@ class Ship(
             val inv = Inventory(shipClass.cargoCapacity)
             inv.addItems(InventoryItem.FUEL, (inv.capacity/4)+5)
             inv.addItems(InventoryItem.FOOD, inv.capacity/5)
-            return Ship(name, shipClass, hull, crew, inv, null)
+
+            fun fillSlots(weaponType: WeaponType) = List(shipClass.weaponSlots(weaponType)) {
+                Random.choice(Weapon.values().filter { it.type == weaponType })
+            }
+            val weapons = fillSlots(WeaponType.SMALL) + fillSlots(WeaponType.MEDIUM) + fillSlots(WeaponType.LARGE)
+
+            return Ship(name, shipClass, hull, crew, inv, null, weapons)
         }
     }
 
@@ -194,7 +206,8 @@ class Ship(
                 val hullPoints: Int,
                 val crew: Int,
                 val inventory: Inventory.Serial.Data,
-                val exploring: Int?
+                val exploring: Int?,
+                val weapons: List<Weapon>
         )
 
         override fun save(model: Ship, refs: RefSaver): Data {
@@ -204,7 +217,8 @@ class Ship(
                     model.hullPoints,
                     model.crew,
                     Inventory.Serial.save(model.inventory, refs),
-                    model.exploring?.let { refs.savePlanetRef(it) }
+                    model.exploring?.let { refs.savePlanetRef(it) },
+                    model.weapons
             )
         }
 
@@ -214,7 +228,8 @@ class Ship(
                     data.hullPoints,
                     data.crew,
                     Inventory.Serial.load(data.inventory, refs),
-                    data.exploring?.let { refs.loadPlanetRef(it) }
+                    data.exploring?.let { refs.loadPlanetRef(it) },
+                    data.weapons
             )
         }
     }

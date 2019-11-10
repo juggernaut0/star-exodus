@@ -1,6 +1,7 @@
 package ui
 
 import game.ExodusGame
+import kotlinx.serialization.SerializationException
 import serialization.JsonSerializer
 import util.*
 import kotlin.browser.window
@@ -38,7 +39,12 @@ class GameService : EventEmitter<GameService>() {
             ExodusGame.resources = loader
             val savedString = window.localStorage.getItem("savedgame")
             game = if (savedString != null) {
-                JsonSerializer.load(savedString)
+                try {
+                    JsonSerializer.load(savedString)
+                } catch (e: SerializationException) {
+                    console.error("Cannot load game, generating new game: ", e)
+                    ExodusGame()
+                }
             } else {
                 ExodusGame()
             }
