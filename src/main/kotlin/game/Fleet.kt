@@ -201,9 +201,9 @@ class Fleet(
         }
     }
 
-    internal fun startCombat() {
+    internal fun startCombat(enemy: List<BattleGroup>) {
         check(blockedState == null) { "Cannot start combat when blocked" }
-        blockedState = BlockedState.Combat() // TODO combat strength
+        blockedState = BlockedState.Combat(Battle(this, enemy))
     }
 
     internal fun setHailed(hailed: BlockedState.Hailed) {

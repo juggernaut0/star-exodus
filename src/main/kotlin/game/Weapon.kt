@@ -28,11 +28,11 @@ class Accuracy private constructor(private val rangeArray: DoubleArray) {
     constructor(vararg accuracies: Double) : this(accuracies)
 
     init {
-        require(rangeArray.size <= 7) { "Cannot have range greater than 7" } // TODO combat size constant?
+        require(rangeArray.size <= Battle.BATTLE_SIZE) { "Cannot have range greater than ${Battle.BATTLE_SIZE}" }
     }
 
-    fun atRange(range: Int): Double = if (range in rangeArray.indices) rangeArray[range] else 0.0
-    fun atOptimalRange(): Double = atRange(optimalRange)
+    fun atDistance(distance: Int): Double = if (distance in rangeArray.indices) rangeArray[distance] else 0.0
+    fun atOptimalDistance(): Double = atDistance(optimalRange)
 
     val minRange: Int get() = rangeArray.indexOfFirst { it > 0 }
     val maxRange: Int get() = rangeArray.indexOfLast { it > 0 }

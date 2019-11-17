@@ -7,6 +7,7 @@ inline fun MarkupBuilder.row(block: MarkupBuilder.() -> Unit) = div(classes("row
 inline fun MarkupBuilder.col3(block: MarkupBuilder.() -> Unit) = div(classes("col-3"), block)
 inline fun MarkupBuilder.col4(block: MarkupBuilder.() -> Unit) = div(classes("col-4"), block)
 inline fun MarkupBuilder.col6(block: MarkupBuilder.() -> Unit) = div(classes("col-6"), block)
+inline fun MarkupBuilder.col8(block: MarkupBuilder.() -> Unit) = div(classes("col-8"), block)
 inline fun MarkupBuilder.col9(block: MarkupBuilder.() -> Unit) = div(classes("col-9"), block)
 inline fun MarkupBuilder.col12(block: MarkupBuilder.() -> Unit) = div(classes("col-12"), block)
 inline fun MarkupBuilder.colMd3(block: MarkupBuilder.() -> Unit) = div(classes("col-md-3"), block)

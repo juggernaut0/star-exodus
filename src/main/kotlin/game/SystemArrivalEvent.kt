@@ -7,7 +7,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
     NOTHING(30),
     ATTACKED(12) {
         override fun execute(fleet: Fleet) {
-            fleet.startCombat()
+            fleet.startCombat(emptyList()) // TODO combat strength
         }
     },
     PIRATES(6) {
@@ -16,7 +16,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
         }
 
         override fun execute(fleet: Fleet) {
-            fleet.startCombat()
+            fleet.startCombat(emptyList()) // TODO combat strength
         }
     },
     BANDITS(6) {
@@ -40,7 +40,7 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
         override fun onTimerFinished(fleet: Fleet) {
             fleet.currentLocation.threatRate = 0.1
             fleet.currentLocation.threat = 0.5
-            fleet.startCombat()
+            fleet.startCombat(emptyList()) // TODO combat strength
         }
     },
     DISTRESS_SIGNAL(10) {
@@ -88,7 +88,8 @@ enum class SystemArrivalEvent(private val genWeight: Int) {
                 PlanetFeature.COLONIZED_MOON,
                 PlanetFeature.SMALL_COLONY,
                 PlanetFeature.LARGE_COLONY,
-                PlanetFeature.HEAVILY_SETTLED)
+                PlanetFeature.HEAVILY_SETTLED
+        )
 
         private val habitable = setOf(
                 PlanetType.ARID,

@@ -25,3 +25,11 @@ fun StarSystem.toView() = StarView(this)
 fun StarSequence.StarTarget.toView() = StarView(star, distance)
 
 fun Inventory.toView() = items.map { (ii, c) -> InventoryContents(ii, c) }
+
+fun pluralize(word: String, count: Int): String {
+    return when {
+        count == 1 -> word
+        word.endsWith("s") -> word + "es"
+        else -> word + "s"
+    }
+}

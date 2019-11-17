@@ -5,11 +5,12 @@ import serialization.RefLoader
 import serialization.RefSaver
 import serialization.Serializer
 
-class BattleGroup internal constructor(val name: String, ships: List<Ship>) {
+class BattleGroup internal constructor(val name: String, ships: List<Ship>, val enemy: Boolean = false) {
     constructor(name: String) : this(name, emptyList())
 
     private val _ships = ships.toMutableList()
     val ships: List<Ship> get() = _ships
+    val speed: Int get() = _ships.maxBy { it.speed }?.speed ?: 0
 
     fun transferShip(ship: Ship, target: BattleGroup) {
         _ships.remove(ship)
@@ -19,6 +20,10 @@ class BattleGroup internal constructor(val name: String, ships: List<Ship>) {
     fun abandonShip(ship: Ship) {
         check(ship in ships) { "ship must be in this group" }
         _ships.remove(ship)
+    }
+
+    internal fun cleanupDestroyed() {
+        _ships.removeAll { it.destroyed }
     }
 
     object Serial : Serializer<BattleGroup, Serial.Data> {

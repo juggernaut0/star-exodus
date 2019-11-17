@@ -77,8 +77,8 @@ class ShipWeaponsPanel(private val gameService: GameService, ship: ShipView) : C
                         }
                         h6 { +"Accuracy Profile:" }
                         div(classes("accuracy-box")) {
-                            for (i in 0..6) {
-                                val h = (weapon.accuracy.atRange(i) * 100).roundToInt()
+                            for (d in 0..6) {
+                                val h = (weapon.accuracy.atDistance(d) * 100).roundToInt()
                                 div(classes("accuracy-bar-label")) {
                                     div(Props(classes = listOf("accuracy-bar"), attrs = mapOf("style" to "height: $h%;"))) { }
                                     span(classes("position-absolute", "w-100", "text-center")) { +"$h%" }

@@ -5,7 +5,12 @@ import kotlin.math.ln
 object Random {
     private val rand = kotlin.random.Random.Default
 
-    fun chance(chance: Double): Boolean = rand.nextDouble() < chance
+    fun chance(p: Double): Boolean = rand.nextDouble() < p
+    fun chances(p: Double, times: Int): Int {
+        var r = 0
+        repeat(times) { if (chance(p)) r += 1 }
+        return r
+    }
 
     fun range(upper: Int) = rand.nextInt(upper)
     fun range(upper: Double) = rand.nextDouble(upper)

@@ -142,6 +142,10 @@ class Ship(
         }
     }
 
+    internal fun damage(amt: Int) {
+        modHullPoints(-amt)
+    }
+
     private fun changePop(rate: Double, increase: Boolean): Int {
         val chance = (crew * (rate/365000.0) * Random.normal(1.0, 0.5)).coerceAtLeast(0.0)
         val whole = floor(chance).toInt()

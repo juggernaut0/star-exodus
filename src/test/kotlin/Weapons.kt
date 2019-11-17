@@ -1,22 +1,9 @@
-import game.Accuracy
-import game.Ship
-import game.ShipClass
-import game.Weapon
+import game.*
 import util.toPrecision
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 import kotlin.test.Test
 
 class Weapons {
-    private fun chanceToHit(weapon: Weapon, target: Ship): Double {
-        return (weapon.tracking.toDouble() / target.speed).coerceAtMost(1.0) * weapon.accuracy.atOptimalRange()
-    }
-
-    private fun approxDamage(weapon: Weapon, target: Ship): Double {
-        val chanceToHit = chanceToHit(weapon, target)
-        return weapon.damage * weapon.salvo * chanceToHit
-    }
-
     private fun ttk(dmg: Double, target: Ship): Int {
         return ceil(target.maxHull / dmg).toInt()
     }
@@ -35,7 +22,7 @@ class Weapons {
     }
 
     private infix fun Weapon.vs(target: Ship): String {
-        val dmg = approxDamage(this, target)
+        val dmg = Battle.approxDamage(this, target)
         val ttk = ttk(dmg, target)
         return "${dmg.toPrecision(4)} "+"($ttk)".padStart(5)
     }

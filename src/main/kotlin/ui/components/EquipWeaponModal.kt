@@ -2,6 +2,7 @@ package ui.components
 
 import game.Weapon
 import kui.*
+import ui.WeaponView
 import kotlin.js.Promise
 
 class EquipWeaponModal : Component() {
@@ -25,9 +26,4 @@ class EquipWeaponModal : Component() {
         }
     }
 
-    private class WeaponView(val weapon: Weapon) {
-        override fun toString(): String {
-            return weapon.displayName
-        }
-    }
 }
