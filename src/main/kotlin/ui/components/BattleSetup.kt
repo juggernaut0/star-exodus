@@ -18,7 +18,7 @@ class BattleSetup(private val gameService: GameService, private val combatSimTab
 
     private fun startCombat() {
         gameService.game.fleet.startCombat(enemyGroups.map { it.toBattleGroup() })
-        combatSimTab.state = CombatView(gameService)
+        combatSimTab.state = CombatView(gameService, combatSimTab)
     }
 
     override fun render() {

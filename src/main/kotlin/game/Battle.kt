@@ -1,28 +1,35 @@
 package game
 
+import kotlinx.serialization.Serializable
+import serialization.RefLoader
+import serialization.RefSaver
+import serialization.Serializer
 import util.Deque
 import util.Event
 import util.EventEmitter
 import util.Random
 import kotlin.math.abs
 import kotlin.math.roundToInt
-
-class Battle(private val fleet: Fleet, enemy: List<BattleGroup>) : EventEmitter<Battle>() {
-    init {
+class Battle private constructor(
+        private val _zones: Array<MutableList<BattleGroup>>,
+        private val initiativeOrder: Deque<BattleGroup>,
+        private val initiativePoints: MutableMap<BattleGroup, Int>
+) : EventEmitter<Battle>() {
+    constructor(fleet: List<BattleGroup>, enemy: List<BattleGroup>) : this(
+            _zones = Array(BATTLE_SIZE) {
+                when(it) {
+                    0 -> enemy.toMutableList()
+                    BATTLE_SIZE - 1 -> fleet.toMutableList()
+                    else -> mutableListOf()
+                }
+            },
+            initiativeOrder = Deque((fleet + enemy).sortedBy { it.speed }),
+            initiativePoints = (fleet + enemy).associateWithTo(mutableMapOf()) { 0 }
+    ) {
         require(enemy.isNotEmpty()) { "Enemy cannot be empty" }
     }
 
-    private val _zones: Array<MutableList<BattleGroup>> = Array(BATTLE_SIZE) {
-        when(it) {
-            0 -> enemy.toMutableList()
-            BATTLE_SIZE - 1 -> fleet.groups.toMutableList()
-            else -> mutableListOf()
-        }
-    }
     val zones: List<List<BattleGroup>> get() = _zones.asList()
-
-    private val initiativeOrder: Deque<BattleGroup> = Deque((fleet.groups + enemy).sortedBy { it.speed })
-    private val initiativePoints: MutableMap<BattleGroup, Int> = initiativeOrder.associateWithTo(mutableMapOf()) { 0 }
     val turnOrder: List<BattleGroup> get() = initiativeOrder.toList() // TODO calculate actual order
     val currentGroup: BattleGroup get() = initiativeOrder.first()
 
@@ -147,6 +154,7 @@ class Battle(private val fleet: Fleet, enemy: List<BattleGroup>) : EventEmitter<
         private fun List<Int>.minmax(): IntRange? = if (isEmpty()) null else min()!!..max()!!
     }
 
+    @Suppress("unused")
     enum class Tactic(val displayName: String, val needsTarget: Boolean = true) {
         EVASIVE_MANEUVERS("Evasive Maneuvers", needsTarget = false) {
             override fun execute(battle: Battle, group: BattleGroup, target: BattleGroup?) {
@@ -171,5 +179,30 @@ class Battle(private val fleet: Fleet, enemy: List<BattleGroup>) : EventEmitter<
         ;
 
         abstract fun execute(battle: Battle, group: BattleGroup, target: BattleGroup?)
+    }
+
+    object Serial : Serializer<Battle, Serial.Data> {
+        @Serializable
+        class Data(
+                val zones: List<List<Int>>,
+                val initiativeOrder: List<Int>,
+                val initiativePoints: Map<Int, Int>
+        )
+
+        override fun save(model: Battle, refs: RefSaver): Data {
+            return Data(
+                    zones = model._zones.map { z -> z.map { refs.saveBattleGroupRef(it) } },
+                    initiativeOrder = model.initiativeOrder.map { refs.saveBattleGroupRef(it) },
+                    initiativePoints = model.initiativePoints.mapKeys { refs.saveBattleGroupRef(it.key) }
+            )
+        }
+
+        override fun load(data: Data, refs: RefLoader): Battle {
+            return Battle(
+                    _zones = data.zones.map { z -> z.mapTo(mutableListOf()) { refs.loadBattleGroupRef(it) } }.toTypedArray(),
+                    initiativeOrder = Deque(data.initiativeOrder.map { refs.loadBattleGroupRef(it) }),
+                    initiativePoints = data.initiativePoints.mapKeysTo(mutableMapOf()) { refs.loadBattleGroupRef(it.key) }
+            )
+        }
     }
 }

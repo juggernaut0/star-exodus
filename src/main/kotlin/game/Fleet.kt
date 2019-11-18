@@ -17,7 +17,8 @@ class Fleet(
         private var ftlCooldownProgress: Int = 0,
         var gatherFocus: GatherFocus = GatherFocus.NONE,
         private val timers: MutableMap<SystemArrivalEvent, Int> = mutableMapOf(),
-        private val spareWeapons: Counter<Weapon> = Counter()
+        private val spareWeapons: Counter<Weapon> = Counter(),
+        blockedState: BlockedState? = null
 ) : EventEmitter<Fleet>() {
     private val _groups = groups.toMutableList()
     val groups: List<BattleGroup> get() = _groups
@@ -32,8 +33,7 @@ class Fleet(
     val isFtlReady get() = ftlCooldownTimeRemaining == 0
     val ftlTargetDestination get() = ftlTargetIndex?.let { galaxy.main.next[it] }
 
-    // TODO serialize combat state
-    var blockedState: BlockedState? = null
+    var blockedState: BlockedState? = blockedState
         private set
 
     val onArrive = event<Fleet, ArriveEventArgs>()
@@ -203,7 +203,7 @@ class Fleet(
 
     internal fun startCombat(enemy: List<BattleGroup>) {
         check(blockedState == null) { "Cannot start combat when blocked" }
-        blockedState = BlockedState.Combat(Battle(this, enemy))
+        blockedState = BlockedState.Combat(Battle(groups, enemy))
     }
 
     internal fun setHailed(hailed: BlockedState.Hailed) {
@@ -317,36 +317,39 @@ class Fleet(
     object Serial : Serializer<Fleet, Serial.Data> {
         @Serializable
         class Data(
-                val groups: List<BattleGroup.Serial.Data>,
+                val groups: List<Int>,
                 val galaxy: Galaxy.Serial.Data,
                 val ftlTargetIndex: Int?,
                 val ftlWarmupProgress: Int,
                 val ftlCooldownProgress: Int,
                 val gatherFocus: GatherFocus,
-                val spareWeapons: Map<Weapon, Int>
+                val spareWeapons: Map<Weapon, Int>,
+                val blockedState: BlockedState.Serial.Data?
         )
 
         override fun save(model: Fleet, refs: RefSaver): Data {
             return Data(
-                    model.groups.map { BattleGroup.Serial.save(it, refs) },
+                    model.groups.map { refs.saveBattleGroupRef(it) },
                     Galaxy.Serial.save(model.galaxy, refs),
                     model.ftlTargetIndex,
                     model.ftlWarmupProgress,
                     model.ftlCooldownProgress,
                     model.gatherFocus,
-                    model.spareWeapons.asMap()
+                    model.spareWeapons.asMap(),
+                    blockedState = model.blockedState?.let { BlockedState.Serial.save(it, refs) }
             )
         }
 
         override fun load(data: Data, refs: RefLoader): Fleet {
             return Fleet(
-                    data.groups.map { BattleGroup.Serial.load(it, refs) },
+                    data.groups.map { refs.loadBattleGroupRef(it) },
                     Galaxy.Serial.load(data.galaxy, refs),
                     data.ftlTargetIndex,
                     data.ftlWarmupProgress,
                     data.ftlCooldownProgress,
                     data.gatherFocus,
-                    spareWeapons = Counter(data.spareWeapons)
+                    spareWeapons = Counter(data.spareWeapons),
+                    blockedState = data.blockedState?.let { BlockedState.Serial.load(it, refs) }
             )
         }
     }

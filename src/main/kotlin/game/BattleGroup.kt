@@ -30,15 +30,16 @@ class BattleGroup internal constructor(val name: String, ships: List<Ship>, val 
         @Serializable
         class Data(
                 val name: String,
-                val ships: List<Int>
+                val ships: List<Ship.Serial.Data>,
+                val enemy: Boolean
         )
 
         override fun save(model: BattleGroup, refs: RefSaver): Data {
-            return Data(model.name, model._ships.map { refs.saveShipRef(it) })
+            return Data(model.name, model._ships.map { Ship.Serial.save(it, refs) }, model.enemy)
         }
 
         override fun load(data: Data, refs: RefLoader): BattleGroup {
-            return BattleGroup(data.name, data.ships.map { refs.loadShipRef(it) })
+            return BattleGroup(data.name, data.ships.map { Ship.Serial.load(it, refs) }, data.enemy)
         }
     }
 }
