@@ -3,22 +3,34 @@ package ui.components
 import kui.*
 import ui.GameService
 
-class StarExodusApp(private val svc: GameService) : Component() {
+class StarExodusApp(private val gameService: GameService) : Component() {
+    init {
+        gameService.onViewStateChange += { _, _ -> render() }
+    }
+
     override fun render() {
         markup().div(classes("container-fluid")) {
-            component(GlobalDisplayPanel(svc))
-            ul(classes("nav", "nav-tabs")) {
-                tab("Log", href = "#main", active = true)
-                tab("Fleet", href = "#fleet")
-                tab("Star System", href = "#star")
-                tab("Combat Sim", href = "#combat")
-            }
+            component(GlobalDisplayPanel(gameService))
 
-            div(classes("tab-content")) {
-                div(Props(id = "main", classes = listOf("tab-pane", "active"))) { component(LogTabComponent(svc)) }
-                div(Props(id = "fleet", classes = listOf("tab-pane"))) { component(FleetTabComponent(svc)) }
-                div(Props(id = "star", classes = listOf("tab-pane"))) { component(StarTabComponent(svc)) }
-                div(Props(id = "combat", classes = listOf("tab-pane"))) { component(CombatSimTab(svc)) }
+            when (gameService.viewState) {
+                GameService.ViewState.MAIN -> {
+                    ul(classes("nav", "nav-tabs")) {
+                        tab("Log", href = "#main", active = true)
+                        tab("Fleet", href = "#fleet")
+                        tab("Star System", href = "#star")
+                        tab("Combat Sim", href = "#combat")
+                    }
+
+                    div(classes("tab-content")) {
+                        div(Props(id = "main", classes = listOf("tab-pane", "active"))) { component(LogTabComponent(gameService)) }
+                        div(Props(id = "fleet", classes = listOf("tab-pane"))) { component(FleetTabComponent(gameService)) }
+                        div(Props(id = "star", classes = listOf("tab-pane"))) { component(StarTabComponent(gameService)) }
+                        div(Props(id = "combat", classes = listOf("tab-pane"))) { component(CombatSimTab(gameService)) }
+                    }
+                }
+                GameService.ViewState.COMBAT -> {
+                    component(CombatView(gameService))
+                }
             }
         }
     }

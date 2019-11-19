@@ -21,6 +21,13 @@ class GameService : EventEmitter<GameService>() {
     lateinit var currentSystem: StarView
         private set
 
+    val onViewStateChange = event<GameService, ViewState>()
+    var viewState: ViewState = ViewState.MAIN
+        set(value) {
+            field = value
+            onViewStateChange(value)
+        }
+
     init {
         window.onbeforeunload = { if (!saveCleared) saveGame(); null }
     }
@@ -68,4 +75,6 @@ class GameService : EventEmitter<GameService>() {
     private fun setCurrentSystem() {
         currentSystem = game.fleet.currentLocation.toView()
     }
+
+    enum class ViewState { MAIN, COMBAT }
 }

@@ -1,14 +1,14 @@
 package ui.components
 
-import game.BlockedState
 import kui.Component
-import kui.renderOnSet
 import ui.GameService
 
-class CombatSimTab(gameService: GameService) : Component() {
-    var state: Component by renderOnSet(if (gameService.game.fleet.blockedState is BlockedState.Combat) CombatView(gameService, this) else BattleSetup(gameService, this))
-
+class CombatSimTab(private val gameService: GameService) : Component() {
     override fun render() {
-        markup().component(state)
+        if (gameService.game.fleet.blockedState != null) {
+            markup().p { +"Combat is in progress" }
+        } else {
+            markup().component(BattleSetup(gameService))
+        }
     }
 }

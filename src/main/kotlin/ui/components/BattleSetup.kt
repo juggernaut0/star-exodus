@@ -6,7 +6,7 @@ import game.ShipClass
 import kui.*
 import ui.*
 
-class BattleSetup(private val gameService: GameService, private val combatSimTab: CombatSimTab) : Component() {
+class BattleSetup(private val gameService: GameService) : Component() {
     private val enemyGroups: MutableList<GroupInProgress> = mutableListOf()
     private var counter = 1
 
@@ -18,7 +18,7 @@ class BattleSetup(private val gameService: GameService, private val combatSimTab
 
     private fun startCombat() {
         gameService.game.fleet.startCombat(enemyGroups.map { it.toBattleGroup() })
-        combatSimTab.state = CombatView(gameService, combatSimTab)
+        gameService.viewState = GameService.ViewState.COMBAT
     }
 
     override fun render() {

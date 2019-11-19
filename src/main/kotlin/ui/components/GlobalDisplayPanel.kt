@@ -1,5 +1,6 @@
 package ui.components
 
+import game.BlockedState
 import game.InventoryItem
 import kui.Component
 import kui.Props
@@ -52,12 +53,12 @@ class GlobalDisplayPanel(private val gameService: GameService) : Component() {
                                     +"Next Day"
                                 }
                             }
-                            gameService.game.inCombat -> {
-                                button(Props(classes = bsBtn("danger"), click = { gameService.game.fleet.endBlocker(); render() })) {
+                            gameService.game.inCombat && gameService.viewState == GameService.ViewState.MAIN -> {
+                                button(Props(classes = bsBtn("danger"), click = { gameService.viewState = GameService.ViewState.COMBAT })) {
                                     +"Start Combat"
                                 }
                             }
-                            else -> {
+                            gameService.game.fleet.blockedState is BlockedState.Hailed -> {
                                 button(Props(classes = bsBtn("warning"), click = { gameService.game.fleet.endBlocker(); render() })) {
                                     +"Answer Hail"
                                 }

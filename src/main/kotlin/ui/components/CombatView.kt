@@ -7,7 +7,7 @@ import kui.*
 import ui.*
 import util.Event
 
-class CombatView(private val gameService: GameService, private val combatSimTab: CombatSimTab) : Component() {
+class CombatView(private val gameService: GameService) : Component() {
     private val battle: Battle get() = (gameService.game.fleet.blockedState as BlockedState.Combat).battle
     private var hoveredGroup: BattleGroup? by renderOnSet(null)
     private var selectedTactic: TacticView by renderOnSet(TacticView(Battle.Tactic.EVASIVE_MANEUVERS))
@@ -15,7 +15,7 @@ class CombatView(private val gameService: GameService, private val combatSimTab:
     private val combatLog: MutableList<String> = mutableListOf()
 
     init {
-        battle.onCombatEvent.plusAssign(Event.Handler(this) { _, msg ->
+        battle.onCombatEvent.plusAssign(Event.Handler(this::class) { _, msg ->
             combatLog.add(msg)
         })
     }
@@ -23,12 +23,8 @@ class CombatView(private val gameService: GameService, private val combatSimTab:
     private fun executeOrder/*66*/() {
         combatLog.clear()
         battle.executeTurn(selectedTactic.tactic, selectedTarget)
-        if (battle.finished) {
-            combatSimTab.state = BattleSetup(gameService, combatSimTab)
-        } else {
-            selectedTactic = TacticView(Battle.Tactic.EVASIVE_MANEUVERS)
-            selectedTarget = null
-        }
+        selectedTactic = TacticView(Battle.Tactic.EVASIVE_MANEUVERS)
+        selectedTarget = null
     }
 
     private fun MarkupBuilder.groupCard(group: BattleGroup) {
@@ -84,49 +80,58 @@ class CombatView(private val gameService: GameService, private val combatSimTab:
     override fun render() {
         val battle = battle
         markup().row {
-            col6 {
-                div(classes("list-group")) {
-                    for (i in 0 until Battle.BATTLE_SIZE) {
-                        div(classes("list-group-item", "battle-zone")) {
-                            for (group in battle.zones[i]) {
-                                groupCard(group)
+            if (battle.finished) {
+                p { +"The battle is finished." }
+                // TODO stats?
+                button(Props(
+                        classes = listOf("btn", "btn-primary"),
+                        click = { gameService.viewState = GameService.ViewState.MAIN }
+                )) { +"Return to Fleet" }
+            } else {
+                col6 {
+                    div(classes("list-group")) {
+                        for (i in 0 until Battle.BATTLE_SIZE) {
+                            div(classes("list-group-item", "battle-zone")) {
+                                for (group in battle.zones[i]) {
+                                    groupCard(group)
+                                }
                             }
                         }
                     }
                 }
-            }
-            col6 {
-                div(classes("card", "mb-2")) {
-                    h5(classes("card-header")) { +"Awaiting orders" }
-                    groupDetails(battle.currentGroup)
-                    div(classes("card-footer")) {
-                        val disabled = selectedTactic.tactic.needsTarget && selectedTarget == null
-                        div(classes("d-flex")) {
-                            select(classes("form-control", "mr-1"),
-                                    options = Battle.Tactic.values().map { TacticView(it) },
-                                    model = ::selectedTactic)
-                            button(Props(
-                                    classes = listOf("btn", "btn-warning"),
-                                    disabled = disabled,
-                                    click = { executeOrder() }
-                            )) { +"Execute" }
-                        }
-                        if (disabled) {
-                            span(classes("text-danger")) { +"You must select a target." }
+                col6 {
+                    div(classes("card", "mb-2")) {
+                        h5(classes("card-header")) { +"Awaiting orders" }
+                        groupDetails(battle.currentGroup)
+                        div(classes("card-footer")) {
+                            val disabled = selectedTactic.tactic.needsTarget && selectedTarget == null
+                            div(classes("d-flex")) {
+                                select(classes("form-control", "mr-1"),
+                                        options = Battle.Tactic.values().map { TacticView(it) },
+                                        model = ::selectedTactic)
+                                button(Props(
+                                        classes = listOf("btn", "btn-warning"),
+                                        disabled = disabled,
+                                        click = { executeOrder() }
+                                )) { +"Execute" }
+                            }
+                            if (disabled) {
+                                span(classes("text-danger")) { +"You must select a target." }
+                            }
                         }
                     }
-                }
-                (hoveredGroup ?: selectedTarget)?.let {
-                    div(classes("card")) {
-                        h5(classes("card-header")) { +"Target" }
-                        groupDetails(it)
+                    (hoveredGroup ?: selectedTarget)?.let {
+                        div(classes("card")) {
+                            h5(classes("card-header")) { +"Target" }
+                            groupDetails(it)
+                        }
                     }
-                }
-                if (combatLog.isNotEmpty()) {
-                    div(classes("list-group")) {
-                        for (item in combatLog) {
-                            div(classes("list-group-item")) {
-                                +item
+                    if (combatLog.isNotEmpty()) {
+                        div(classes("list-group")) {
+                            for (item in combatLog) {
+                                div(classes("list-group-item")) {
+                                    +item
+                                }
                             }
                         }
                     }
