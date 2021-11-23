@@ -103,7 +103,7 @@ class BattleSetup(private val gameService: GameService) : Component() {
         }
 
         fun toBattleGroup(): BattleGroup {
-            return BattleGroup(name, ships, enemy = true)
+            return BattleGroup(name, ships, isEnemy = true)
         }
     }
 }

@@ -5,7 +5,7 @@ import serialization.RefLoader
 import serialization.RefSaver
 import serialization.Serializer
 
-class BattleGroup internal constructor(val name: String, ships: List<Ship>, val enemy: Boolean = false) {
+class BattleGroup internal constructor(val name: String, ships: List<Ship>, val isEnemy: Boolean = false) {
     constructor(name: String) : this(name, emptyList())
 
     private val _ships = ships.toMutableList()
@@ -35,7 +35,7 @@ class BattleGroup internal constructor(val name: String, ships: List<Ship>, val 
         )
 
         override fun save(model: BattleGroup, refs: RefSaver): Data {
-            return Data(model.name, model._ships.map { Ship.Serial.save(it, refs) }, model.enemy)
+            return Data(model.name, model._ships.map { Ship.Serial.save(it, refs) }, model.isEnemy)
         }
 
         override fun load(data: Data, refs: RefLoader): BattleGroup {

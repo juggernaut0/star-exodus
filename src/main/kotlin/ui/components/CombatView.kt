@@ -22,14 +22,18 @@ class CombatView(private val gameService: GameService) : Component() {
 
     private fun executeOrder/*66*/() {
         combatLog.clear()
-        battle.executeTurn(selectedTactic.tactic, selectedTarget)
+        if (battle.isEnemyTurn) {
+            battle.executeEnemyTurn()
+        } else {
+            battle.executePlayerTurn(selectedTactic.tactic, selectedTarget)
+        }
         selectedTactic = TacticView(Battle.Tactic.EVASIVE_MANEUVERS)
         selectedTarget = null
     }
 
     private fun MarkupBuilder.groupCard(group: BattleGroup) {
         div(Props(
-                classes = listOf("card", "battle-group", if (group.enemy) "battle-group-enemy" else "battle-group-ally"),
+                classes = listOf("card", "battle-group", if (group.isEnemy) "battle-group-enemy" else "battle-group-ally"),
                 mouseenter = { hoveredGroup = group },
                 mouseleave = { hoveredGroup = null },
                 click = { selectedTarget = if (selectedTarget == group) null else group }
@@ -104,19 +108,28 @@ class CombatView(private val gameService: GameService) : Component() {
                         h5(classes("card-header")) { +"Awaiting orders" }
                         groupDetails(battle.currentGroup)
                         div(classes("card-footer")) {
-                            val disabled = selectedTactic.tactic.needsTarget && selectedTarget == null
-                            div(classes("d-flex")) {
-                                select(classes("form-control", "mr-1"),
-                                        options = Battle.Tactic.values().map { TacticView(it) },
-                                        model = ::selectedTactic)
+                            if (battle.isEnemyTurn) {
                                 button(Props(
                                         classes = listOf("btn", "btn-warning"),
-                                        disabled = disabled,
                                         click = { executeOrder() }
-                                )) { +"Execute" }
-                            }
-                            if (disabled) {
-                                span(classes("text-danger")) { +"You must select a target." }
+                                )) {
+                                    +"Next turn"
+                                }
+                            } else {
+                                val disabled = selectedTactic.tactic.needsTarget && selectedTarget == null
+                                div(classes("d-flex")) {
+                                    select(classes("form-control", "mr-1"),
+                                            options = Battle.Tactic.values().map { TacticView(it) },
+                                            model = ::selectedTactic)
+                                    button(Props(
+                                            classes = listOf("btn", "btn-warning"),
+                                            disabled = disabled,
+                                            click = { executeOrder() }
+                                    )) { +"Execute" }
+                                }
+                                if (disabled) {
+                                    span(classes("text-danger")) { +"You must select a target." }
+                                }
                             }
                         }
                     }

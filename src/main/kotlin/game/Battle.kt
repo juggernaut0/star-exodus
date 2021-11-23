@@ -32,6 +32,7 @@ class Battle private constructor(
     val zones: List<List<BattleGroup>> get() = _zones.asList()
     val turnOrder: List<BattleGroup> get() = initiativeOrder.toList() // TODO calculate actual order
     val currentGroup: BattleGroup get() = initiativeOrder.first()
+    val isEnemyTurn: Boolean get() = currentGroup.isEnemy
 
     var finished = false
         private set
@@ -42,11 +43,21 @@ class Battle private constructor(
         advanceTurn()
     }
 
-    fun executeTurn(tactic: Tactic, target: BattleGroup?) {
-        // TODO AI
-        require(!tactic.needsTarget || target != null) { "$tactic requires a target" }
+    fun executePlayerTurn(tactic: Tactic, target: BattleGroup?) {
+        check(!isEnemyTurn) { "It must be the players turn" }
+        executeTurn(tactic, target)
+    }
+
+    fun executeEnemyTurn() {
+        check(isEnemyTurn) { "It must be the enemy's turn" }
+        val (tactic, target) = BattleAI.selectTactic(this)
+        executeTurn(tactic, target)
+    }
+
+    private fun executeTurn(tactic: Tactic, target: BattleGroup?) {
         val group = currentGroup
         check(initiativePoints.getValue(group) >= POINTS_TO_EXECUTE) { "group must have enough points" }
+        require(!tactic.needsTarget || target != null) { "$tactic requires a target" }
         tactic.execute(this, group, target)
         if (checkVictory()) {
             finished = true
@@ -70,7 +81,7 @@ class Battle private constructor(
     }
 
     private fun checkVictory(): Boolean {
-        return zones.flatten().all { !it.enemy }
+        return zones.flatten().all { !it.isEnemy }
     }
 
     // Positive amt = group moving "forward" = zone index decreasing
@@ -106,7 +117,7 @@ class Battle private constructor(
                 onCombatEvent(msg)
 
                 if (target.ships.isEmpty()) {
-                    if (!target.enemy) {
+                    if (!target.isEnemy) {
                         TODO("remove group from Fleet")
                     }
                     removeGroup(target)
